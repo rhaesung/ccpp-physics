@@ -263,13 +263,13 @@
           qs1    = max(eps*qs1 / (prsl1(i) + epsm1*qs1), qmin)
           q0     = min(qs1, q0)
 
-!         if (fice(i) < cimin) then
-!           print *,'warning: ice fraction is low:', fice(i)
-!           fice(i) = cimin
-!           tice(i) = tgice
-!           tskin(i)= tgice
-!           print *,'fix ice fraction: reset it to:', fice(i)
-!         endif
+         if (fice(i) < cimin) then
+           print *,'warning: ice fraction is low:', fice(i)
+           fice(i) = cimin
+           tice(i) = tgice
+           tskin(i)= tgice
+           print *,'fix ice fraction: reset it to:', fice(i)
+         endif
           ffw(i)    = one - fice(i)
 
           qssi = fpvs(tice(i))

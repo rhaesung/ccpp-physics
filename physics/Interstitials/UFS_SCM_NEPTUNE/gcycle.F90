@@ -293,7 +293,7 @@ contains
             tslb(ix,ls) = STCFC1(ll)
             sh2o(ix,ls) = SLCFC1(ll)
           endif
-          if (ls<=kice) tiice(ix,ls) = STCFC1(ll)
+!          if (ls<=kice) tiice(ix,ls) = STCFC1(ll)
         enddo
       enddo
 !
