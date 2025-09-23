@@ -123,6 +123,22 @@ if(SCHEMES_DYNAMICS)
   list(REMOVE_ITEM SCHEMES ${SCHEMES_DYNAMICS})
 endif()
 
+#------------------------------------------------------------------------------
+# List of files for SAMFDEEP convection that need custom precision flags
+set(SCHEMES_SAMFDEEP)
+# This conditional check ensures your scheme is part of the build
+if(${LOCAL_CURRENT_SOURCE_DIR}/physics/samfdeep_convection_directory/your_samfdeep_scheme.F90 IN_LIST SCHEMES)
+  list(APPEND SCHEMES_SAMFDEEP ${LOCAL_CURRENT_SOURCE_DIR}/physics/samfdeep_convection_directory/your_samfdeep_scheme.F90)
+endif()
+# You can add more files here if your scheme has multiple source files
+
+# Apply the custom SAMFDEEP flags and remove these files from the general list
+if(SCHEMES_SAMFDEEP)
+  SET_PROPERTY(SOURCE ${SCHEMES_SAMFDEEP}
+                APPEND_STRING PROPERTY COMPILE_FLAGS " ${CMAKE_Fortran_FLAGS_SAMFDEEP}")
+  list(REMOVE_ITEM SCHEMES ${SCHEMES_SAMFDEEP})
+endif()
+
 # Remove files that need to be compiled without OpenMP from list
 # of files with standard compiler flags, and assign no-OpenMP flags
 if(SCHEMES_OPENMP_OFF)
