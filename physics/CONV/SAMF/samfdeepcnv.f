@@ -358,7 +358,7 @@ c
       do i=1,im
         cnvflg(i) = .true.
         if(do_mynnedmf) then
-            if(maxMF(i).gt.0.)cnvflg(i)=.false.
+            if(maxMF(i).gt.0._conv_wp)cnvflg(i)=.false.
         endif
         sfcpbl(i) = sfclfac * hpbl(i)
         rn(i)=0._conv_wp
@@ -1664,7 +1664,7 @@ c
 !
 !> - If the updraft cloud work function is negative, convection does not occur, and the scheme returns to the calling routine.
       do i = 1, im
-        if(cnvflg(i) .and. aa1(i) <= 0.) cnvflg(i) = .false.
+        if(cnvflg(i) .and. aa1(i) <= 0._conv_wp) cnvflg(i) = .false.
       enddo
 !!
       totflg = .true.
