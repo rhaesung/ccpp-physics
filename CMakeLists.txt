@@ -126,11 +126,25 @@ endif()
 #------------------------------------------------------------------------------
 # List of files for SAMFDEEP convection that need custom precision flags
 set(SCHEMES_SAMFDEEP)
-# This conditional check ensures your scheme is part of the build
-if(${LOCAL_CURRENT_SOURCE_DIR}/physics/samfdeep_convection_directory/your_samfdeep_scheme.F90 IN_LIST SCHEMES)
-  list(APPEND SCHEMES_SAMFDEEP ${LOCAL_CURRENT_SOURCE_DIR}/physics/samfdeep_convection_directory/your_samfdeep_scheme.F90)
+
+if(${LOCAL_CURRENT_SOURCE_DIR}/physics/CONV/SAMF/samfdeepcnv.f IN_LIST SCHEMES)
+  list(APPEND SCHEMES_SAMFDEEP ${LOCAL_CURRENT_SOURCE_DIR}/physics/CONV/SAMF/samfdeepcnv.f)
 endif()
-# You can add more files here if your scheme has multiple source files
+if(${LOCAL_CURRENT_SOURCE_DIR}/physics/CONV/SAMF/samfaerosols.F IN_LIST SCHEMES)
+  list(APPEND SCHEMES_SAMFDEEP ${LOCAL_CURRENT_SOURCE_DIR}/physics/CONV/SAMF/samfaerosols.F)
+endif()
+if(${LOCAL_CURRENT_SOURCE_DIR}/physics/CONV/progomega_calc.f90 IN_LIST SCHEMES)
+  list(APPEND SCHEMES_SAMFDEEP ${LOCAL_CURRENT_SOURCE_DIR}/physics/CONV/progomega_calc.f90)
+endif()
+if(${LOCAL_CURRENT_SOURCE_DIR}/physics/CONV/progsigma_calc.f90 IN_LIST SCHEMES)
+  list(APPEND SCHEMES_SAMFDEEP ${LOCAL_CURRENT_SOURCE_DIR}/physics/CONV/progsigma_calc.f90)
+endif()
+if(${LOCAL_CURRENT_SOURCE_DIR}/physics/Interstitials/UFS_SCM_NEPTUNE/GFS_DCNV_generic_pre.F90 IN_LIST SCHEMES)
+  list(APPEND SCHEMES_SAMFDEEP ${LOCAL_CURRENT_SOURCE_DIR}/physics/Interstitials/UFS_SCM_NEPTUNE/GFS_DCNV_generic_pre.F90)
+endif()
+if(${LOCAL_CURRENT_SOURCE_DIR}/physics/Interstitials/UFS_SCM_NEPTUNE/GFS_DCNV_generic_post.F90 IN_LIST SCHEMES)
+  list(APPEND SCHEMES_SAMFDEEP ${LOCAL_CURRENT_SOURCE_DIR}/physics/Interstitials/UFS_SCM_NEPTUNE/GFS_DCNV_generic_post.F90)
+endif()
 
 # Apply the custom SAMFDEEP flags and remove these files from the general list
 if(SCHEMES_SAMFDEEP)
