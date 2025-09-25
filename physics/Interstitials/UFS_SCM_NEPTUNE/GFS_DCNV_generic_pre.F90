@@ -3,6 +3,8 @@
 
       module GFS_DCNV_generic_pre
 
+      use mo_conv_kind, only : conv_wp 
+
       contains
 
 !> \brief Interstitial scheme called prior to any deep convective scheme to save state variables for calculating tendencies after the deep convective scheme is executed
@@ -18,7 +20,7 @@
                                          cscnv, satmedmf, trans_trac, ras, ntrac,        &
                                          dtidx, index_of_process_dcnv, errmsg, errflg)
 
-      use machine, only: kind_phys
+!      use machine, only: kind_phys
 
       implicit none
 
@@ -26,19 +28,19 @@
            ntcw,ntiw,ntclamt,ntrw,ntsw,ntrnc,ntsnc,ntgl,ntrac,ntgnc,nthl,nthnc,nthv,ntgv,  &
            ntrz, ntgz, nthz, ntsigma, ntomega
       logical, intent(in) :: ldiag3d, qdiag3d, do_cnvgwd, cplchm
-      real(kind=kind_phys), dimension(:,:),   intent(in)    :: gu0
-      real(kind=kind_phys), dimension(:,:),   intent(in)    :: gv0
-      real(kind=kind_phys), dimension(:,:),   intent(in)    :: gt0
-      real(kind=kind_phys), dimension(:,:,:), intent(inout) :: gq0
-      real(kind=kind_phys), dimension(:,:),   intent(inout) :: save_u
-      real(kind=kind_phys), dimension(:,:),   intent(inout) :: save_v
-      real(kind=kind_phys), dimension(:,:),   intent(inout) :: save_t
-      real(kind=kind_phys), dimension(:,:,:), intent(inout) :: save_q
+      real(kind=conv_wp), dimension(:,:),   intent(in)    :: gu0
+      real(kind=conv_wp), dimension(:,:),   intent(in)    :: gv0
+      real(kind=conv_wp), dimension(:,:),   intent(in)    :: gt0
+      real(kind=conv_wp), dimension(:,:,:), intent(inout) :: gq0
+      real(kind=conv_wp), dimension(:,:),   intent(inout) :: save_u
+      real(kind=conv_wp), dimension(:,:),   intent(inout) :: save_v
+      real(kind=conv_wp), dimension(:,:),   intent(inout) :: save_t
+      real(kind=conv_wp), dimension(:,:,:), intent(inout) :: save_q
       character(len=*), intent(out) :: errmsg
       integer, intent(out) :: errflg
       logical, intent(in) :: cscnv, satmedmf, trans_trac, ras
-      real(kind=kind_phys), parameter :: zero    = 0.0d0
-      real(kind=kind_phys), dimension(:,:,:), intent(in) :: clw
+      real(kind=conv_wp), parameter :: zero    = 0.0_conv_wp 
+      real(kind=conv_wp), dimension(:,:,:), intent(in) :: clw
 
       integer :: i, k, n, tracers
 

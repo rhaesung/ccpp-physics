@@ -1,6 +1,8 @@
 !>\file samfaerosols.F
 !!
       module samfcnv_aerosols
+      
+      use mo_conv_kind, only : conv_wp
 
       implicit none
 
@@ -15,7 +17,7 @@
      &  edto, xlamd, xmb, c0t, eta, etad, zi, xlamue, xlamud, delp,
      &  qtr, qaero)
 
-      use machine , only : kind_phys
+!      use machine , only : kind_phys
       use physcons, only : g => con_g, qamin
 
       implicit none
@@ -23,45 +25,45 @@
 c     -- input arguments
       integer,                                      intent(in) :: im,
      &  ix, km, itc, ntc, ntr
-      real(kind=kind_phys),                         intent(in) :: delt,
+      real(kind=conv_wp),                         intent(in) :: delt,
      &  xlamde, xlamdd
       logical,              dimension(im),          intent(in) :: cnvflg
       integer,              dimension(im),          intent(in) :: jmin,
      &  kb, kmax, kd94, ktcon
-      real(kind=kind_phys), dimension(im),          intent(in) :: edto,
+      real(kind=conv_wp), dimension(im),          intent(in) :: edto,
      &  xlamd, xmb
-      real(kind=kind_phys), dimension(ntc),         intent(in) :: fscav
-      real(kind=kind_phys), dimension(im,km),       intent(in) :: c0t,
+      real(kind=conv_wp), dimension(ntc),         intent(in) :: fscav
+      real(kind=conv_wp), dimension(im,km),       intent(in) :: c0t,
      &  eta, etad, zi, xlamue, xlamud
-      real(kind=kind_phys), dimension(ix,km),       intent(in) :: delp
-      real(kind=kind_phys), dimension(ix,km,ntr+2), intent(in) :: qtr
+      real(kind=conv_wp), dimension(ix,km),       intent(in) :: delp
+      real(kind=conv_wp), dimension(ix,km,ntr+2), intent(in) :: qtr
 c     -- output arguments
-      real(kind=kind_phys), dimension(im,km,ntc),   intent(out) :: qaero
+      real(kind=conv_wp), dimension(im,km,ntc),   intent(out) :: qaero
 
 c     -- local variables
 c     -- general variables
       integer :: i, indx, it, k, kk, km1, kp1, n
-      real(kind=kind_phys) :: adw, aup, dtime_max, dv1q, dv2q, dv3q,
+      real(kind=conv_wp) :: adw, aup, dtime_max, dv1q, dv2q, dv3q,
      &  dtovdz, dz, factor, ptem, ptem1, qamax, tem, tem1
-      real(kind=kind_phys), dimension(ix,km) :: xmbp
+      real(kind=conv_wp), dimension(ix,km) :: xmbp
 c     -- chemical transport variables
-      real(kind=kind_phys), dimension(im,km,ntc) :: ctro2, ecko2, ecdo2,
+      real(kind=conv_wp), dimension(im,km,ntc) :: ctro2, ecko2, ecdo2,
      &  dellae2
 c     -- additional variables for tracers for wet deposition,
-      real(kind=kind_phys), dimension(im,km,ntc) :: chem_c, chem_pw,
+      real(kind=conv_wp), dimension(im,km,ntc) :: chem_c, chem_pw,
      &  wet_dep
 c     -- if reevaporation is enabled, uncomment lines below
 c     real(kind=kind_phys), dimension(im,ntc) :: pwav
 c     real(kind=kind_phys), dimension(im,km) :: pwdper
 c     real(kind=kind_phys), dimension(im,km,ntr) :: chem_pwd
 c     -- additional variables for fct
-      real(kind=kind_phys), dimension(im,km) :: flx_lo, totlout, clipout
+      real(kind=conv_wp), dimension(im,km) :: flx_lo, totlout, clipout
 
-      real(kind=kind_phys), parameter :: one     = 1.0_kind_phys
-      real(kind=kind_phys), parameter :: half    = 0.5_kind_phys
-      real(kind=kind_phys), parameter :: quarter = 0.25_kind_phys
-      real(kind=kind_phys), parameter :: zero    = 0.0_kind_phys
-      real(kind=kind_phys), parameter :: epsil   = 1.e-22_kind_phys    ! prevent division by zero
+      real(kind=conv_wp), parameter :: one     = 1.0_conv_wp
+      real(kind=conv_wp), parameter :: half    = 0.5_conv_wp
+      real(kind=conv_wp), parameter :: quarter = 0.25_conv_wp
+      real(kind=conv_wp), parameter :: zero    = 0.0_conv_wp
+      real(kind=conv_wp), parameter :: epsil   = 1.e-22_conv_wp    ! prevent division by zero
 
 c     -- begin
 
@@ -342,7 +344,7 @@ c             time step / grid spacing
 c             total flux out
               totlout(i,k)=max(zero,flx_lo(i,kp1))-min(zero,flx_lo(i,k))
               clipout(i,k)=min(one ,qaero(i,k,n)/max(epsil,totlout(i,k))
-     &           / (1.0001_kind_phys*dtovdz))
+     &           / (1.0001_conv_wp*dtovdz))
             endif
           enddo
         enddo
@@ -414,7 +416,7 @@ c               add negative mass to wet deposition
      &  xmb, c0t, eta, zi, xlamue, xlamud, delp,
      &  qtr, qaero)
 
-      use machine , only : kind_phys
+      use machine , only : conv_wp
       use physcons, only : g => con_g, qamin
 
       implicit none
@@ -422,47 +424,47 @@ c               add negative mass to wet deposition
 c     -- input arguments
       integer,                                      intent(in) :: im,
      &  ix, km, itc, ntc, ntr
-      real(kind=kind_phys),                         intent(in) :: delt
+      real(kind=conv_wp),                         intent(in) :: delt
 !     &  xlamde, xlamdd
       logical,              dimension(im),          intent(in) :: cnvflg
 !     integer,              dimension(im),          intent(in) :: jmin,
       integer,              dimension(im),          intent(in) ::
      &  kb, kmax, kbcon, ktcon
-      real(kind=kind_phys), dimension(im),          intent(in) ::
+      real(kind=conv_wp), dimension(im),          intent(in) ::
      &  xmb, xlamud
-      real(kind=kind_phys), dimension(ntc),         intent(in) :: fscav
-      real(kind=kind_phys), dimension(im,km),       intent(in) :: c0t,
+      real(kind=conv_wp), dimension(ntc),         intent(in) :: fscav
+      real(kind=conv_wp), dimension(im,km),       intent(in) :: c0t,
      &  eta, zi, xlamue  !, xlamud
-      real(kind=kind_phys), dimension(ix,km),       intent(in) :: delp
-      real(kind=kind_phys), dimension(ix,km,ntr+2), intent(in) :: qtr
+      real(kind=conv_wp), dimension(ix,km),       intent(in) :: delp
+      real(kind=conv_wp), dimension(ix,km,ntr+2), intent(in) :: qtr
 c     -- output arguments
-      real(kind=kind_phys), dimension(im,km,ntc),   intent(out) :: qaero
+      real(kind=conv_wp), dimension(im,km,ntc),   intent(out) :: qaero
 
 c     -- local variables
 c     -- general variables
       integer :: i, indx, it, k, kk, km1, kp1, n
 !     real(kind=kind_phys) :: adw, aup, dtime_max, dv1q, dv2q, dv3q,
-      real(kind=kind_phys) :: aup, dtime_max, dv1q, dv2q, dv3q,
+      real(kind=conv_wp) :: aup, dtime_max, dv1q, dv2q, dv3q,
      &  dtovdz, dz, factor, ptem, ptem1, qamax, tem, tem1
-      real(kind=kind_phys), dimension(ix,km) :: xmbp
+      real(kind=conv_wp), dimension(ix,km) :: xmbp
 c     -- chemical transport variables
-      real(kind=kind_phys), dimension(im,km,ntc) :: ctro2,ecko2,dellae2
+      real(kind=conv_wp), dimension(im,km,ntc) :: ctro2,ecko2,dellae2
 c     -- additional variables for tracers for wet deposition,
-      real(kind=kind_phys), dimension(im,km,ntc) :: chem_c, chem_pw,
+      real(kind=conv_wp), dimension(im,km,ntc) :: chem_c, chem_pw,
      &  wet_dep
 c     -- if reevaporation is enabled, uncomment lines below
 c     real(kind=kind_phys), dimension(im,ntc) :: pwav
 c     real(kind=kind_phys), dimension(im,km) :: pwdper
 c     real(kind=kind_phys), dimension(im,km,ntr) :: chem_pwd
 c     -- additional variables for fct
-      real(kind=kind_phys), dimension(im,km) :: flx_lo, totlout, clipout
+      real(kind=conv_wp), dimension(im,km) :: flx_lo, totlout, clipout
 
-      real(kind=kind_phys), parameter :: one     = 1.0_kind_phys
-      real(kind=kind_phys), parameter :: half    = 0.5_kind_phys
-      real(kind=kind_phys), parameter :: quarter = 0.25_kind_phys
-      real(kind=kind_phys), parameter :: zero    = 0.0_kind_phys
-      real(kind=kind_phys), parameter :: epsil   = 1.e-22_kind_phys    ! prevent division by zero
-      real(kind=kind_phys), parameter :: escav   = 0.8_kind_phys       ! wet scavenging efficiency
+      real(kind=conv_wp), parameter :: one     = 1.0_conv_wp
+      real(kind=conv_wp), parameter :: half    = 0.5_conv_wp
+      real(kind=conv_wp), parameter :: quarter = 0.25_conv_wp
+      real(kind=conv_wp), parameter :: zero    = 0.0_conv_wp
+      real(kind=conv_wp), parameter :: epsil   = 1.e-22_conv_wp    ! prevent division by zero
+      real(kind=conv_wp), parameter :: escav   = 0.8_conv_wp       ! wet scavenging efficiency
 
 c     -- begin
 
@@ -747,7 +749,7 @@ c             time step / grid spacing
 c             total flux out
               totlout(i,k)=max(zero,flx_lo(i,kp1))-min(zero,flx_lo(i,k))
               clipout(i,k)=min(one ,qaero(i,k,n)/max(epsil,totlout(i,k))
-     &           / (1.0001_kind_phys*dtovdz))
+     &           / (1.0001_conv_wp*dtovdz))
             endif
           enddo
         enddo
