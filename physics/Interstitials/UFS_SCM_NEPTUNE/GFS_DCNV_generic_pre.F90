@@ -20,7 +20,7 @@
                                          cscnv, satmedmf, trans_trac, ras, ntrac,        &
                                          dtidx, index_of_process_dcnv, errmsg, errflg)
 
-!      use machine, only: kind_phys
+      use machine, only: kind_phys
 
       implicit none
 

@@ -21,7 +21,7 @@
       ntrac,clw,satmedmf, trans_trac, errmsg, errflg)
 
 
-!      use machine,               only: kind_phys
+      use machine,               only: kind_phys
 
       implicit none
 

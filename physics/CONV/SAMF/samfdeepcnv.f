@@ -89,7 +89,7 @@
      &    betascu,maxMF,do_mynnedmf,sigmab_coldstart,errmsg,errflg)
 
 !
-!     use machine , only : kind_phys
+      use machine , only : kind_phys
       use funcphys , only : fpvs
 
       implicit none

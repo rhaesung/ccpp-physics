@@ -17,7 +17,7 @@
      &  edto, xlamd, xmb, c0t, eta, etad, zi, xlamue, xlamud, delp,
      &  qtr, qaero)
 
-!      use machine , only : kind_phys
+      use machine , only : kind_phys
       use physcons, only : g => con_g, qamin
 
       implicit none
