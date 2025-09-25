@@ -1,7 +1,8 @@
 [ccpp-table-properties]
   name = GFS_DCNV_generic_pre
   type = scheme
-  dependencies = ../../hooks/machine.F
+  dependencies = ../../CONV/SAMF/mo_conv_kind.F90
+!  dependencies = ../../hooks/machine.F
 
 ########################################################################
 [ccpp-arg-table]
@@ -55,7 +56,7 @@
   units = m s-1
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = kind_phys
+  kind = conv_wp
   intent = in
 [gv0]
   standard_name = y_wind_of_new_state
@@ -63,7 +64,7 @@
   units = m s-1
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = kind_phys
+  kind = conv_wp
   intent = in
 [gt0]
   standard_name = air_temperature_of_new_state
@@ -71,7 +72,7 @@
   units = K
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = kind_phys
+  kind = conv_wp
   intent = in
 [gq0]
   standard_name = tracer_concentration_of_new_state
@@ -79,7 +80,7 @@
   units = kg kg-1
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_tracers)
   type = real
-  kind = kind_phys
+  kind = conv_wp
   intent = inout
 [nsamftrac]
   standard_name = number_of_tracers_for_samf
@@ -101,7 +102,7 @@
   units = m s-1
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = kind_phys
+  kind = conv_wp
   intent = inout
 [save_v]
   standard_name = y_wind_save
@@ -109,7 +110,7 @@
   units = m s-1
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = kind_phys
+  kind = conv_wp
   intent = inout
 [save_t]
   standard_name = air_temperature_save
@@ -117,7 +118,7 @@
   units = K
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = kind_phys
+  kind = conv_wp
   intent = inout
 [save_q]
   standard_name = tracer_concentration_save
@@ -125,7 +126,7 @@
   units = kg kg-1
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_tracers)
   type = real
-  kind = kind_phys
+  kind = conv_wp
   intent = inout
 [dtidx]
   standard_name = cumulative_change_of_state_variables_outer_index
@@ -301,7 +302,7 @@
   units = kg kg-1
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_tracers_for_convective_transport)
   type = real
-  kind = kind_phys
+  kind = conv_wp
   intent = in
 [ntrac]
   standard_name = number_of_tracers
