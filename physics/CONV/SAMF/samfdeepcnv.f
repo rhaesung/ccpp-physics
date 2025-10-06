@@ -45,7 +45,7 @@
 !! well as the convective cloud top height. The dynamic control is the
 !! determination of the potential energy available for convection to "consume",
 !! or how primed the large-scale environment is for convection to occur due to
-!! changes by the dyanmics of the host model. The feedback control is the
+!! changes by the dynamics of the host model. The feedback control is the
 !! determination of how the parameterized convection changes the large-scale
 !! environment (the host model state variables) given the changes to the state
 !! variables per unit cloud base mass flux calculated in the static control
@@ -53,8 +53,8 @@
 !! control.
 !!
 !! For grid sizes smaller than threshold value, the cloud base mass flux in the
-!! SAMF scheme is determined by the cumulus updraft velocity averaged ove the
-!! whole cloud depth (Han et al. (2017) \cite han_et_al_2017 ), which in turn, determines changes
+!! SAMF scheme is determined by the cumulus updraft velocity averaged
+!  over the whole cloud depth (Han et al. (2017) \cite han_et_al_2017 ), which in turn, determines changes
 !! of the large-scale environment due to the cumulus convection.
 !!
 !! \section arg_table_samfdeepcnv_run Argument Table
@@ -96,46 +96,46 @@
 !
       integer, intent(in)  :: im, km, itc, ntc, ntk, ntr, ncloud
       integer, intent(in)  :: islimsk(:)
-      real(kind=conv_wp), intent(in) :: cliq, cp, cvap, eps, epsm1,   &
+      real(kind=kind_phys), intent(in) :: cliq, cp, cvap, eps, epsm1,   &
      &   fv, grav, hvap, rd, rv, t0c
-      real(kind=conv_wp), intent(in) ::  delt, cscale
-      real(kind=conv_wp), intent(in) :: psp(:), delp(:,:),            &
+      real(kind=kind_phys), intent(in) ::  delt, cscale
+      real(kind=kind_phys), intent(in) :: psp(:), delp(:,:),            &
      &   prslp(:,:),  garea(:), hpbl(:), dot(:,:), phil(:,:) 
-      real(kind=conv_wp), dimension(:), intent(in) :: fscav
+      real(kind=kind_phys), dimension(:), intent(in) :: fscav
       logical, intent(in)  :: first_time_step,restart,hwrf_samfdeep,    &
      &     progsigma,progomega,do_mynnedmf,sigmab_coldstart
-      real(kind=conv_wp), intent(in) :: nthresh,betadcu,betamcu,      &
+      real(kind=kind_phys), intent(in) :: nthresh,betadcu,betamcu,      &
      &                                    betascu
-      real(kind=conv_wp), intent(in), optional :: ca_deep(:)
-      real(kind=conv_wp), intent(in), optional :: sigmain(:,:),       &
+      real(kind=kind_phys), intent(in), optional :: ca_deep(:)
+      real(kind=kind_phys), intent(in), optional :: sigmain(:,:),       &
      &     qmicro(:,:),  prevsq(:,:), omegain(:,:)
-      real(kind=conv_wp), intent(in) :: tmf(:,:,:),q(:,:)
-      real(kind=conv_wp), dimension (:), intent(in), optional :: maxMF
-      real(kind=conv_wp), intent(out) :: rainevap(:)
-      real(kind=conv_wp), intent(inout), optional :: sigmaout(:,:),     &
+      real(kind=kind_phys), intent(in) :: tmf(:,:,:),q(:,:)
+      real(kind=kind_phys), dimension (:), intent(in), optional :: maxMF
+      real(kind=kind_phys), intent(out) :: rainevap(:)
+      real(kind=kind_phys), intent(inout), optional :: sigmaout(:,:),     &
      &     omegaout(:,:)
       logical, intent(in)  :: do_ca,ca_closure,ca_entr,ca_trigger
       integer, intent(inout)  :: kcnv(:)
       ! DH* TODO - check dimensions of qtr, ntr+2 correct?  *DH
-      real(kind=conv_wp), intent(inout) ::   qtr(:,:,:),              &
+      real(kind=kind_phys), intent(inout) ::   qtr(:,:,:),              &
      &   q1(:,:), t1(:,:),   u1(:,:), v1(:,:),                          &
      &   cnvw(:,:),  cnvc(:,:), tkeh(:,:)
 
       integer, intent(out) :: kbot(:), ktop(:)
-      real(kind=conv_wp), intent(out) :: cldwrk(:),                   &
+      real(kind=kind_phys), intent(out) :: cldwrk(:),                   &
      &   rn(:),                                                         &
      &   dd_mf(:,:), dt_mf(:,:)
-      real(kind=conv_wp), intent(out) :: ud_mf(:,:)
+      real(kind=kind_phys), intent(out) :: ud_mf(:,:)
       ! GJF* These variables are conditionally allocated depending on whether the
       !     Morrison-Gettelman microphysics is used, so they must be declared 
       !     using assumed shape.
-      real(kind=conv_wp), dimension(:,:), intent(inout), optional ::  &
+      real(kind=kind_phys), dimension(:,:), intent(inout), optional ::  &
      &   qlcn, qicn, w_upi, cnv_mfd, cnv_dqldt, clcn                    &
      &,  cnv_fice, cnv_ndrop, cnv_nice, cf_upi
       ! *GJF
       integer, intent(in) :: mp_phys, mp_phys_mg
 
-      real(kind=conv_wp), intent(in) :: clam,  c0s,  c1,              &
+      real(kind=kind_phys), intent(in) :: clam,  c0s,  c1,              &
      &                     betal,   betas,   asolfac,                   &
      &                     evef,  pgcon
       character(len=*), intent(out) :: errmsg
@@ -317,14 +317,14 @@ c    &            .743,.813,.886,.947,1.138,1.377,1.896/
       errmsg = ''
       errflg = 0
 
-      gravinv = 1._conv_wp/grav
-      invdelt = 1._conv_wp/delt
+      gravinv = 1._conv_wp/real(grav, kind=conv_wp)
+      invdelt = 1._conv_wp/real(delt, kind=conv_wp)
 
-      elocp = hvap/cp
-      el2orc = hvap*hvap/(rv*cp)
+      elocp = real(hvap, kind=conv_wp)/real(cp, kind=conv_wp)
+      el2orc = (real(hvap, kind=conv_wp)*real(hvap, kind=conv_wp))/(real(rv, kind=conv_wp) * real(cp, kind=conv_wp))
 
-      fact1 = (cvap-cliq)/rv
-      fact2 = hvap/rv-fact1*t0c
+      fact1 = (real(cvap, kind=conv_wp)-real(cliq, kind=conv_wp))/real(rv, kind=conv_wp)
+      fact2 = (real(hvap, kind=conv_wp)/real(rv, kind=conv_wp))-(fact1 * real(t0c, kind=conv_wp))
 c-----------------------------------------------------------------------
 !>  ## Determine whether to perform aerosol transport
       if(hwrf_samfdeep) then
@@ -340,9 +340,9 @@ c-----------------------------------------------------------------------
 
 !************************************************************************
 !     convert input Pa terms to Cb terms  -- Moorthi
-      ps   = psp   * 0.001_conv_wp
-      prsl = prslp * 0.001_conv_wp
-      del  = delp  * 0.001_conv_wp
+      ps   = real(psp, kind=conv_wp) * 0.001_conv_wp
+      prsl = real(prslp, kind=conv_wp) * 0.001_conv_wp
+      del  = real(delp, kind=conv_wp) * 0.001_conv_wp
 !************************************************************************
 !
 !
@@ -360,7 +360,7 @@ c
         if(do_mynnedmf) then
             if(maxMF(i).gt.0._conv_wp)cnvflg(i)=.false.
         endif
-        sfcpbl(i) = sfclfac * hpbl(i)
+        sfcpbl(i) = real(sfclfac, kind=conv_wp) * real(hpbl(i), kind=conv_wp)
         rn(i)=0._conv_wp
         mbdt(i)=10._conv_wp
         kbot(i)=km+1
@@ -392,7 +392,7 @@ c
         advfac(i) = 0._conv_wp
         rainevap(i) = 0._conv_wp
         omegac(i)=0._conv_wp
-        gdx(i) = sqrt(garea(i))
+        gdx(i) = sqrt(real(garea(i), kind=conv_wp))
       enddo
 
       do k=1,km
@@ -413,19 +413,19 @@ c
 !>  - determine aerosol-aware rain conversion parameter over land
       do i=1,im
         if(islimsk(i) == 1) then
-           c0(i) = c0s*asolfac
+           c0(i) = real(c0s, conv_wp) * real(asolfac, conv_wp)
         else
-           c0(i) = c0s
+           c0(i) = real(c0s, conv_wp)
         endif
       enddo
 !
 !>  - determine rain conversion parameter above the freezing level which exponentially decreases with decreasing temperature from Han et al.'s (2017) \cite han_et_al_2017 equation 8.
       do k = 1, km
         do i = 1, im
-          if(t1(i,k) > 273.16_conv_wp) then
+          if(real(t1(i,k), conv_wp) > 273.16_conv_wp) then
             c0t(i,k) = c0(i)
           else
-            tem = d0 * (t1(i,k) - 273.16_conv_wp)
+            tem = d0 * (real(t1(i,k), conv_wp) - 273.16_conv_wp)
             tem1 = exp(tem)
             c0t(i,k) = c0(i) * tem1
           endif
@@ -538,7 +538,7 @@ c
 !>  - Calculate hydrostatic height at layer centers assuming a flat surface (no terrain) from the geopotential.
       do k = 1, km
         do i=1,im
-          zo(i,k) = phil(i,k) / grav
+          zo(i,k) = real(phil(i,k), conv_wp) / real(grav, conv_wp)
         enddo
       enddo
 !>  - Calculate interface height
@@ -550,7 +550,7 @@ c
       if (hwrf_samfdeep) then
         do k = 1, km1
         do i=1,im
-          xlamue(i,k) = clam / zi(i,k)
+          xlamue(i,k) = real(clam, conv_wp) / zi(i,k)
         enddo
         enddo
       endif
@@ -617,8 +617,8 @@ c
         do k = 1, km
           do i = 1, im
             if (k <= kmax(i)) then
-              ctr(i,k,kk)  = qtr(i,k,n)
-              ctro(i,k,kk) = qtr(i,k,n)
+              ctr(i,k,kk) = real(qtr(i,k,n), conv_wp)
+              ctro(i,k,kk) = real(qtr(i,k,n), conv_wp)
               ecko(i,k,kk) = 0._conv_wp
               ercko(i,k,kk) = 0._conv_wp
               ecdo(i,k,kk) = 0._conv_wp
@@ -633,7 +633,7 @@ c
         do i=1,im
           if (k <= kmax(i)) then
             qeso(i,k) = 0.01_conv_wp * fpvs(to(i,k))      ! fpvs is in pa
-            qeso(i,k) = eps * qeso(i,k) / (pfld(i,k) + epsm1*qeso(i,k))
+            qeso(i,k) = real(eps, conv_wp) * qeso(i,k) / (pfld(i,k) + real(epsm1, conv_wp) * qeso(i,k))
             val1      =             1.e-8_conv_wp
             qeso(i,k) = max(qeso(i,k), val1)
             val2      =           1.e-10_conv_wp
@@ -651,7 +651,7 @@ c
         do i=1,im
           if (k <= kmax(i)) then
 !           tem       = grav * zo(i,k) + cp * to(i,k)
-            tem       = phil(i,k) + cp * to(i,k)
+            tem       = real(phil(i,k), conv_wp) + real(cp, conv_wp) * to(i,k)      
             heo(i,k)  = tem  + hvap * qo(i,k)
             heso(i,k) = tem  + hvap * qeso(i,k)
 c           heo(i,k)  = min(heo(i,k),heso(i,k))
@@ -704,13 +704,14 @@ c
             dz      = .5_conv_wp * (zo(i,k+1) - zo(i,k))
             dp      = .5_conv_wp * (pfld(i,k+1) - pfld(i,k))
             es      = 0.01_conv_wp * fpvs(to(i,k+1))      ! fpvs is in pa
-            pprime  = pfld(i,k+1) + epsm1 * es
-            qs      = eps * es / pprime
+            pprime  = pfld(i,k+1) + real(epsm1, conv_wp) * es
+            qs      = real(eps, conv_wp) * es / pprime
             dqsdp   = - qs / pprime
-            desdt   = es * (fact1 / to(i,k+1) + fact2 / (to(i,k+1)**2))
+            desdt   = es * (real(fact1, conv_wp) / to(i,k+1) + real(fact2, conv_wp) / (to(i,k+1)**2))
             dqsdt   = qs * pfld(i,k+1) * desdt / (es * pprime)
-            gamma   = el2orc * qeso(i,k+1) / (to(i,k+1)**2)
-            dt      = (grav*dz + hvap*dqsdp*dp) / (cp * (1._conv_wp + gamma))
+            gamma   = real(el2orc, conv_wp) * qeso(i,k+1) / (to(i,k+1)**2)
+            dt      = (real(grav, conv_wp)*dz + real(hvap, conv_wp)*dqsdp*dp) / &
+                         (real(cp, conv_wp) * (1._conv_wp + gamma))
             dq      = dqsdt * dt + dqsdp * dp
             to(i,k) = to(i,k+1) + dt
             qo(i,k) = qo(i,k+1) + dq
@@ -724,7 +725,7 @@ c
         do i=1,im
           if (k <= kmax(i)-1) then
             qeso(i,k) = 0.01_conv_wp * fpvs(to(i,k))      ! fpvs is in pa
-            qeso(i,k) = eps * qeso(i,k) / (po(i,k) + epsm1*qeso(i,k))
+            qeso(i,k) = real(eps, conv_wp) * qeso(i,k) / (po(i,k) + real(epsm1, conv_wp) * qeso(i,k))
             val1      =             1.e-8_conv_wp
             qeso(i,k) = max(qeso(i,k), val1)
             val2      =           1.e-10_conv_wp
@@ -732,10 +733,10 @@ c
 !           qo(i,k)   = min(qo(i,k),qeso(i,k))
             rh(i,k) = min(qo(i,k)/qeso(i,k), 1._conv_wp)
             frh(i,k)  = 1._conv_wp - rh(i,k)
-            heo(i,k)  = .5_conv_wp * grav * (zo(i,k) + zo(i,k+1)) +
-     &                  cp * to(i,k) + hvap * qo(i,k)
-            heso(i,k) = .5_conv_wp * grav * (zo(i,k) + zo(i,k+1)) +
-     &                  cp * to(i,k) + hvap * qeso(i,k)
+            heo(i,k)  = .5_conv_wp * real(grav, conv_wp) * (zo(i,k) + zo(i,k+1)) +  &
+     &                    real(cp, conv_wp) * to(i,k) + real(hvap, conv_wp) * qo(i,k)
+            heso(i,k) = .5_conv_wp * real(grav, conv_wp) * (zo(i,k) + zo(i,k+1)) +  &
+     &                    real(cp, conv_wp) * to(i,k) + real(hvap, conv_wp) * qeso(i,k)
             uo(i,k)   = .5_conv_wp * (uo(i,k) + uo(i,k+1))
             vo(i,k)   = .5_conv_wp * (vo(i,k) + vo(i,k+1))
           endif
@@ -786,7 +787,7 @@ c
       do i=1,im
         if(cnvflg(i)) then
 !         pdot(i)  = 10.* dot(i,kbcon(i))
-          pdot(i)  = 0.01_conv_wp * dot(i,kbcon(i)) ! Now dot is in Pa/s
+          pdot(i)  = 0.01_conv_wp * real(dot(i,kbcon(i)), conv_wp) ! Now dot is in Pa/s
         endif
       enddo
 c
@@ -898,7 +899,7 @@ c
       do i=1,im
         if(cnvflg(i)) then
 !         pdot(i)  = 10.* dot(i,kbcon(i))
-          pdot(i)  = 0.01_conv_wp * dot(i,kbcon(i)) ! Now dot is in Pa/s
+          pdot(i)  = 0.01_conv_wp * real(dot(i,kbcon(i)), conv_wp) ! Now dot is in Pa/s      
         endif
       enddo
 !
@@ -930,7 +931,7 @@ c
 !!
       if(do_ca .and. ca_trigger)then
          do i=1,im
-            if(ca_deep(i) > nthresh) cnvflg(i) = .true.
+            if(real(ca_deep(i), conv_wp) > real(nthresh, conv_wp)) cnvflg(i) = .true.
             if(kbcon(i) == kmax(i)) cnvflg(i) = .false.
          enddo
       endif
