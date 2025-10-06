@@ -2511,12 +2511,12 @@ c
               if(k == jmin(i)) then
                 dp = 1000._conv_wp * del(i,k+1)
                 dellae(i,k+1,n) = dellae(i,k+1,n) -
-     &              edto(i)*etad(i,k) * tem1 * grav/dp
+     &              edto(i)*etad(i,k) * tem1 * real(grav, conv_wp)/dp
               endif
               if(k == kb(i)) then
                 dp = 1000._conv_wp * del(i,k)
                 dellae(i,k,n) = dellae(i,k,n) -
-     &              eta(i,k) * tem1 * grav/dp
+     &              eta(i,k) * tem1 * real(grav, conv_wp)/dp
               endif
 !
             endif
@@ -2563,13 +2563,13 @@ c
         do i = 1, im
           if (asqecflg(i) .and. k <= kmax(i)) then
             if(k > ktcon(i)) then
-              qo(i,k) = q1(i,k)
-              to(i,k) = t1(i,k)
+              qo(i,k) = real(q1(i,k), conv_wp)
+              to(i,k) = real(t1(i,k), conv_wp)
             endif
             if(k <= ktcon(i)) then
-              qo(i,k) = dellaq(i,k) * mbdt(i) + q1(i,k)
-              dellat = (dellah(i,k) - hvap * dellaq(i,k)) / cp
-              to(i,k) = dellat * mbdt(i) + t1(i,k)
+              qo(i,k) = dellaq(i,k) * mbdt(i) + real(q1(i,k), conv_wp)
+              dellat = (dellah(i,k) - real(hvap, conv_wp) * dellaq(i,k)) / real(cp, conv_wp)
+              to(i,k) = dellat * mbdt(i) + real(t1(i,k), conv_wp)
               val   =           1.e-10_conv_wp
               qo(i,k) = max(qo(i,k), val  )
             endif
@@ -2594,7 +2594,8 @@ c
         do i = 1, im
           if(asqecflg(i) .and. k <= kmax(i)) then
             qeso(i,k) = 0.01_conv_wp * fpvs(to(i,k))      ! fpvs is in pa
-            qeso(i,k) = eps * qeso(i,k) / (pfld(i,k)+epsm1*qeso(i,k))
+            qeso(i,k) = real(eps, conv_wp) * qeso(i,k) / (pfld(i,k) +
+     &                  real(epsm1, conv_wp)*qeso(i,k))
             val       =             1.e-8_conv_wp
             qeso(i,k) = max(qeso(i,k), val )
 !           tvo(i,k)  = to(i,k) + fv * to(i,k) * qo(i,k)
@@ -2611,13 +2612,15 @@ c
             dz = .5_conv_wp * (zo(i,k+1) - zo(i,k))
             dp = .5_conv_wp * (pfld(i,k+1) - pfld(i,k))
             es = 0.01_conv_wp * fpvs(to(i,k+1))      ! fpvs is in pa
-            pprime = pfld(i,k+1) + epsm1 * es
-            qs = eps * es / pprime
+            pprime = pfld(i,k+1) + real(epsm1, conv_wp) * es
+            qs = real(eps, conv_wp) * es / pprime
             dqsdp = - qs / pprime
-            desdt = es * (fact1 / to(i,k+1) + fact2 / (to(i,k+1)**2))
+            desdt = es * (real(fact1, conv_wp) / to(i,k+1) + 
+     &              real(fact2, conv_wp) / (to(i,k+1)**2))
             dqsdt = qs * pfld(i,k+1) * desdt / (es * pprime)
-            gamma = el2orc * qeso(i,k+1) / (to(i,k+1)**2)
-            dt = (grav * dz + hvap * dqsdp * dp) / (cp * (1._conv_wp + gamma))
+            gamma = real(el2orc, conv_wp) * qeso(i,k+1) / (to(i,k+1)**2)
+            dt = (real(grav, conv_wp)*dz +real(hvap, conv_wp)*dqsdp*dp)/
+     &           (real(cp, conv_wp) * (1._conv_wp + gamma)) 
             dq = dqsdt * dt + dqsdp * dp
             to(i,k) = to(i,k+1) + dt
             qo(i,k) = qo(i,k+1) + dq
@@ -2629,16 +2632,19 @@ c
         do i = 1, im
           if(asqecflg(i) .and. k <= kmax(i)-1) then
             qeso(i,k) = 0.01_conv_wp * fpvs(to(i,k))      ! fpvs is in pa
-            qeso(i,k) = eps * qeso(i,k) / (po(i,k) + epsm1 * qeso(i,k))
+            qeso(i,k) = real(eps, conv_wp) * qeso(i,k) / (po(i,k) +
+     &                  real(epsm1, conv_wp) * qeso(i,k))
             val1      =             1.e-8_conv_wp
             qeso(i,k) = max(qeso(i,k), val1)
             val2      =           1.e-10_conv_wp
             qo(i,k)   = max(qo(i,k), val2 )
 !           qo(i,k)   = min(qo(i,k),qeso(i,k))
-            heo(i,k)   = .5_conv_wp * grav * (zo(i,k) + zo(i,k+1)) +
-     &                    cp * to(i,k) + hvap * qo(i,k)
-            heso(i,k) = .5_conv_wp * grav * (zo(i,k) + zo(i,k+1)) +
-     &                  cp * to(i,k) + hvap * qeso(i,k)
+            heo(i,k)   = .5_conv_wp * real(grav, conv_wp) * (zo(i,k) + 
+     &                  zo(i,k+1)) + real(cp, conv_wp) * to(i,k) + 
+     &                  real(hvap, conv_wp) * qo(i,k)
+            heso(i,k) = .5_conv_wp * real(grav, conv_wp) * (zo(i,k) + 
+     &                  zo(i,k+1)) + real(cp, conv_wp) * to(i,k) + 
+     &                  real(hvap, conv_wp) * qeso(i,k)
           endif
         enddo
       enddo
