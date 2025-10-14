@@ -29,11 +29,12 @@
       logical, intent(in) :: lssav, ldiag3d, qdiag3d, ras, cscnv
       logical, intent(in) :: flag_for_dcnv_generic_tend
 
-      real(kind=conv_wp), intent(in) :: frain, dtf
+      real(kind=conv_wp), intent(in) :: frain
+      real(kind=kind_phys), intent(in) :: dtf
       real(kind=conv_wp), dimension(:),     intent(in) :: rain1, cld1d
       real(kind=conv_wp), dimension(:,:),   intent(in) :: save_u, save_v, save_t
-      real(kind=conv_wp), dimension(:,:),   intent(in) :: gu0, gv0, gt0
-      real(kind=conv_wp), dimension(:,:,:), intent(in) :: gq0, save_q
+      real(kind=kind_phys), dimension(:,:),   intent(in) :: gu0, gv0, gt0, gq0
+      real(kind=conv_wp), dimension(:,:,:), intent(in) :: save_q
       real(kind=conv_wp), dimension(:,:),   intent(in) :: dd_mf, dt_mf
       real(kind=conv_wp), dimension(:,:),   intent(in), optional :: ud_mf
       real(kind=conv_wp), intent(in) :: con_g
@@ -44,7 +45,7 @@
       real(kind=conv_wp), dimension(:,:), intent(inout), optional :: upd_mf, dwn_mf, det_mf
       real(kind=conv_wp), dimension(:,:), intent(inout) :: cnvw, cnvc
 
-      real(kind=conv_wp), dimension(:,:,:), intent(inout), optional :: dtend
+      real(kind=kind_phys), dimension(:,:,:), intent(inout), optional :: dtend
       integer, intent(in) :: dtidx(:,:), index_of_process_dcnv, index_of_temperature, &
            index_of_x_wind, index_of_y_wind, ntqv
       integer, intent(in) :: ntcw,ntiw,ntclamt,ntrw,ntsw,ntrnc,ntsnc,ntgl,     &

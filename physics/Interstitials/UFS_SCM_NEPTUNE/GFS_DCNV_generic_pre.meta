@@ -55,7 +55,7 @@
   units = m s-1
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = conv_wp
+  kind = kind_phys
   intent = in
 [gv0]
   standard_name = y_wind_of_new_state
@@ -63,7 +63,7 @@
   units = m s-1
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = conv_wp
+  kind = kind_phys
   intent = in
 [gt0]
   standard_name = air_temperature_of_new_state
@@ -71,7 +71,7 @@
   units = K
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = conv_wp
+  kind = kind_phys
   intent = in
 [gq0]
   standard_name = tracer_concentration_of_new_state
@@ -79,7 +79,7 @@
   units = kg kg-1
   dimensions = (horizontal_loop_extent,vertical_layer_dimension,number_of_tracers)
   type = real
-  kind = conv_wp
+  kind = kind_phys
   intent = inout
 [nsamftrac]
   standard_name = number_of_tracers_for_samf

@@ -28,10 +28,10 @@
            ntcw,ntiw,ntclamt,ntrw,ntsw,ntrnc,ntsnc,ntgl,ntrac,ntgnc,nthl,nthnc,nthv,ntgv,  &
            ntrz, ntgz, nthz, ntsigma, ntomega
       logical, intent(in) :: ldiag3d, qdiag3d, do_cnvgwd, cplchm
-      real(kind=conv_wp), dimension(:,:),   intent(in)    :: gu0
-      real(kind=conv_wp), dimension(:,:),   intent(in)    :: gv0
-      real(kind=conv_wp), dimension(:,:),   intent(in)    :: gt0
-      real(kind=conv_wp), dimension(:,:,:), intent(inout) :: gq0
+      real(kind=kind_phys), dimension(:,:),   intent(in)    :: gu0
+      real(kind=kind_phys), dimension(:,:),   intent(in)    :: gv0
+      real(kind=kind_phys), dimension(:,:),   intent(in)    :: gt0
+      real(kind=kind_phys), dimension(:,:,:), intent(inout) :: gq0
       real(kind=conv_wp), dimension(:,:),   intent(inout) :: save_u
       real(kind=conv_wp), dimension(:,:),   intent(inout) :: save_v
       real(kind=conv_wp), dimension(:,:),   intent(inout) :: save_t
