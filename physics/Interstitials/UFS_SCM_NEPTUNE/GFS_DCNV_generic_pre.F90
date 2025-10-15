@@ -32,15 +32,15 @@
       real(kind=kind_phys), dimension(:,:),   intent(in)    :: gv0
       real(kind=kind_phys), dimension(:,:),   intent(in)    :: gt0
       real(kind=kind_phys), dimension(:,:,:), intent(inout) :: gq0
-      real(kind=conv_wp), dimension(:,:),   intent(inout) :: save_u
-      real(kind=conv_wp), dimension(:,:),   intent(inout) :: save_v
-      real(kind=conv_wp), dimension(:,:),   intent(inout) :: save_t
-      real(kind=conv_wp), dimension(:,:,:), intent(inout) :: save_q
+      real(kind=kind_phys), dimension(:,:),   intent(inout) :: save_u
+      real(kind=kind_phys), dimension(:,:),   intent(inout) :: save_v
+      real(kind=kind_phys), dimension(:,:),   intent(inout) :: save_t
+      real(kind=kind_phys), dimension(:,:,:), intent(inout) :: save_q
       character(len=*), intent(out) :: errmsg
       integer, intent(out) :: errflg
       logical, intent(in) :: cscnv, satmedmf, trans_trac, ras
       real(kind=conv_wp), parameter :: zero    = 0.0_conv_wp 
-      real(kind=conv_wp), dimension(:,:,:), intent(in) :: clw
+      real(kind=kind_phys), dimension(:,:,:), intent(in) :: clw
 
       integer :: i, k, n, tracers
 

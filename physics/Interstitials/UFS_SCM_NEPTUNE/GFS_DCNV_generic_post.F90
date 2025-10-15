@@ -29,21 +29,22 @@
       logical, intent(in) :: lssav, ldiag3d, qdiag3d, ras, cscnv
       logical, intent(in) :: flag_for_dcnv_generic_tend
 
-      real(kind=conv_wp), intent(in) :: frain
+      real(kind=kind_phys), intent(in) :: frain
       real(kind=kind_phys), intent(in) :: dtf
       real(kind=conv_wp), dimension(:),     intent(in) :: rain1, cld1d
-      real(kind=conv_wp), dimension(:,:),   intent(in) :: save_u, save_v, save_t
+      real(kind=kind_phys), dimension(:,:),   intent(in) :: save_u, save_v, save_t
       real(kind=kind_phys), dimension(:,:),   intent(in) :: gu0, gv0, gt0, gq0
-      real(kind=conv_wp), dimension(:,:,:), intent(in) :: save_q
-      real(kind=conv_wp), dimension(:,:),   intent(in) :: dd_mf, dt_mf
-      real(kind=conv_wp), dimension(:,:),   intent(in), optional :: ud_mf
-      real(kind=conv_wp), intent(in) :: con_g
+      real(kind=kind_phys), dimension(:,:,:), intent(in) :: save_q
+      real(kind=kind_phys), dimension(:,:),   intent(in) :: dd_mf, dt_mf
+      real(kind=kind_phys), dimension(:,:),   intent(in), optional :: ud_mf
+      real(kind=kind_phys), intent(in) :: con_g
       integer, intent(in) :: npdf3d, num_p3d, ncnvcld3d
       logical, intent(in) :: satmedmf, trans_trac
 
-      real(kind=conv_wp), dimension(:),   intent(inout) :: rainc, cldwrk
+      real(kind=kind_phys), dimension(:),   intent(inout) :: rainc
+      real(kind=conv_wp), dimension(:),   intent(inout) :: cldwrk
       real(kind=conv_wp), dimension(:,:), intent(inout), optional :: upd_mf, dwn_mf, det_mf
-      real(kind=conv_wp), dimension(:,:), intent(inout) :: cnvw, cnvc
+      real(kind=kind_phys), dimension(:,:), intent(inout) :: cnvw, cnvc
 
       real(kind=kind_phys), dimension(:,:,:), intent(inout), optional :: dtend
       integer, intent(in) :: dtidx(:,:), index_of_process_dcnv, index_of_temperature, &
@@ -51,10 +52,10 @@
       integer, intent(in) :: ntcw,ntiw,ntclamt,ntrw,ntsw,ntrnc,ntsnc,ntgl,     &
                              ntgnc, nthl, nthnc, nthv, ntgv, ntrz, ntgz, nthz, &
                              ntsigma, ntomega, ntrac
-      real(kind=conv_wp), dimension(:,:,:), intent(in) :: clw
+      real(kind=kind_phys), dimension(:,:,:), intent(in) :: clw
 
 
-      real(kind=conv_wp), dimension(:,:), intent(inout), optional :: cnvw_phy_f3d, cnvc_phy_f3d
+      real(kind=kind_phys), dimension(:,:), intent(inout), optional :: cnvw_phy_f3d, cnvc_phy_f3d
 
       character(len=*), intent(out) :: errmsg
       integer, intent(out) :: errflg
