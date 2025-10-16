@@ -64,7 +64,7 @@
   units = m
   dimensions = (horizontal_loop_extent)
   type = real
-  kind = conv_wp
+  kind = kind_phys
   intent = in
 [dtf]
   standard_name = timestep_for_dynamics
@@ -80,7 +80,7 @@
   units = m2 s-2
   dimensions = (horizontal_loop_extent)
   type = real
-  kind = conv_wp
+  kind = kind_phys
   intent = in
 [save_u]
   standard_name = x_wind_save
@@ -272,7 +272,7 @@
   units = m2 s-1
   dimensions = (horizontal_loop_extent)
   type = real
-  kind = conv_wp
+  kind = kind_phys
   intent = inout
 [upd_mf]
   standard_name = cumulative_atmosphere_updraft_convective_mass_flux
@@ -280,7 +280,7 @@
   units = kg m-1 s-2
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = conv_wp
+  kind = kind_phys
   intent = inout
   optional = True
 [dwn_mf]
@@ -289,7 +289,7 @@
   units = kg m-1 s-2 
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = conv_wp
+  kind = kind_phys
   intent = inout
   optional = True
 [det_mf]
@@ -298,7 +298,7 @@
   units = kg m-1 s-2
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
   type = real
-  kind = conv_wp
+  kind = kind_phys
   intent = inout
   optional = True
 [cnvw]

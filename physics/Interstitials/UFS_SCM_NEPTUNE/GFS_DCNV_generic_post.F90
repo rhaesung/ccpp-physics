@@ -31,7 +31,7 @@
 
       real(kind=kind_phys), intent(in) :: frain
       real(kind=kind_phys), intent(in) :: dtf
-      real(kind=conv_wp), dimension(:),     intent(in) :: rain1, cld1d
+      real(kind=kind_phys), dimension(:),     intent(in) :: rain1, cld1d
       real(kind=kind_phys), dimension(:,:),   intent(in) :: save_u, save_v, save_t
       real(kind=kind_phys), dimension(:,:),   intent(in) :: gu0, gv0, gt0, gq0
       real(kind=kind_phys), dimension(:,:,:), intent(in) :: save_q
@@ -42,7 +42,7 @@
       logical, intent(in) :: satmedmf, trans_trac
 
       real(kind=kind_phys), dimension(:),   intent(inout) :: rainc
-      real(kind=conv_wp), dimension(:),   intent(inout) :: cldwrk
+      real(kind=kind_phys), dimension(:),   intent(inout) :: cldwrk
       real(kind=conv_wp), dimension(:,:), intent(inout), optional :: upd_mf, dwn_mf, det_mf
       real(kind=kind_phys), dimension(:,:), intent(inout) :: cnvw, cnvc
 
