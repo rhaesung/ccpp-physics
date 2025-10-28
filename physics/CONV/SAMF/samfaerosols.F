@@ -401,20 +401,24 @@ c     convert wet deposition to total mass deposited over dt and dp
 c     compute final aerosol concentrations
 
       do n = 1, ntc
-        do k = 1, km
-          do i = 1, im
-            if (cnvflg(i) .and. (k <= min(kmax(i),ktcon(i)))) then
-              qaero(i,k,n) = real(qaero(i,k,n), kind_phys) + 
-     &                       real(dellae2(i,k,n) * delt, kind_phys)
-              if (qaero(i,k,n) < zero) then
-c               add negative mass to wet deposition
-     &          wet_dep(i,k,n)=wet_dep(i,k,n)-real(qaero(i,k,n),conv_wp)*
-     &                         real(delp(i,k), conv_wp)
-                qaero(i,k,n) = qamin
-              endif
-            endif
-          enddo
-        enddo
+         do k = 1, km
+           do i = 1, im
+             if (cnvflg(i) .and. (k <= min(kmax(i),ktcon(i)))) then
+   
+               qaero(i,k,n) = real(qaero(i,k,n), kind_phys) + 
+     &                        real(dellae2(i,k,n) * delt, kind_phys)
+               
+               if (qaero(i,k,n) < zero) then
+c                 add negative mass to wet deposition
+
+                 wet_dep(i,k,n) = wet_dep(i,k,n) - real(qaero(i,k,n), 
+     &                            conv_wp) * real(delp(i,k), conv_wp)
+                 
+                 qaero(i,k,n) = qamin
+               endif
+             endif
+           enddo
+         enddo
       enddo
 
       return

@@ -191,7 +191,7 @@
                  *MAX(0.0_conv_wp ,SIGN(1.0_conv_wp ,termC(i)-epsilon))
             cvg=MAX(0.0_conv_wp ,cvg)
             sigmab(i)=(ZZ*(termA(i)+cvg))/(DEN+(1.0_conv_wp -ZZ))
-            if(sigmab(i)>0_conv_wp .)then
+            if(sigmab(i)>0.0_conv_wp)then
                sigmab(i)=MIN(sigmab(i),0.95_conv_wp)  
                sigmab(i)=MAX(sigmab(i),sigmind_new)
             endif
