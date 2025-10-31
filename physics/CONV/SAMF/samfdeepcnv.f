@@ -164,7 +164,7 @@
      &                     es,      etah,
      &                     cthk,    dthk,
 !    &                     evfact,  evfactl,
-     &                     fact1,   fact2,   factor,
+     &                     fact1,   fact2,   factor(im,km),
      &                     gamma,   pprime,  cm,      cq,
      &                     qlk,     qrch,    qs,
      &                     rain,    rfact,   shear,   tfac,
@@ -175,10 +175,10 @@
      &                     rho,     betaw,   tauadv,
      &                     xdby,    xpw,     xpwd,
 !    &                     xqrch,   mbdt,    tem,
-     &                     xqrch,tem(im,km),tem1(im,km),tem2(im,km),
+     &                     xqrch, tem(im,km), tem1(im,km), tem2(im,km),
      &                     ptem(im,km), ptem1(im,km), ptem2(im,km),
-     &                     tem_1d(im),tem1_1d(im),tem2_1d(im),
-     &                     ptem_1d(im),ptem1_1d(im),ptem2_1d(im)    
+     &                     tem_1d(im), tem1_1d(im), tem2_1d(im),
+     &                     ptem_1d(im), ptem1_1d(im), ptem2_1d(im)    
 !
       integer              kb(im), kb1(im), kbcon(im), kbcon1(im),
      &                     ktcon(im), ktcon1(im), ktconn(im),
@@ -1260,21 +1260,21 @@ c
               dz   = zi(i,k) - zi(i,k-1)
               tem(i,k)=0.5_conv_wp*(xlamue(i,k)+xlamue(i,k-1))*dz
               tem1(i,k)=0.25_conv_wp*(xlamud(i,k)+xlamud(i,k-1))*dz
-              factor = 1._conv_wp+tem(i,k)-tem1(i,k)
+              factor(i,k) = 1._conv_wp+tem(i,k)-tem1(i,k)
               hcko(i,k) =((1._conv_wp-tem1(i,k))*hcko(i,k-1)+tem(i,k)*
-     &                    0.5_conv_wp*(heo(i,k)+heo(i,k-1)))/factor
+     &                  0.5_conv_wp*(heo(i,k)+heo(i,k-1)))/factor(i,k)
               dbyo(i,k) = hcko(i,k) - heso(i,k)
 !
               tem(i,k)=0.5_conv_wp*real(cm,conv_wp)*tem(i,k)
-              factor = 1._conv_wp + tem(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k)
               ptem(i,k)=tem(i,k)+real(pgcon,conv_wp)
               ptem1(i,k)=tem(i,k)-real(pgcon, conv_wp)
               ucko(i,k)=((1._conv_wp-tem(i,k))*ucko(i,k-1)+ptem(i,k)*
      &                real(uo(i,k), conv_wp)+ptem1(i,k)*real(uo(i,k-1), 
-     &                conv_wp))/factor
+     &                conv_wp))/factor(i,k)
               vcko(i,k)=((1._conv_wp-tem(i,k))*vcko(i,k-1)+ptem(i,k)*
      &                real(vo(i,k),conv_wp)+ptem1(i,k)*real(vo(i,k-1), 
-     &                conv_wp))/factor
+     &                conv_wp))/factor(i,k)
             endif
           endif
         enddo
@@ -1293,9 +1293,9 @@ c
               dz   = zi(i,k) - zi(i,k-1)
               tem(i,k) = 0.25_conv_wp * (xlamue(i,k)+xlamue(i,k-1)) * dz
               tem(i,k) = cq * tem(i,k)
-              factor = 1._conv_wp + tem(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k)
               ecko(i,k,n) = ((1._conv_wp-tem(i,k))*ecko(i,k-1,n)+
-     &                    tem(i,k)*(ctro(i,k,n)+ctro(i,k-1,n)))/factor
+     &                tem(i,k)*(ctro(i,k,n)+ctro(i,k-1,n)))/factor(i,k)
               ercko(i,k,n) = ecko(i,k,n)
             endif
           endif
@@ -1312,9 +1312,9 @@ c
                    dz = zi(i,k) - zi(i,k-1)
                    tem(i,k)=0.25_conv_wp*(xlamue(i,k)+xlamue(i,k-1))*dz
                    tem(i,k)=cq*tem(i,k)
-                   factor = 1._conv_wp + tem(i,k)
+                   factor(i,k) = 1._conv_wp + tem(i,k)
                    ecko(i,k,kk)=((1._conv_wp-tem(i,k))*ecko(i,k-1,kk)+
-     &                   tem(i,k)*(ctro(i,k,kk)+ctro(i,k-1,kk)))/factor
+     &              tem(i,k)*(ctro(i,k,kk)+ctro(i,k-1,kk)))/factor(i,k)
                    ercko(i,k,kk) = ecko(i,k,kk)
                    chem_c(i,k,n) = real(fscav(n), conv_wp) *ecko(i,k,kk)
                    tem(i,k) = chem_c(i,k,n)/(1._conv_wp+c0t(i,k)*dz)
@@ -1334,9 +1334,9 @@ c
                    dz = zi(i,k) - zi(i,k-1)
                    tem(i,k)=0.25_conv_wp*(xlamue(i,k)+xlamue(i,k-1))*dz
                    tem(i,k)=cq*tem(i,k)
-                   factor = 1._conv_wp + tem(i,k)
+                   factor(i,k) = 1._conv_wp + tem(i,k)
                    ecko(i,k,kk)=((1._conv_wp-tem(i,k))*ecko(i,k-1,kk)+
-     &                   tem(i,k)*(ctro(i,k,kk)+ctro(i,k-1,kk)))/factor
+     &               tem(i,k)*(ctro(i,k,kk)+ctro(i,k-1,kk)))/factor(i,k)
                    ercko(i,k,kk) = ecko(i,k,kk)
                  endif
                endif
@@ -1587,10 +1587,10 @@ c
 cj
               tem(i,k) = 0.25_conv_wp * (xlamue(i,k)+xlamue(i,k-1)) * dz
               tem(i,k) = real(cq, conv_wp) * tem(i,k)
-              factor = 1._conv_wp + tem(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k)
               qcko(i,k) = ((1._conv_wp-tem(i,k))*qcko(i,k-1)+tem(i,k)*
      &                     (real(qo(i,k), conv_wp)+real(qo(i,k-1),
-     &                     conv_wp)))/factor
+     &                     conv_wp)))/factor(i,k)
               qrcko(i,k) = qcko(i,k)
 cj
               dq = eta(i,k) * (qcko(i,k) - qrch)
@@ -1778,10 +1778,10 @@ c
 cj
               tem(i,k) = 0.25_conv_wp * (xlamue(i,k)+xlamue(i,k-1)) * dz
               tem(i,k)  = real(cq, conv_wp) * tem(i,k)
-              factor = 1._conv_wp + tem(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k)
               qcko(i,k) =((1._conv_wp-tem(i,k))*qcko(i,k-1) + tem(i,k) *
      &                 (real(qo(i,k), conv_wp) + real(qo(i,k-1),
-     &                 conv_wp)))/factor
+     &                 conv_wp)))/factor(i,k)
               qrcko(i,k) = qcko(i,k)
 cj
               dq = eta(i,k) * (qcko(i,k) - qrch)
@@ -2144,21 +2144,21 @@ cj
                  tem(i,k)  = xlamdet(i) * dz
                  tem1(i,k) = 0.5_conv_wp * (xlamd(i)+xlamddt(i)) * dz
               endif
-              factor = 1._conv_wp + tem(i,k) - tem1(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k) - tem1(i,k)
               hcdo(i,k) = ((1._conv_wp-tem1(i,k))*hcdo(i,k+1)+tem(i,k)*
-     &                    0.5_conv_wp*(heo(i,k)+heo(i,k+1)))/factor
+     &                    0.5_conv_wp*(heo(i,k)+heo(i,k+1)))/factor(i,k)
               dbyo(i,k) = hcdo(i,k) - heso(i,k)
 !
               tem(i,k) = 0.5_conv_wp * cm * tem(i,k)
-              factor = 1._conv_wp + tem(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k)
               ptem(i,k) = tem(i,k) - pgcon
               ptem1_1d(i)= tem(i,k) + pgcon
               ucdo(i,k) = ((1._conv_wp-tem(i,k))*ucdo(i,k+1)+ptem(i,k)*
      &                real(uo(i,k+1), conv_wp)+ptem1_1d(i)*real(uo(i,k),
-     &                conv_wp))/factor
+     &                conv_wp))/factor(i,k)
               vcdo(i,k) = ((1._conv_wp-tem(i,k))*vcdo(i,k+1)+ptem(i,k)*
      &                real(vo(i,k+1), conv_wp)+ptem1_1d(i)*real(vo(i,k),
-     &                conv_wp))/factor
+     &                conv_wp))/factor(i,k)
           endif
         enddo
       enddo
@@ -2170,9 +2170,9 @@ cj
               dz = zi(i,k+1) - zi(i,k)
               tem(i,k)  = 0.5_conv_wp * xlamdet(i) * dz
               tem(i,k)  = real(cq, conv_wp) * tem(i,k)
-              factor = 1._conv_wp + tem(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k)
               ecdo(i,k,n) = ((1._conv_wp-tem(i,k))*ecdo(i,k+1,n)+
-     &             tem(i,k)*(ctro(i,k,n)+ctro(i,k+1,n)))/factor
+     &             tem(i,k)*(ctro(i,k,n)+ctro(i,k+1,n)))/factor(i,k)
           endif
         enddo
       enddo
@@ -2192,10 +2192,10 @@ cj
               dz = zi(i,k+1) - zi(i,k)
               tem(i,k)  = 0.5_conv_wp * xlamdet(i) * dz
               tem(i,k)  = real(cq, conv_wp) * tem(i,k)
-              factor = 1._conv_wp + tem(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k)
               qcdo(i,k) = ((1._conv_wp-tem(i,k))*qrcdo(i,k+1)+tem(i,k)*
      &                    (real(qo(i,k), conv_wp)+real(qo(i,k+1), 
-     &                     conv_wp)))/factor
+     &                     conv_wp)))/factor(i,k)
 cj
 !             pwdo(i,k)  = etad(i,k+1) * qcdo(i,k+1) -
 !    &                     etad(i,k) * qrcdo(i,k)
@@ -2339,21 +2339,21 @@ c
                 ptem1_1d(i) = xlamddt(i)
               endif
 
-              factor = real(grav, conv_wp) / dp
+              factor(i,k) = real(grav, conv_wp) / dp
 cj
               dellah(i,k) = dellah(i,k)+((aup*eta(i,k)-adw*edto(i)*
      &     etad(i,k))*dv1h-(aup*eta(i,k-1)-adw*edto(i)*etad(i,k-1))*
      &     dv3h-(aup*tem(i,k)*eta(i,k-1)+adw*edto(i)*ptem_1d(i)*
      &     etad(i,k))*dv2h*dz+aup*tem1(i,k)*eta(i,k-1)*.5_conv_wp*
      &    (hcko(i,k)+hcko(i,k-1))*dz+adw*edto(i)*ptem1_1d(i)*etad(i,k)*
-     &    .5_conv_wp*(hcdo(i,k)+hcdo(i,k-1))*dz)*factor
+     &    .5_conv_wp*(hcdo(i,k)+hcdo(i,k-1))*dz)*factor(i,k)
 cj
               tem1(i,k) = -eta(i,k) * qrcko(i,k)
               tem2(i,k) = -eta(i,k-1) * qcko(i,k-1)
               ptem1_1d(i) = -etad(i,k) * qrcdo(i,k)
               ptem2_1d(i) = -etad(i,k-1) * qcdo(i,k-1)
               dellaq(i,k) = dellaq(i,k) + (aup*(tem1(i,k)-tem2(i,k)) -
-     &        adw*edto(i)*(ptem1_1d(i)-ptem2_1d(i)))*factor
+     &        adw*edto(i)*(ptem1_1d(i)-ptem2_1d(i)))*factor(i,k)
 cj
               tem1(i,k)=eta(i,k)*(real(uo(i,k),conv_wp)-ucko(i,k))
               tem2(i,k)=eta(i,k-1)*(real(uo(i,k-1),conv_wp)-ucko(i,k-1))
@@ -2363,7 +2363,7 @@ cj
               ptem2_1d(i)=etad(i,k-1)*(real(uo(i,k-1),conv_wp)-
      &                    ucdo(i,k-1))
               dellau(i,k) = dellau(i,k)+(aup*(tem1(i,k)-tem2(i,k))-adw*
-     &        edto(i)*(ptem1_1d(i)-ptem2_1d(i)))*factor
+     &        edto(i)*(ptem1_1d(i)-ptem2_1d(i)))*factor(i,k)
 cj
               tem1(i,k)=eta(i,k)*(real(vo(i,k),conv_wp)-vcko(i,k))
               tem2(i,k)=eta(i,k-1)*(real(vo(i,k-1),conv_wp)-vcko(i,k-1))
@@ -2371,7 +2371,7 @@ cj
               ptem2_1d(i)=etad(i,k-1)*(real(vo(i,k-1),conv_wp)-
      &                    vcdo(i,k-1))
               dellav(i,k) = dellav(i,k)+(aup*(tem1(i,k)-tem2(i,k))-adw*
-     &        edto(i)*(ptem1_1d(i)-ptem2_1d(i)))*factor
+     &        edto(i)*(ptem1_1d(i)-ptem2_1d(i)))*factor(i,k)
 cj
           endif
         enddo
@@ -2750,9 +2750,9 @@ c
               dz = zi(i,k) - zi(i,k-1)
               tem(i,k)  = 0.5_conv_wp * (xlamue(i,k)+xlamue(i,k-1)) * dz
               tem1(i,k) = 0.25_conv_wp * (xlamud(i,k)+xlamud(i,k-1)) *dz
-              factor = 1._conv_wp + tem(i,k) - tem1(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k) - tem1(i,k)
               hcko(i,k) = ((1._conv_wp-tem1(i,k))*hcko(i,k-1)+tem(i,k)*
-     &                    0.5_conv_wp*(heo(i,k)+heo(i,k-1)))/factor
+     &                    0.5_conv_wp*(heo(i,k)+heo(i,k-1)))/factor(i,k)
             endif
           endif
         enddo
@@ -2769,10 +2769,10 @@ c
 cj
               tem(i,k) = 0.25_conv_wp * (xlamue(i,k)+xlamue(i,k-1)) * dz
               tem(i,k) = real(cq, conv_wp) * tem(i,k)
-              factor = 1._conv_wp + tem(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k)
               qcko(i,k) = ((1._conv_wp-tem(i,k))*qcko(i,k-1)+tem(i,k)*
      &                    (real(qo(i,k), conv_wp)+real(qo(i,k-1), 
-     &                    conv_wp)))/factor
+     &                    conv_wp)))/factor(i,k)
 cj
               dq = eta(i,k) * (qcko(i,k) - xqrch)
 c
@@ -2838,9 +2838,9 @@ cj
                  tem(i,k) = xlamdet(i) * dz
                  tem1(i,k) = 0.5_conv_wp * (xlamd(i)+xlamddt(i)) * dz
               endif
-              factor = 1._conv_wp + tem(i,k) - tem1(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k) - tem1(i,k)
               hcdo(i,k) = ((1._conv_wp-tem1(i,k))*hcdo(i,k+1)+tem(i,k)*
-     &                    0.5_conv_wp*(heo(i,k)+heo(i,k+1)))/factor
+     &                    0.5_conv_wp*(heo(i,k)+heo(i,k+1)))/factor(i,k)
           endif
         enddo
       enddo
@@ -2859,10 +2859,10 @@ cj
               dz = zi(i,k+1) - zi(i,k)
               tem(i,k)  = 0.5_conv_wp * xlamdet(i) * dz
               tem(i,k)  = real(cq, conv_wp) * tem(i,k)
-              factor = 1._conv_wp + tem(i,k)
+              factor(i,k) = 1._conv_wp + tem(i,k)
               qcdo(i,k) = ((1._conv_wp-tem(i,k))*qrcd(i,k+1)+tem(i,k)*
      &                    (real(qo(i,k), conv_wp)+real(qo(i,k+1), 
-     &                    conv_wp)))/factor
+     &                    conv_wp)))/factor(i,k)
 cj
 !             xpwd     = etad(i,k+1) * qcdo(i,k+1) -
 !    &                   etad(i,k) * qrcd(i,k)
