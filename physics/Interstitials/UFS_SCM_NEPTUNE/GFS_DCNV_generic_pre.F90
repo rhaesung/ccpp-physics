@@ -39,7 +39,7 @@
       character(len=*), intent(out) :: errmsg
       integer, intent(out) :: errflg
       logical, intent(in) :: cscnv, satmedmf, trans_trac, ras
-      real(kind=conv_wp), parameter :: zero    = 0.0_conv_wp 
+      real(kind=conv_wp), parameter :: zero    = 0.0D0_conv_wp 
       real(kind=kind_phys), dimension(:,:,:), intent(in) :: clw
 
       integer :: i, k, n, tracers

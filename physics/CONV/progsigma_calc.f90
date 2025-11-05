@@ -57,14 +57,14 @@
                           DEN,dp1,invdelt,sigmind_new
 
      !Parameters
-      gcvalmx = 0.1_conv_wp 
-      rmulacvg=10._conv_wp 
+      gcvalmx = 0.1D0_conv_wp 
+      rmulacvg=10.0D0_conv_wp 
       epsilon=1.E-11_conv_wp 
       km1=km-1
-      invdelt = 1._conv_wp /delt
+      invdelt = 1.0D0_conv_wp /delt
 
       if(flag_init .and. .not. flag_restart) then
-           sigmind_new=0.0_conv_wp 
+           sigmind_new=0.0D0_conv_wp 
       else
            sigmind_new=sigmind
       end if
@@ -72,27 +72,27 @@
      !Initialization 2D
       do k = 1,km
          do i = 1,im
-            inbu(i,k)=0._conv_wp 
-            form(i,k)=0._conv_wp 
-            dp(i,k)=0._conv_wp 
+            inbu(i,k)=0.0D0_conv_wp 
+            form(i,k)=0.0D0_conv_wp 
+            dp(i,k)=0.0D0_conv_wp 
          enddo
       enddo
      
      !Initialization 1D
       do i=1,im
-         sigmab(i)=0._conv_wp 
-         termA(i)=0._conv_wp 
-         termB(i)=0._conv_wp 
-         termC(i)=0._conv_wp 
-         termD(i)=0._conv_wp 
-         fdqa(i)=0._conv_wp 
-         sumx(i)=0._conv_wp 
+         sigmab(i)=0.0D0_conv_wp 
+         termA(i)=0.D0_conv_wp 
+         termB(i)=0.D0_conv_wp 
+         termC(i)=0.D0_conv_wp 
+         termD(i)=0.D0_conv_wp 
+         fdqa(i)=0.D0_conv_wp 
+         sumx(i)=0.D0_conv_wp 
       enddo
 
       do k = 2,km1
           do i = 1,im
              if(cnvflg(i))then
-                dp(i,k) = 1000._conv_wp  * del(i,k)
+                dp(i,k) = 1000.0D0_conv_wp  * del(i,k)
              endif
           enddo
       enddo
@@ -110,13 +110,13 @@
       enddo
       do i = 1, im
         if(cnvflg(i)) then
-          if(sumx(i) == 0._conv_wp ) then
+          if(sumx(i) == 0.0D0_conv_wp ) then
             k = kbcon1(i)
             sigmab(i) = sigmain(i,k)
           else
             sigmab(i) = sigmab(i) / sumx(i)
-            sigmab(i) = min(sigmab(i), 1._conv_wp)
-            if(sigmab(i) < 1.E-5_conv_wp ) sigmab(i)=0._conv_wp 
+            sigmab(i) = min(sigmab(i), 1.0D0_conv_wp)
+            if(sigmab(i) < 1.E-5_conv_wp ) sigmab(i)=0.0D0_conv_wp 
           endif
         endif
       enddo
@@ -133,8 +133,8 @@
 !               Do the integral over buoyant layers with positive mcon acc from
 !               updraft starting level
 !
-                 if(buy2 > 0._conv_wp )then
-                   inbu(i,k)=1._conv_wp 
+                 if(buy2 > 0.0D0_conv_wp )then
+                   inbu(i,k)=1.0D0_conv_wp 
                    termD(i) = termD(i) + mcon
                  endif
                endif
@@ -171,8 +171,8 @@
           do i = 1,im
              if(cnvflg(i))then
                if(k >= kbcon1(i) .and. k < ktcon(i)) then
-                form(i,k)=-1.0_conv_wp *inbu(i,k)*(omega_u(i,k)*delt)
-                fdqb=0.5_conv_wp *((form(i,k)*zdqca(i,k)))
+                form(i,k)=-1.0D0_conv_wp *inbu(i,k)*(omega_u(i,k)*delt)
+                fdqb=0.5D0_conv_wp *((form(i,k)*zdqca(i,k)))
                 termC(i)=termC(i)+inbu(i,k)*   &
                      (fdqb+fdqa(i))*hvap*zeta(i,k)
                 fdqa(i)=fdqb
@@ -186,13 +186,13 @@
          if(cnvflg(i))then
             DEN=MIN(termC(i)+termB(i),1.e8_conv_wp)
             cvg=termD(i)*delt
-            ZZ=MAX(0.0_conv_wp ,SIGN(1.0_conv_wp ,termA(i)))            &
-                 *MAX(0.0_conv_wp ,SIGN(1.0_conv_wp ,termB(i)))         &
-                 *MAX(0.0_conv_wp ,SIGN(1.0_conv_wp ,termC(i)-epsilon))
-            cvg=MAX(0.0_conv_wp ,cvg)
-            sigmab(i)=(ZZ*(termA(i)+cvg))/(DEN+(1.0_conv_wp -ZZ))
-            if(sigmab(i)>0.0_conv_wp)then
-               sigmab(i)=MIN(sigmab(i),0.95_conv_wp)  
+            ZZ=MAX(0.0D0_conv_wp ,SIGN(1.0D0_conv_wp ,termA(i)))            &
+                 *MAX(0.0D0_conv_wp ,SIGN(1.0D0_conv_wp ,termB(i)))         &
+                 *MAX(0.0D0_conv_wp ,SIGN(1.0D0_conv_wp ,termC(i)-epsilon))
+            cvg=MAX(0.0D0_conv_wp ,cvg)
+            sigmab(i)=(ZZ*(termA(i)+cvg))/(DEN+(1.0D0_conv_wp -ZZ))
+            if(sigmab(i)>0.0D0_conv_wp)then
+               sigmab(i)=MIN(sigmab(i),0.95D0_conv_wp)  
                sigmab(i)=MAX(sigmab(i),sigmind_new)
             endif
          endif!cnvflg
@@ -230,7 +230,7 @@
          enddo
       endif
       do i= 1, im
-        sigmab(i) = MIN(0.95_conv_wp ,sigmab(i))
+        sigmab(i) = MIN(0.95D0_conv_wp ,sigmab(i))
       enddo
 
      end subroutine progsigma_calc

@@ -59,10 +59,10 @@ c     real(kind=kind_phys), dimension(im,km,ntr) :: chem_pwd
 c     -- additional variables for fct
       real(kind=conv_wp), dimension(im,km) :: flx_lo, totlout, clipout
 
-      real(kind=conv_wp), parameter :: one     = 1.0_conv_wp
-      real(kind=conv_wp), parameter :: half    = 0.5_conv_wp
-      real(kind=conv_wp), parameter :: quarter = 0.25_conv_wp
-      real(kind=conv_wp), parameter :: zero    = 0.0_conv_wp
+      real(kind=conv_wp), parameter :: one     = 1.0D0_conv_wp
+      real(kind=conv_wp), parameter :: half    = 0.5D0_conv_wp
+      real(kind=conv_wp), parameter :: quarter = 0.25D0_conv_wp
+      real(kind=conv_wp), parameter :: zero    = 0.0D0_conv_wp
       real(kind=conv_wp), parameter :: epsil   = 1.e-22_conv_wp    ! prevent division by zero
 
 c     -- begin
@@ -349,7 +349,7 @@ c             time step / grid spacing
 c             total flux out
               totlout(i,k)=max(zero,flx_lo(i,kp1))-min(zero,flx_lo(i,k))
               clipout(i,k)=min(one ,qaero(i,k,n)/max(epsil,totlout(i,k))
-     &           / (1.0001_conv_wp*dtovdz))
+     &           / (1.0001_D0conv_wp*dtovdz))
             endif
           enddo
         enddo
