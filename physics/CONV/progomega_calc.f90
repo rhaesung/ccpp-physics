@@ -42,18 +42,18 @@
 
      entrn = 0.8E-4_conv_wp !0.5E-4 !m^-1
      Kdn   = 0.5E-4_conv_wp !2.9E-4 !m^-1
-     lbb1  = 0.5D0_conv_wp !1.0 
-     lbb2  = 3.2D0_conv_wp !3.0
-     lbb3  = 0.5D0_conv_wp !0.5
+     lbb1  = 0.5_conv_wp !1.0 
+     lbb2  = 3.2_conv_wp !3.0
+     lbb3  = 0.5_conv_wp !0.5
      
      
      !Initialization 2D
      do k = 1,km
         do i = 1,im
-           termA(i,k)=0.D0_conv_wp
-           termB(i,k)=0.D0_conv_wp
-           termC(i,k)=0.D0_conv_wp
-           RHS(i,k)=0.D0_conv_wp
+           termA(i,k)=0.0_conv_wp
+           termB(i,k)=0.0_conv_wp
+           termC(i,k)=0.0_conv_wp
+           RHS(i,k)=0.0_conv_wp
            omega(i,k)=omegain(i,k)
         enddo
      enddo
@@ -62,7 +62,7 @@
         do k = 1,km
            do i = 1,im
               if(cnvflg(i))then
-                 omega(i,k)=-1.2D0_conv_wp !Pa/s 
+                 omega(i,k)=-1.2_conv_wp !Pa/s 
               endif
            enddo
         enddo
@@ -85,7 +85,7 @@
 
                  ! Scale by dp/dz to have equation in Pa/s
                  !(dp/dz > 0)
-                 dp = 1000.0D0_conv_wp * del(i,k)
+                 dp = 1000.0_conv_wp * del(i,k)
                  dz = zi(i,k+1) - zi(i,k)
                  
                  !termA	- Ensures quadratic damping (drag).
@@ -94,21 +94,21 @@
                  
                  !Coefficients for the quadratic equation
                  termA(i,k) = delt * ((lbb1 * drag(i,k) * (dp/dz)) + (Kd(i,k) * (dp/dz)))
-                 termB(i,k) = -1.0D0_conv_wp - delt * lbb3 * wush(i,k) * dp/dz
+                 termB(i,k) = -1.0_conv_wp - delt * lbb3 * wush(i,k) * dp/dz
                  termC(i,k) = omega(i,k) - delt * lbb2 * buo(i,k) * (dp/dz) &
                       - delt * omega(i,k) * (omega(i,k-1) - omega(i,k)) / dp
                  !Compute the discriminant
-                 discr = termB(i,k)**2 - 4.0D0_conv_wp * termA(i,k) * termC(i,k)
+                 discr = termB(i,k)**2 - 4.0_conv_wp * termA(i,k) * termC(i,k)
 
                  ! Check if discriminant is non-negative
-                 if (discr >= 0.0D0_conv_wp) then
+                 if (discr >= 0.0_conv_wp) then
                  ! Solve quadratic equation, take the negative root
-                 omegaout(i,k) = (-termB(i,k) - sqrt(discr)) / (2.0D0_conv_wp * termA(i,k))
+                 omegaout(i,k) = (-termB(i,k) - sqrt(discr)) / (2.0_conv_wp * termA(i,k))
                  else
                  omegaout(i,k) = omega(i,k)
                  endif
 
-                 omegaout(i,k) = MAX(MIN(omegaout(i,k), -1.2D0_conv_wp), -80.0D0_conv_wp)
+                 omegaout(i,k) = MAX(MIN(omegaout(i,k), -1.2_conv_wp), -80.0_conv_wp)
                 
               endif
            endif

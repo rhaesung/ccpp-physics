@@ -72,15 +72,15 @@
             do i=1,im
               cnvw_phy_f3d(i,k) = cnvw(i,k)
               cnvc_phy_f3d(i,k) = cnvc(i,k)
-              cnvw(i,k)         = 0.0D0_conv_wp
-              cnvc(i,k)         = 0.0D0_conv_wp
+              cnvw(i,k)         = 0.0_conv_wp
+              cnvc(i,k)         = 0.0_conv_wp
             enddo
           enddo
         elseif (npdf3d == 0 .and. ncnvcld3d == 1) then
           do k=1,levs
             do i=1,im
               cnvw_phy_f3d(i,k) = cnvw(i,k)
-              cnvw(i,k)         = 0.0D0_conv_wp
+              cnvw(i,k)         = 0.0_conv_wp
             enddo
           enddo
         endif
