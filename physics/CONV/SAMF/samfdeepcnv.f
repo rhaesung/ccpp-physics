@@ -854,7 +854,8 @@ c
 !!
       if(do_ca .and. ca_trigger)then
          do i=1,im
-            if(ca_deep(i) > nthresh) cnvflg(i) = .true.
+            if(real(ca_deep(i), conv_wp) > real(nthresh, conv_wp)) 
+     &         cnvflg(i) = .true.
             if(kbcon(i) == kmax(i)) cnvflg(i) = .false.
          enddo
       endif
@@ -908,7 +909,8 @@ c
 !!
       if(do_ca .and. ca_trigger)then
          do i=1,im
-            if(ca_deep(i) > nthresh) cnvflg(i) = .true.
+            if(real(ca_deep(i), conv_wp) > real(nthresh, conv_wp)) 
+     &         cnvflg(i) = .true.
             if(kbcon(i) == kmax(i)) cnvflg(i) = .false.
          enddo
       endif
@@ -1838,13 +1840,14 @@ c
 !                  
       if (progomega) then
          call progomega_calc(first_time_step,restart,im,km,
-     &        kbcon1,ktcon,omegain,delt,del,zi,cnvflg,omegaout,
-     &        grav,buo,drag,wush,tentr,bb1,bb2)
+     &        kbcon1,ktcon,real(omegain, conv_wp),real(delt, conv_wp),
+     &        del,zi,cnvflg,omegaout,real(grav, conv_wp),buo,drag,wush,
+     &        tentr,real(bb1, conv_wp),real(bb2, conv_wp))
          do k = 1, km
             do i = 1, im
                if (cnvflg(i)) then
                   if(k > kbcon1(i) .and. k < ktcon(i)) then
-                     omega_u(i,k)=omegaout(i,k)
+                     omega_u(i,k)=real(omegaout(i,k), conv_wp)
                      omega_u(i,k)=MAX(omega_u(i,k),-80.0_conv_wp)
 !     Convert to m/s for use in convective time-scale:
                      rho = po(i,k)*100.0_conv_wp/(real(rd, conv_wp)* 
@@ -2462,7 +2465,7 @@ c
      &                    real(q1(i,1), conv_wp)
           else
             q_diff(i,0) = min(0.0_conv_wp,2.0_conv_wp*real(q1(i,1), 
-     &                    conv_wp)-real(q1(i,2), conv_wp))-i
+     &                    conv_wp)-real(q1(i,2), conv_wp))-
      &                    real(q1(i,1), conv_wp)
           endif
         endif
@@ -2603,8 +2606,8 @@ c
           do i=1,im
             if(cnvflg(i) .and. k <= ktcon(i)) then
                dp = 1000.0_conv_wp * del(i,k)
-               dellae(i,k,n) = dellae(i,k,n) +
-     &             (flxtvd(i,k) - flxtvd(i,k-1)) * real(grav, conv_wp)/dp
+               dellae(i,k,n) = dellae(i,k,n) + (flxtvd(i,k) - 
+     &                         flxtvd(i,k-1)) * real(grav, conv_wp)/dp
             endif
           enddo
         enddo
@@ -3076,11 +3079,11 @@ c
          flag_shallow = .false.
          flag_mid = .false.
          call progsigma_calc(im,km,first_time_step,restart,flag_shallow,
-     &        flag_mid,del,tmfq,qmicro,dbyo1,zdqca,omega_u,zeta,
-     &        real(hvap, conv_wp),real(delt, conv_wp),qadv,kb,kbcon1,
-     &        ktcon,cnvflg,real(betascu, conv_wp),real(betamcu,conv_wp),
-     &        real(betadcu, conv_wp),sigmind,sigminm,sigmins,sigmain,
-     &        sigmaout,sigmab)
+     &        flag_mid,del,tmfq,real(qmicro, conv_wp),dbyo1,zdqca,
+     &        omega_u,zeta,real(hvap, conv_wp),real(delt, conv_wp),qadv,
+     &        kb,kbcon1,ktcon,cnvflg,real(betascu, conv_wp),
+     &        real(betamcu,conv_wp),real(betadcu, conv_wp),sigmind,
+     &        sigminm,sigmins,real(sigmain, conv_wp),sigmaout,sigmab)
       endif
 
 !> - From Han et al.'s (2017) \cite han_et_al_2017 equation 6, calculate cloud base mass flux as a function of the mean updraft velcoity for the grid sizes where the quasi-equilibrium assumption of Arakawa-Schubert is not valid any longer.
@@ -3200,7 +3203,7 @@ c
             qo(i,k) = real(q1(i,k), conv_wp)
             uo(i,k) = real(u1(i,k), conv_wp)
             vo(i,k) = real(v1(i,k), conv_wp)
-            qeso(i,k) = 0.01_conv_wp * fpvs(t1(i,k))      ! fpvs is in pa
+            qeso(i,k) = 0.01_conv_wp * fpvs(real(t1(i,k), conv_wp))      ! fpvs is in pa
             qeso(i,k) = real(eps, conv_wp) * qeso(i,k) / (pfld(i,k) + 
      &                  real(epsm1, conv_wp) *qeso(i,k))
             val     =             1.e-8_conv_wp
@@ -3597,9 +3600,11 @@ c
                if (k >= kbcon(i) .and. k < ktcon(i)) then
                   cnvw(i,k) = cnvwt(i,k) * xmb(i) * dt2
                   if(progsigma)then
-                     cnvw(i,k) = cnvw(i,k) * real(cscale, conv_wp)
+                     cnvw(i,k) = real(cnvw(i,k), conv_wp) * 
+     &                           real(cscale, conv_wp)
                   else
-                     cnvw(i,k) = cnvw(i,k) * real(cscale, conv_wp)
+                     cnvw(i,k) = real(cnvw(i,k), conv_wp) * 
+     &                           real(cscale, conv_wp)
                   endif
                endif
             endif

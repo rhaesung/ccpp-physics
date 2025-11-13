@@ -43,7 +43,7 @@
 
       real(kind=kind_phys), dimension(:),   intent(inout) :: rainc
       real(kind=kind_phys), dimension(:),   intent(inout) :: cldwrk
-      real(kind=conv_wp), dimension(:,:), intent(inout), optional :: upd_mf, dwn_mf, det_mf
+      real(kind=kind_phys), dimension(:,:), intent(inout), optional :: upd_mf, dwn_mf, det_mf
       real(kind=kind_phys), dimension(:,:), intent(inout) :: cnvw, cnvc
 
       real(kind=kind_phys), dimension(:,:,:), intent(inout), optional :: dtend
