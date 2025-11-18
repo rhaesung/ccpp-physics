@@ -332,8 +332,8 @@ c    &            .743,.813,.886,.947,1.138,1.377,1.896/
 
       fact1 = (real(cvap, kind=conv_wp)-real(cliq, kind=conv_wp))/
      &         real(rv, kind=conv_wp)
-      fact2 = (real(hvap, kind=conv_wp)/real(rv, kind=conv_wp))-(fact1 *
-     &         real(t0c, kind=conv_wp))
+      fact2 = real(hvap, kind=conv_wp)/real(rv, kind=conv_wp)-fact1 *
+     &         real(t0c, kind=conv_wp)
 c-----------------------------------------------------------------------
 !>  ## Determine whether to perform aerosol transport
       if(hwrf_samfdeep) then
@@ -2043,7 +2043,7 @@ c
             if(k > kb(i) .and. k <= ktcon(i)) then
               shear = sqrt((real(uo(i,k),
      &          conv_wp)-real(uo(i,k-1), conv_wp)) ** 2 +
-     &          (real(vo(i,k), conv_wp)-real(vo(i,k-1), conv_wp) **2))
+     &          (real(vo(i,k), conv_wp)-real(vo(i,k-1), conv_wp)) **2)
               vshear(i) = vshear(i) + shear
             endif
           endif
@@ -2253,7 +2253,7 @@ c
               aa1(i) = aa1(i)+edto(i)*dz*
      &             (real(grav, conv_wp)/(real(cp, conv_wp)*dt))*
      &             ((dhh-dh)/(1.0_conv_wp+dg))*(1.0_conv_wp+real(fv,
-     &             conv_wp))*(real(cp, conv_wp)*dg*dt/real(hvap,
+     &             conv_wp)*real(cp, conv_wp)*dg*dt/real(hvap,
      &             conv_wp))
               val = 0.0_conv_wp
 !             aa1(i)=aa1(i)+edto(i)*dz*etad(i,k)
