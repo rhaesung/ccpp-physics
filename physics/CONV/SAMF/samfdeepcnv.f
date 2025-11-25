@@ -403,15 +403,34 @@ c
         rainevap(i) = 0.0_conv_wp
         omegac(i)=0.0_conv_wp
         gdx(i) = sqrt(real(garea(i), kind=conv_wp))
+        tem_1d(i)   = 0.0_conv_wp
+        tem1_1d(i)  = 0.0_conv_wp
+        tem2_1d(i)  = 0.0_conv_wp
+        ptem_1d(i)  = 0.0_conv_wp
+        ptem1_1d(i) = 0.0_conv_wp
+        ptem2_1d(i) = 0.0_conv_wp  
       enddo
 
       do k=1,km
         do i=1,im
           xlamud(i,k) = 0.0_conv_wp
           xlamue(i,k) = 0.0_conv_wp
+          to(i,k) = 0.0_conv_wp
+          qo(i,k) = 0.0_conv_wp
+          uo(i,k) = 0.0_conv_wp
+          vo(i,k) = 0.0_conv_wp
+          qeso(i,k) = 0.0_conv_wp
+          tem(i,k)    = 0.0_conv_wp
+          tem1(i,k)   = 0.0_conv_wp
+          tem2(i,k)   = 0.0_conv_wp
+          ptem(i,k)   = 0.0_conv_wp
+          ptem1(i,k)  = 0.0_conv_wp
+          ptem2(i,k)  = 0.0_conv_wp
+          factor(i,k) = 0.0_conv_wp
+          rfact(i,k)  = 0.0_conv_wp
         enddo
       enddo
-!
+
       if (hwrf_samfdeep) then
         do i=1,im
           scaldfunc(i)=-1.0_conv_wp
@@ -727,9 +746,6 @@ c
             dt      = (real(grav, conv_wp)*dz + real(hvap, conv_wp)*
      &                dqsdp*dp)/(real(cp, conv_wp) * 
      &                (1.0_conv_wp + gamma))
-            dt      = (real(grav, conv_wp)*dz + real(hvap, conv_wp)*
-     &                dqsdp*dp) / (real(cp, conv_wp) * (1.0_conv_wp + 
-     &                gamma))
             dq      = dqsdt * dt + dqsdp * dp
             to(i,k) = to(i,k+1) + dt
             qo(i,k) = qo(i,k+1) + dq
@@ -2282,12 +2298,12 @@ c
 !> - Calculate the change in moist static energy, moisture mixing ratio, and horizontal winds per unit cloud base mass flux near the surface using equations B.18 and B.19 from Grell (1993) \cite grell_1993, for all layers below cloud top from equations B.14 and B.15, and for the cloud top from B.16 and B.17.
       do k = 1, km
         do i = 1, im
-          if(cnvflg(i) .and. k <= kmax(i)) then
+         ! if(cnvflg(i) .and. k <= kmax(i)) then
             dellah(i,k) = 0.0_conv_wp
             dellaq(i,k) = 0.0_conv_wp
             dellau(i,k) = 0.0_conv_wp
             dellav(i,k) = 0.0_conv_wp
-          endif
+         ! endif
         enddo
       enddo
       if (.not.hwrf_samfdeep) then
