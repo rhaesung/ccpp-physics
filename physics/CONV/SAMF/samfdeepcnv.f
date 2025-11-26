@@ -588,45 +588,96 @@ c!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 c   convert surface pressure to mb from cb
 c
 !>  - Convert prsl from centibar to millibar, set normalized mass fluxes to 1, cloud properties to 0, and save model state variables (after advection/turbulence).
+!      do k = 1, km
+!      do i = 1, im
+!      if (k <= kmax(i)) then
+!            pfld(i,k) = prsl(i,k) * 10.0_conv_wp
+!            eta(i,k)  = 1.0_conv_wp
+!            fent1(i,k)= 1.0_conv_wp
+!            fent2(i,k)= 1.0_conv_wp
+!            rh(i,k)   = 0.0_conv_wp
+!            frh(i,k)  = 0.0_conv_wp
+!            hcko(i,k) = 0.0_conv_wp
+!            qcko(i,k) = 0.0_conv_wp
+!            qrcko(i,k)= 0.0_conv_wp
+!            ucko(i,k) = 0.0_conv_wp
+!            vcko(i,k) = 0.0_conv_wp
+!            etad(i,k) = 1.0_conv_wp
+!            hcdo(i,k) = 0.0_conv_wp
+!            qcdo(i,k) = 0.0_conv_wp
+!            ucdo(i,k) = 0.0_conv_wp
+!            vcdo(i,k) = 0.0_conv_wp
+!            qrcd(i,k) = 0.0_conv_wp
+!            qrcdo(i,k)= 0.0_conv_wp
+!            dbyo(i,k) = 0.0_conv_wp
+!            pwo(i,k)  = 0.0_conv_wp
+!            pwdo(i,k) = 0.0_conv_wp
+!            dellal(i,k) = 0.0_conv_wp
+!            to(i,k)   = real(t1(i,k), conv_wp)
+!            qo(i,k)   = real(q1(i,k), conv_wp)
+!            uo(i,k)   = real(u1(i,k), conv_wp)
+!            vo(i,k)   = real(v1(i,k), conv_wp)
+!!           uo(i,k)   = u1(i,k) * rcs(i)
+!!           vo(i,k)   = v1(i,k) * rcs(i)
+!            wu2(i,k)  = 0.0_conv_wp
+!            buo(i,k)  = 0.0_conv_wp
+!            wush(i,k) = 0.0_conv_wp
+!            drag(i,k) = 0.0_conv_wp
+!            cnvwt(i,k)= 0.0_conv_wp
+!          endif
+!        enddo
+!      enddo
+
       do k = 1, km
         do i = 1, im
+          eta(i,k)   = 1.0_conv_wp
+          etad(i,k)  = 1.0_conv_wp
+          fent1(i,k) = 1.0_conv_wp
+          fent2(i,k) = 1.0_conv_wp
+          
+          rh(i,k)    = 0.0_conv_wp
+          frh(i,k)   = 0.0_conv_wp
+          
+          hcko(i,k)  = 0.0_conv_wp
+          qcko(i,k)  = 0.0_conv_wp
+          qrcko(i,k) = 0.0_conv_wp
+          ucko(i,k)  = 0.0_conv_wp
+          vcko(i,k)  = 0.0_conv_wp
+          
+          hcdo(i,k)  = 0.0_conv_wp
+          qcdo(i,k)  = 0.0_conv_wp
+          ucdo(i,k)  = 0.0_conv_wp
+          vcdo(i,k)  = 0.0_conv_wp
+          qrcd(i,k)  = 0.0_conv_wp
+          qrcdo(i,k) = 0.0_conv_wp
+          dbyo(i,k)  = 0.0_conv_wp
+          
+          pwo(i,k)   = 0.0_conv_wp
+          pwdo(i,k)  = 0.0_conv_wp
+          dellal(i,k)= 0.0_conv_wp
+          wu2(i,k)   = 0.0_conv_wp
+          buo(i,k)   = 0.0_conv_wp
+          wush(i,k)  = 0.0_conv_wp
+          drag(i,k)  = 0.0_conv_wp
+          cnvwt(i,k) = 0.0_conv_wp
+
+          pfld(i,k) = 0.0_conv_wp
+          to(i,k)   = 0.0_conv_wp
+          qo(i,k)   = 0.0_conv_wp
+          uo(i,k)   = 0.0_conv_wp
+          vo(i,k)   = 0.0_conv_wp
+
           if (k <= kmax(i)) then
             pfld(i,k) = prsl(i,k) * 10.0_conv_wp
-            eta(i,k)  = 1.0_conv_wp
-            fent1(i,k)= 1.0_conv_wp
-            fent2(i,k)= 1.0_conv_wp
-            rh(i,k)   = 0.0_conv_wp
-            frh(i,k)  = 0.0_conv_wp
-            hcko(i,k) = 0.0_conv_wp
-            qcko(i,k) = 0.0_conv_wp
-            qrcko(i,k)= 0.0_conv_wp
-            ucko(i,k) = 0.0_conv_wp
-            vcko(i,k) = 0.0_conv_wp
-            etad(i,k) = 1.0_conv_wp
-            hcdo(i,k) = 0.0_conv_wp
-            qcdo(i,k) = 0.0_conv_wp
-            ucdo(i,k) = 0.0_conv_wp
-            vcdo(i,k) = 0.0_conv_wp
-            qrcd(i,k) = 0.0_conv_wp
-            qrcdo(i,k)= 0.0_conv_wp
-            dbyo(i,k) = 0.0_conv_wp
-            pwo(i,k)  = 0.0_conv_wp
-            pwdo(i,k) = 0.0_conv_wp
-            dellal(i,k) = 0.0_conv_wp
+            
             to(i,k)   = real(t1(i,k), conv_wp)
             qo(i,k)   = real(q1(i,k), conv_wp)
             uo(i,k)   = real(u1(i,k), conv_wp)
             vo(i,k)   = real(v1(i,k), conv_wp)
-!           uo(i,k)   = u1(i,k) * rcs(i)
-!           vo(i,k)   = v1(i,k) * rcs(i)
-            wu2(i,k)  = 0.0_conv_wp
-            buo(i,k)  = 0.0_conv_wp
-            wush(i,k) = 0.0_conv_wp
-            drag(i,k) = 0.0_conv_wp
-            cnvwt(i,k)= 0.0_conv_wp
           endif
         enddo
       enddo
+
 
       do k = 1, km
          do i = 1, im
@@ -645,12 +696,14 @@ c
         kk = n-2
         do k = 1, km
           do i = 1, im
+            ctr(i,k,kk)   = 0.0_conv_wp
+            ctro(i,k,kk)  = 0.0_conv_wp
+            ecko(i,k,kk)  = 0.0_conv_wp
+            ercko(i,k,kk) = 0.0_conv_wp
+            ecdo(i,k,kk)  = 0.0_conv_wp
             if (k <= kmax(i)) then
               ctr(i,k,kk) = real(qtr(i,k,n), conv_wp)
               ctro(i,k,kk) = real(qtr(i,k,n), conv_wp)
-              ecko(i,k,kk) = 0.0_conv_wp
-              ercko(i,k,kk) = 0.0_conv_wp
-              ecdo(i,k,kk) = 0.0_conv_wp
             endif
           enddo
         enddo
