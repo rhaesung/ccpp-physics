@@ -1213,8 +1213,8 @@ c
           if(cnvflg(i).and.
      &      (k > kbcon(i) .and. k < kmax(i))) then
               tem = qeso(i,k)/qeso(i,kbcon(i))
-              fent1(i,k) = min(tem(i,k)**2, 3.0)
-              fent2(i,k) = min(tem(i,k)**3, 5.2)
+              fent1(i,k) = min(tem(i,k)**2, 3.0_conv_wp)
+              fent2(i,k) = min(tem(i,k)**3, 5.2_conv_wp)
           endif
         enddo
       enddo
@@ -2232,12 +2232,12 @@ cj
               tem(i,k) = 0.5_conv_wp * cm * tem(i,k)
               factor(i,k) = 1.0_conv_wp + tem(i,k)
               ptem(i,k) = tem(i,k) - real(pgcon, conv_wp)
-              ptem1_1d(i)= tem(i,k) + real(pgcon, conv_wp)
+              ptem1(i,k)= tem(i,k) + real(pgcon, conv_wp)
               ucdo(i,k)=((1.0_conv_wp-tem(i,k))*ucdo(i,k+1)+ptem(i,k)*
-     &                real(uo(i,k+1), conv_wp)+ptem1_1d(i)*real(uo(i,k),
+     &                real(uo(i,k+1), conv_wp)+ptem1(i,k)*real(uo(i,k),
      &                conv_wp))/factor(i,k)
               vcdo(i,k)=((1.0_conv_wp-tem(i,k))*vcdo(i,k+1)+ptem(i,k)*
-     &                real(vo(i,k+1), conv_wp)+ptem1_1d(i)*real(vo(i,k),
+     &                real(vo(i,k+1), conv_wp)+ptem1(i,k)*real(vo(i,k),
      &                conv_wp))/factor(i,k)
           endif
         enddo
@@ -2430,28 +2430,26 @@ cj
 cj
               tem1(i,k) = -eta(i,k) * qrcko(i,k)
               tem2(i,k) = -eta(i,k-1) * qcko(i,k-1)
-              ptem1_1d(i) = -etad(i,k) * qrcdo(i,k)
-              ptem2_1d(i) = -etad(i,k-1) * qcdo(i,k-1)
+              ptem1(i,k)= -etad(i,k) * qrcdo(i,k)
+              ptem2(i,k) = -etad(i,k-1) * qcdo(i,k-1)
               dellaq(i,k) = dellaq(i,k) + (aup*(tem1(i,k)-tem2(i,k)) -
-     &        adw*edto(i)*(ptem1_1d(i)-ptem2_1d(i)))*factor(i,k)
+     &        adw*edto(i)*(ptem1(i,k)-ptem2(i,k)))*factor(i,k)
 cj
               tem1(i,k)=eta(i,k)*(real(uo(i,k),conv_wp)-ucko(i,k))
               tem2(i,k)=eta(i,k-1)*(real(uo(i,k-1),conv_wp)-ucko(i,k-1))
-              ptem1_1d(i)=etad(i,k)*(real(uo(i,k),conv_wp)-ucdo(i,k))
-              ptem2_1d(i)=etad(i,k-1)*(real(uo(i,k-1),conv_wp)-
-     &                    ucdo(i,k-1))
-              ptem2_1d(i)=etad(i,k-1)*(real(uo(i,k-1),conv_wp)-
+              ptem1(i,k)=etad(i,k)*(real(uo(i,k),conv_wp)-ucdo(i,k))
+              ptem2(i,k)=etad(i,k-1)*(real(uo(i,k-1),conv_wp)-
      &                    ucdo(i,k-1))
               dellau(i,k) = dellau(i,k)+(aup*(tem1(i,k)-tem2(i,k))-adw*
-     &        edto(i)*(ptem1_1d(i)-ptem2_1d(i)))*factor(i,k)
+     &        edto(i)*(ptem1(i,k)-ptem2(i,k)))*factor(i,k)
 cj
               tem1(i,k)=eta(i,k)*(real(vo(i,k),conv_wp)-vcko(i,k))
               tem2(i,k)=eta(i,k-1)*(real(vo(i,k-1),conv_wp)-vcko(i,k-1))
-              ptem1_1d(i)=etad(i,k)*(real(vo(i,k),conv_wp)-vcdo(i,k))
-              ptem2_1d(i)=etad(i,k-1)*(real(vo(i,k-1),conv_wp)-
+              ptem1(i,k)=etad(i,k)*(real(vo(i,k),conv_wp)-vcdo(i,k))
+              ptem2(i,k)=etad(i,k-1)*(real(vo(i,k-1),conv_wp)-
      &                    vcdo(i,k-1))
               dellav(i,k) = dellav(i,k)+(aup*(tem1(i,k)-tem2(i,k))-adw*
-     &        edto(i)*(ptem1_1d(i)-ptem2_1d(i)))*factor(i,k)
+     &        edto(i)*(ptem1(i,k)-ptem2(i,k)))*factor(i,k)
 cj
           endif
         enddo
@@ -2469,10 +2467,10 @@ cj
 cj
               tem1(i,k) = -eta(i,k) * ercko(i,k,n)
               tem2(i,k) = -eta(i,k-1) * ecko(i,k-1,n)
-              ptem1_1d(i) = -etad(i,k) * ecdo(i,k,n)
-              ptem2_1d(i) = -etad(i,k-1) * ecdo(i,k-1,n)
+              ptem1(i,k) = -etad(i,k) * ecdo(i,k,n)
+              ptem2(i,k) = -etad(i,k-1) * ecdo(i,k-1,n)
               dellae(i,k,n) = dellae(i,k,n)+(aup*(tem1(i,k)-tem2(i,k))-
-     &                        adw*edto(i)*(ptem1_1d(i)-ptem2_1d(i)))*
+     &                        adw*edto(i)*(ptem1(i,k)-ptem2(i,k)))*
      &                        real(grav,conv_wp)/dp
 cj
           endif
