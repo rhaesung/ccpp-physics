@@ -1,4 +1,4 @@
-!>  \file samfdeepcnv.f
+!!>  \file samfdeepcnv.f
 !!  This file contains the entire scale-aware mass-flux (SAMF)
 !! deep convection scheme.
 
@@ -654,6 +654,10 @@ c
           
           pwo(i,k)   = 0.0_conv_wp
           pwdo(i,k)  = 0.0_conv_wp
+          dellah(i,k)= 0.0_conv_wp
+          dellaq(i,k)= 0.0_conv_wp
+          dellau(i,k)= 0.0_conv_wp
+          dellav(i,k)= 0.0_conv_wp
           dellal(i,k)= 0.0_conv_wp
           wu2(i,k)   = 0.0_conv_wp
           buo(i,k)   = 0.0_conv_wp
@@ -668,14 +672,20 @@ c
           vo(i,k)   = 0.0_conv_wp
 
           if (k <= kmax(i)) then
-            pfld(i,k) = prsl(i,k) * 10.0_conv_wp
-            
+            pfld(i,k) = prsl(i,k) * 10.0_conv_wp 
             to(i,k)   = real(t1(i,k), conv_wp)
             qo(i,k)   = real(q1(i,k), conv_wp)
             uo(i,k)   = real(u1(i,k), conv_wp)
             vo(i,k)   = real(v1(i,k), conv_wp)
           endif
-        enddo
+        
+          if (.not. hwrf_samfdeep) then
+             do n = 1, ntr
+                dellae(i,k,n) = 0.0_conv_wp
+             enddo
+          endif
+
+       enddo
       enddo
 
 
@@ -2270,7 +2280,7 @@ c
 !             detad      = etad(i,k+1) - etad(i,k)
 cj
               dz = zi(i,k+1) - zi(i,k)
-              tem(i,k)  = 0.50_conv_wp * xlamdet(i) * dz
+              tem(i,k)  = 0.5_conv_wp * xlamdet(i) * dz
               tem(i,k)  = real(cq, conv_wp) * tem(i,k)
               factor(i,k) = 1.0_conv_wp + tem(i,k)
               qcdo(i,k)=((1.0_conv_wp-tem(i,k))*qrcdo(i,k+1)+tem(i,k)*
@@ -2349,27 +2359,27 @@ c--- what would the change be, that a cloud with unit mass
 c--- will do to the environment?
 c
 !> - Calculate the change in moist static energy, moisture mixing ratio, and horizontal winds per unit cloud base mass flux near the surface using equations B.18 and B.19 from Grell (1993) \cite grell_1993, for all layers below cloud top from equations B.14 and B.15, and for the cloud top from B.16 and B.17.
-      do k = 1, km
-        do i = 1, im
-         ! if(cnvflg(i) .and. k <= kmax(i)) then
-            dellah(i,k) = 0.0_conv_wp
-            dellaq(i,k) = 0.0_conv_wp
-            dellau(i,k) = 0.0_conv_wp
-            dellav(i,k) = 0.0_conv_wp
-         ! endif
-        enddo
-      enddo
-      if (.not.hwrf_samfdeep) then
-      do n = 1, ntr
-      do k = 1, km
-        do i = 1, im
-          if(cnvflg(i) .and. k <= kmax(i)) then
-            dellae(i,k,n) = 0.0_conv_wp
-          endif
-        enddo
-      enddo
-      enddo
-      endif
+!      do k = 1, km
+!       do i = 1, im
+!         if(cnvflg(i) .and. k <= kmax(i)) then
+!            dellah(i,k) = 0.0_conv_wp
+!            dellaq(i,k) = 0.0_conv_wp
+!            dellau(i,k) = 0.0_conv_wp
+!            dellav(i,k) = 0.0_conv_wp
+!         endif
+!       enddo
+!      enddo
+!      if (.not.hwrf_samfdeep) then
+!      do n = 1, ntr
+!      do k = 1, km
+!      do i = 1, im
+!          if(cnvflg(i) .and. k <= kmax(i)) then
+!           dellae(i,k,n) = 0.0_conv_wp
+!          endif
+!      enddo
+!      enddo
+!      enddo
+!      endif
       do i = 1, im
         if(cnvflg(i)) then
           dp = 1000.0_conv_wp * del(i,1)
