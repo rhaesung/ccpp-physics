@@ -18,6 +18,7 @@
      &   tcdo,qcdo,ucdo,vcdo,xlamdeq,a1)
 !
       use machine , only : kind_phys
+      use mo_pbl_kind, only : pbl_wp
       use funcphys , only : fpvs
       use physcons, grav => con_g, cp => con_cp
      &,             rv => con_rv, hvap => con_hvap
@@ -31,8 +32,8 @@
       integer   krad(im), mrad(im)
 !
       logical cnvflg(im)
-      real(kind=kind_phys) delt
-      real(kind=kind_phys) q1(ix,km,ntrac1),t1(ix,km),
+      real(kind=pbl_wp)    delt
+      real(kind=pbl_wp)    q1(ix,km,ntrac1),t1(ix,km),
      &                     u1(ix,km),      v1(ix,km),
      &                     plyr(im,km),    pix(im,km),
      &                     thlx(im,km),
@@ -52,7 +53,7 @@
       integer   i,j,indx, k, n, kk, ndc
       integer   krad1(im)
 !
-      real(kind=kind_phys) dt2,     dz,      ce0,
+      real(kind=pbl_wp) dt2,     dz,      ce0,
      &                     cm,      cq,
      &                     tkcrt,   cmxfac,
      &                     gocp,    factor,  g,       tau,
@@ -63,34 +64,37 @@
      &                     xmmx,    tem,     tem1,    tem2,
      &                     ptem,    ptem1,   ptem2
 !
-      real(kind=kind_phys) elocp,   el2orc,  qs,      es,
+      real(kind=pbl_wp) elocp,   el2orc,  qs,      es,
      &                     tld,     gamma,   qld,     thdn,
      &                     thvd,    dq
 !
-      real(kind=kind_phys) wd2(im,km), thld(im,km),
+      real(kind=pbl_wp) wd2(im,km), thld(im,km),
      &                     qtx(im,km), qtd(im,km),
      &                     thlvd(im),  hrad(im), xlamde(im,km-1),
      &                     xlamdem(im,km-1), ra1(im)
-      real(kind=kind_phys) delz(im), xlamax(im), ce0t(im)
+      real(kind=pbl_wp) delz(im), xlamax(im), ce0t(im)
 !
-      real(kind=kind_phys) xlamavg(im),   sigma(im),
+      real(kind=pbl_wp) xlamavg(im),   sigma(im),
      &                     scaldfunc(im), sumx(im)
 !
       logical totflg, flg(im)
 !
-      real(kind=kind_phys) actei, cldtime
+      real(kind=pbl_wp) actei, cldtime
 !
 c  physical parameters
-      parameter(g=grav)
-      parameter(gocp=g/cp)
-      parameter(elocp=hvap/cp,el2orc=hvap*hvap/(rv*cp))
-      parameter(ce0=0.4,cm=1.0,cq=1.0,pgcon=0.55)
-      parameter(tkcrt=2.,cmxfac=5.)
-      parameter(qmin=1.e-8,qlmin=1.e-12)
-      parameter(b1=0.45,f1=0.15)
-      parameter(a2=0.5)
-      parameter(cldtime=500.)
-      parameter(actei = 0.7)
+      parameter(g=real(grav, kind=pbl_wp))
+      parameter(gocp=g/real(cp, kind=pbl_wp))
+      parameter(elocp=real(hvap, kind=pbl_wp)/real(cp, kind=pbl_wp),
+     &          el2orc=real(hvap, kind=pbl_wp)*real(hvap, kind=pbl_wp)
+     &         /(real(rv, kind=pbl_wp)*real(cp, kind=pbl_wp)))
+      parameter(ce0=0.4_pbl_wp,cm=1.0_pbl_wp,cq=1.0_pbl_wp,
+     &          pgcon=0.55_pbl_wp)
+      parameter(tkcrt=2.0_pbl_wp,cmxfac=5.0_pbl_wp)
+      parameter(qmin=1.e-8_pbl_wp,qlmin=1.e-12_pbl_wp)
+      parameter(b1=0.45_pbl_wp,f1=0.15_pbl_wp)
+      parameter(a2=0.5_pbl_wp)
+      parameter(cldtime=500.0_pbl_wp)
+      parameter(actei = 0.7_pbl_wp)
 !     parameter(actei = 0.23)
 !
 !************************************************************************
@@ -106,8 +110,8 @@ c  physical parameters
       do k = 1, km
         do i=1,im
           if(cnvflg(i)) then
-            buo(i,k) = 0.
-            wd2(i,k) = 0.
+            buo(i,k) = 0.0_pbl_wp
+            wd2(i,k) = 0.0_pbl_wp
             qtx(i,k) = q1(i,k,1) + q1(i,k,ntcw)
           endif
         enddo
@@ -125,7 +129,7 @@ c  physical parameters
           k    = krad(i)
           tem  = zm(i,k+1)-zm(i,k)
           tem1 = cldtime*radmin(i)/tem
-          tem1 = max(tem1, -3.0)
+          tem1 = max(tem1, -3.0_pbl_wp)
           thld(i,k)= thlx(i,k) + tem1
           qtd(i,k) = qtx(i,k)
           thlvd(i) = thlvx(i,k) + tem1
@@ -149,7 +153,7 @@ c  physical parameters
            k = krad(i)
            tem = thetae(i,k) - thetae(i,k+1)
            tem1 = qtx(i,k) - qtx(i,k+1)
-           if (tem > 0. .and. tem1 > 0.) then
+           if (tem > 0. 0_pbl_wp.and. tem1 > 0.0_pbl_wp) then
              cteit= cp*tem/(hvap*tem1)
              if(cteit > actei) then
                ra1(i) = a2
@@ -219,12 +223,12 @@ c  physical parameters
           if(cnvflg(i)) then
             if(k >= mrad(i) .and. k < krad(i)) then
               if(mrad(i) == 1) then
-                ptem = 1./(zm(i,k)+delz(i))
+                ptem = 1.0_pbl_wp/(zm(i,k)+delz(i))
               else
-                ptem = 1./(zm(i,k)-zm(i,mrad(i)-1)+delz(i))
+                ptem = 1.0_pbl_wp/(zm(i,k)-zm(i,mrad(i)-1)+delz(i))
               endif
               tem = max((hrad(i)-zm(i,k)+delz(i)) ,delz(i))
-              ptem1 = 1./tem
+              ptem1 = 1.0_pbl_wp/tem
               xlamde(i,k) = ce0t(i) * (ptem+ptem1)
             else
               xlamde(i,k) = xlamax(i)
@@ -242,34 +246,34 @@ c  physical parameters
         do i=1,im
           if(cnvflg(i) .and. k < krad(i)) then
             dz = zl(i,k+1) - zl(i,k)
-            tem  = 0.5 * xlamde(i,k) * dz
-            factor = 1. + tem
+            tem  = 0.5_pbl_wp * xlamde(i,k) * dz
+            factor = 1.0_pbl_wp + tem
 ! 
-            thld(i,k) = ((1.-tem)*thld(i,k+1)+tem*
+            thld(i,k) = ((1.0_pbl_wp-tem)*thld(i,k+1)+tem*
      &                     (thlx(i,k)+thlx(i,k+1)))/factor
 !
-            tem  = 0.5 * xlamdeq(i,k) * dz
-            factor = 1. + tem
-            qtd(i,k) = ((1.-tem)*qtd(i,k+1)+tem*
+            tem  = 0.5_pbl_wp * xlamdeq(i,k) * dz
+            factor = 1.0_pbl_wp + tem
+            qtd(i,k) = ((1.0_pbl_wp-tem)*qtd(i,k+1)+tem*
      &                     (qtx(i,k)+qtx(i,k+1)))/factor
 !
             tld = thld(i,k) / pix(i,k)
-            es = 0.01 * fpvs(tld)      ! fpvs in pa
+            es = 0.01_pbl_wp * fpvs(tld)      ! fpvs in pa
             qs = max(qmin, eps * es / (plyr(i,k)+epsm1*es))
             dq = qtd(i,k) - qs
 !
-            if (dq > 0.) then
+            if (dq > 0.0_pbl_wp) then
               gamma = el2orc * qs / (tld**2)
-              qld = dq / (1. + gamma)
+              qld = dq / (1.0_pbl_wp + gamma)
               qtd(i,k) = qs + qld
-              tem1 = 1. + fv * qs - qld
+              tem1 = 1.0_pbl_wp + fv * qs - qld
               thdn = thld(i,k) + pix(i,k) * elocp * qld
               thvd = thdn * tem1
             else
-              tem1 = 1. + fv * qtd(i,k)
+              tem1 = 1.0_pbl_wp + fv * qtd(i,k)
               thvd = thld(i,k) * tem1
             endif
-            buo(i,k) = g * (1. - thvd / thvx(i,k))
+            buo(i,k) = g * (1.0_pbl_wp - thvd / thvx(i,k))
 !
           endif
         enddo
@@ -289,17 +293,17 @@ c  physical parameters
 !     bb2 = 2.
 !
 !  from our tuning
-      bb1 = 2.0
-      bb2 = 4.0
+      bb1 = 2.0_pbl_wp
+      bb2 = 4.0_pbl_wp
 !
       do i = 1, im
         if(cnvflg(i)) then
           k = krad1(i)
           dz = zm(i,k+1) - zm(i,k)
 !         tem = 0.25*bb1*(xlamde(i,k)+xlamde(i,k+1))*dz
-          tem = 0.5*bb1*xlamde(i,k)*dz
+          tem = 0.5_pbl_wp*bb1*xlamde(i,k)*dz
           tem1 = bb2 * buo(i,k+1) * dz
-          ptem1 = 1. + tem
+          ptem1 = 1.0_pbl_wp + tem
           wd2(i,k) = tem1 / ptem1
         endif
       enddo
@@ -307,12 +311,12 @@ c  physical parameters
         do i = 1, im
           if(cnvflg(i) .and. k < krad1(i)) then
             dz    = zm(i,k+1) - zm(i,k)
-            tem  = 0.25*bb1*(xlamde(i,k)+xlamde(i,k+1))*dz
-            tem1 = max(wd2(i,k+1), 0.)
+            tem  = 0.25_pbl_wp*bb1*(xlamde(i,k)+xlamde(i,k+1))*dz
+            tem1 = max(wd2(i,k+1), 0.0_pbl_wp)
             tem1 = bb2*buo(i,k+1) - wush(i,k+1)*sqrt(tem1)
             tem2 = tem1 * dz
-            ptem = (1. - tem) * wd2(i,k+1)
-            ptem1 = 1. + tem
+            ptem = (1.0_pbl_wp - tem) * wd2(i,k+1)
+            ptem1 = 1.0_pbl_wp + tem
             wd2(i,k) = (ptem + tem2) / ptem1
           endif
         enddo
@@ -325,7 +329,7 @@ c
       do k = kmscu,1,-1
       do i = 1, im
         if(flg(i) .and. k < krad(i)) then
-          if(wd2(i,k) > 0.) then
+          if(wd2(i,k) > 0.0_pbl_wp) then
             mrad(i) = k
           else
             flg(i)=.false.
@@ -364,12 +368,12 @@ c
           if(cnvflg(i)) then
             if(k >= mrad(i) .and. k < krad(i)) then
               if(mrad(i) == 1) then
-                ptem = 1./(zm(i,k)+delz(i))
+                ptem = 1.0_pbl_wp/(zm(i,k)+delz(i))
               else
-                ptem = 1./(zm(i,k)-zm(i,mrad(i)-1)+delz(i))
+                ptem = 1.0_pbl_wp/(zm(i,k)-zm(i,mrad(i)-1)+delz(i))
               endif
               tem = max((hrad(i)-zm(i,k)+delz(i)) ,delz(i))
-              ptem1 = 1./tem
+              ptem1 = 1.0_pbl_wp/tem
               xlamde(i,k) = ce0t(i) * (ptem+ptem1)
             else
               xlamde(i,k) = xlamax(i)
@@ -384,8 +388,8 @@ c
 !> - Compute entrainment rate averaged over the whole downdraft layers
 !
       do i = 1, im
-        xlamavg(i) = 0.
-        sumx(i) = 0.
+        xlamavg(i) = 0.0_pbl_wp
+        sumx(i) = 0.0_pbl_wp
       enddo
       do k = kmscu, 1, -1
         do i = 1, im
@@ -419,11 +423,11 @@ c
 !
       do i = 1, im
         if(cnvflg(i)) then
-          tem = 0.2 / xlamavg(i)
-          tem1 = 3.14 * tem * tem
+          tem = 0.2_pbl_wp / xlamavg(i)
+          tem1 = 3.14_pbl_wp * tem * tem
           sigma(i) = tem1 / (gdx(i) * gdx(i))
-          sigma(i) = max(sigma(i), 0.001)
-          sigma(i) = min(sigma(i), 0.999)
+          sigma(i) = max(sigma(i), 0.001_pbl_wp)
+          sigma(i) = min(sigma(i), 0.999_pbl_wp)
         endif
       enddo
 !
@@ -433,10 +437,10 @@ c
       do i = 1, im
         if(cnvflg(i)) then
           if (sigma(i) > ra1(i)) then
-            scaldfunc(i) = (1.-sigma(i)) * (1.-sigma(i))
-            scaldfunc(i) = max(min(scaldfunc(i), 1.0), 0.)
+            scaldfunc(i) = (1.0_pbl_wp-sigma(i)) * (1.0_pbl_wp-sigma(i))
+            scaldfunc(i) = max(min(scaldfunc(i), 1.0_pbl_wp),0.0_pbl_wp)
           else
-            scaldfunc(i) = 1.0
+            scaldfunc(i) = 1.0_pbl_wp
           endif
         endif
       enddo
@@ -484,32 +488,33 @@ c
           if(cnvflg(i) .and. 
      &       (k >= mrad(i) .and. k < krad(i))) then
             dz = zl(i,k+1) - zl(i,k)
-            tem  = 0.5 * xlamde(i,k) * dz
-            factor = 1. + tem
+            tem  = 0.5_pbl_wp * xlamde(i,k) * dz
+            factor = 1.0_pbl_wp + tem
 !
-            thld(i,k) = ((1.-tem)*thld(i,k+1)+tem*
+            thld(i,k) = ((1.0_pbl_wp-tem)*thld(i,k+1)+tem*
      &                     (thlx(i,k)+thlx(i,k+1)))/factor
 !
-            tem  = 0.5 * xlamdeq(i,k) * dz
-            factor = 1. + tem
-            qtd(i,k) = ((1.-tem)*qtd(i,k+1)+tem*
+            tem  = 0.5_pbl_wp * xlamdeq(i,k) * dz
+            factor = 1.0_pbl_wp + tem
+            qtd(i,k) = ((1.0_pbl_wp-tem)*qtd(i,k+1)+tem*
      &                     (qtx(i,k)+qtx(i,k+1)))/factor
 !
             tld = thld(i,k) / pix(i,k)
-            es = 0.01 * fpvs(tld)      ! fpvs in pa
+            es = 0.01_pbl_wp * real(fpvs(real(tld, kind=kind_phys)),
+     &           kind=pbl_wp)      ! fpvs in pa
             qs = max(qmin, eps * es / (plyr(i,k)+epsm1*es))
             dq = qtd(i,k) - qs
 !
-            if (dq > 0.) then
+            if (dq > 0.0_pbl_wp) then
               gamma = el2orc * qs / (tld**2)
-              qld = dq / (1. + gamma)
+              qld = dq / (1.0_pbl_wp + gamma)
               qtd(i,k) = qs + qld
               qcdo(i,k,1) = qs
               qcdo(i,k,ntcw) = qld
               tcdo(i,k) = tld + elocp * qld
             else
               qcdo(i,k,1) = qtd(i,k)
-              qcdo(i,k,ntcw) = 0.
+              qcdo(i,k,ntcw) = 0.0_pbl_wp
               tcdo(i,k) = tld
             endif
 !
@@ -522,14 +527,14 @@ c
           if (cnvflg(i) .and. k < krad(i)) then
             if(k >= mrad(i)) then
               dz = zl(i,k+1) - zl(i,k)
-              tem  = 0.5 * xlamdem(i,k) * dz
-              factor = 1. + tem
+              tem  = 0.5_pbl_wp * xlamdem(i,k) * dz
+              factor = 1.0_pbl_wp + tem
               ptem = tem - pgcon
               ptem1= tem + pgcon
 !
-              ucdo(i,k) = ((1.-tem)*ucdo(i,k+1)+ptem*u1(i,k+1)
+              ucdo(i,k) = ((1.0_pbl_wp-tem)*ucdo(i,k+1)+ptem*u1(i,k+1)
      &                     +ptem1*u1(i,k))/factor
-              vcdo(i,k) = ((1.-tem)*vcdo(i,k+1)+ptem*v1(i,k+1)
+              vcdo(i,k) = ((1.0_pbl_wp-tem)*vcdo(i,k+1)+ptem*v1(i,k+1)
      &                     +ptem1*v1(i,k))/factor
             endif
           endif
@@ -544,10 +549,10 @@ c
           if (cnvflg(i) .and. k < krad(i)) then
             if(k >= mrad(i)) then
               dz = zl(i,k+1) - zl(i,k)
-              tem  = 0.5 * xlamdeq(i,k) * dz
-              factor = 1. + tem
+              tem  = 0.5_pbl_wp * xlamdeq(i,k) * dz
+              factor = 1.0_pbl_wp + tem
 ! 
-              qcdo(i,k,n) = ((1.-tem)*qcdo(i,k+1,n)+tem*
+              qcdo(i,k,n) = ((1.0_pbl_wp-tem)*qcdo(i,k+1,n)+tem*
      &                       (q1(i,k,n)+q1(i,k+1,n)))/factor
             endif
           endif
@@ -567,10 +572,10 @@ c
           if (cnvflg(i) .and. k < krad(i)) then
             if(k >= mrad(i)) then
               dz = zl(i,k+1) - zl(i,k)
-              tem  = 0.5 * xlamdeq(i,k) * dz
-              factor = 1. + tem
+              tem  = 0.5_pbl_wp * xlamdeq(i,k) * dz
+              factor = 1.0_pbl_wp + tem
 ! 
-              qcdo(i,k,n) = ((1.-tem)*qcdo(i,k+1,n)+tem*
+              qcdo(i,k,n) = ((1.0_pbl_wp-tem)*qcdo(i,k+1,n)+tem*
      &                       (q1(i,k,n)+q1(i,k+1,n)))/factor
             endif
           endif
