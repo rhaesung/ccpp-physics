@@ -1,6 +1,7 @@
    module canopy_mask_mod
 
    use machine , only : kind_phys
+   use mo_pbl_kind, only : pbl_wp
 
    implicit none
 
@@ -22,7 +23,7 @@
 
    real(kind=kind_phys) :: claie(im), cfch(im), cfrt(im), &
                             cclu(im),cpopu(im)
-   real(kind=kind_phys) :: FRT_mask(im)
+   real(kind=pbl_wp) :: FRT_mask(im)
 
    character(len=*), intent(out) :: errmsg
    integer,          intent(out) :: errflg
@@ -37,7 +38,7 @@
 
 ! Initializations
 
-   FRT_mask(:)=0.0
+   FRT_mask(:)=0.0_pbl_wp
 
    return
    end subroutine canopy_mask_init
@@ -59,7 +60,7 @@
 
    real(kind=kind_phys) :: claie(im), cfch(im),  cfrt(im), &
                                       cclu(im), cpopu(im)
-   real(kind=kind_phys) :: FRT_mask(im)
+   real(kind=pbl_wp) :: FRT_mask(im)
 
    character(len=*), intent(out) :: errmsg
    integer,          intent(out) :: errflg
@@ -75,21 +76,23 @@
    do i=1,im
 
       !NOT a Continuous forest canopy
-      if (    claie(i) .LT. 0.1                      &
-         .OR. cfch (i) .LT. 0.5                      &
+      if (    real(claie(i), kind=pbl_wp) .LT. 0.1_pbl_wp                      &
+         .OR. real(cfch (i), kind=pbl_wp) .LT. 0.5_pbl_wp                      &
 !IVAI: modified contiguous canopy condition
 !        .OR. MAX(0.0, 1.0 - cfrt(i)) .GT. 0.5
-         .OR. MAX(0.0, 1.0 - cfrt(i)) .GT. 0.75      &
-         .OR. cpopu(i) .GT. 10000.0                  &
-         .OR. (EXP(-0.5*claie(i)*cclu(i)) .GT. 0.45  &
-         .AND. cfch(i)  .LT. 18.) ) THEN
+         .OR. MAX(0.0_pbl_wp, 1.0_pbl_wp - real(cfrt(i), kind=pbl_wp))
+  &           .GT. 0.75_pbl_wp                                                 &
+         .OR. real(cpopu(i), kind=pbl_wp) .GT. 10000.0_pbl_wp                  &
+         .OR. (EXP(-0.5_pbl_wp*real(claie(i), kind=pbl_wp)*real(cclu(i),
+  &           kind=pbl_wp)) .GT. 0.45_pbl_wp  &
+         .AND. real(cfch(i), kind=pbl_wp)  .LT. 18.0_pbl_wp) ) THEN
 
-         FRT_mask(i) = -1.0
+         FRT_mask(i) = -1.0_pbl_wp
 
       ! Continuous forest canopy
       ELSE
 
-         FRT_mask(i) = 1.0
+         FRT_mask(i) = 1.0_pbl_wp
 
       END IF ! Forest Canopy Mask
 
