@@ -126,8 +126,8 @@
      ZM_CAN  (:,kc) = zm  (:,k)
 
 ! Pressure & temperature
-     prsl_can(:,kc) = real(prsl(:,k), kind=pbl_wp)  ! km  combined canopy plus resolved layers
-     prsi_can(:,kc) = real(prsi(:,k), kind=pbl_wp)  ! km  combined canopy plus resolved layers
+     prsl_can(:,kc) = prsl(:,k)  ! km  combined canopy plus resolved layers
+     prsi_can(:,kc) = prsi(:,k)  ! km  combined canopy plus resolved layers
      T1_CAN  (:,kc) = real(T1  (:,k), kind=pbl_wp)
      DENS_CAN(:,kc) = DENS(:,k)
 
@@ -149,7 +149,7 @@
      QV_CAN(:,kc) = real(Q1(:,k, ntqv), kind=pbl_wp) ! ntqv=1
 
    end do
-   prsi_can(:,km + nkc +1 ) = real(prsi(:,km+1), kind=pbl_wp)  ! nkt combined canopy plus resolved layers
+   prsi_can(:,km + nkc +1 ) = prsi(:,km+1) ! nkt combined canopy plus resolved layers
 
 ! Canopy layers
    do kc = 1, nkc ! 3-nkc canopy layers
@@ -167,8 +167,8 @@
      ZM_CAN  (:,kc) = zm  (:,1)
 
 ! Pressure & temperature
-     prsl_can(:,kc) = real(prsl(:,1), kind=pbl_wp)  ! km  combined canopy plus resolved layers
-     prsi_can(:,kc) = real(prsi(:,1), kind=pbl_wp)  ! km  combined canopy plus resolved layers
+     prsl_can(:,kc) = prsl(:,1)  ! km  combined canopy plus resolved layers
+     prsi_can(:,kc) = prsi(:,1)  ! km  combined canopy plus resolved layers
      T1_CAN  (:,kc) = real(T1  (:,1), kind=pbl_wp)
      DENS_CAN(:,kc) = DENS(:,1)
 
@@ -330,11 +330,11 @@
 !       (fraction of canopy layer height)
    real(kind=pbl_wp),    parameter :: del = 0.2_pbl_wp
    real(kind=pbl_wp),    parameter :: min_kt = 0.1_pbl_wp
-   real(kind=pbl_wp),    parameter :: zfmin=1.e-8_pbl_wp
+   real(kind=pbl_wp),    parameter :: zfmin=1.0e-8_pbl_wp
    real(kind=pbl_wp),    parameter :: rimin=-100.0_pbl_wp
    real(kind=pbl_wp),    parameter :: karman=0.4_pbl_wp            ! von karman constant
-   real(kind=pbl_wp),    parameter :: THRESHOLD = 1.e06_pbl_wp ! MOL threshold, similar to mach_plumerise
-   real(kind=pbl_wp),    parameter :: epsilon = 1.e-10_pbl_wp
+   real(kind=pbl_wp),    parameter :: THRESHOLD = 1.0e6_pbl_wp ! MOL threshold, similar to mach_plumerise
+   real(kind=pbl_wp),    parameter :: epsilon = 1.0e-10_pbl_wp
 
    real(kind=pbl_wp)    :: zm2, zr, td, hd, ddel
    real(kind=pbl_wp)    :: uh, uspr, wndr, sigw, tl, ktr, kur
@@ -343,7 +343,7 @@
    real(kind=pbl_wp), dimension(3), parameter   ::    & 
                       can_frac = (/1.0_pbl_wp, 0.5_pbl_wp, 0.2_pbl_wp/)
 
-   logical(kind=4)                         :: local_dbg
+   logical                        :: local_dbg
 
 ! Initialize CCPP error handling variables
    errmsg = ''

@@ -1075,7 +1075,7 @@
 ! Set non-canopy columns to resolved values
 ! NB. Only vars not ALREADY defined in non-canopy columns
          do i = 1,im
-         IF (FRT_MASK(i) <=  0.) THEN
+         IF (FRT_MASK(i) <=  0.0_pbl_wp) THEN
 
 ! Non-canopy columns 
             kpbl_can(i) = kpbl(i) ! kpbl zero before original sat call 
@@ -1141,7 +1141,7 @@ c
 ! Air Density after diffusion model layers
           rho2 (:,1:km) = prsl (:,1:km)/
      &                  (rd*t2 (:,1:km)*
-     &           (1.+fv*max(q2 (:,1:km, ntqv),qmin))) ! ntqv=1 before "canopy_to_resolved"
+     &           (1.0_pbl_wp+fv*max(q2 (:,1:km, ntqv),qmin))) ! ntqv=1 before "canopy_to_resolved"
 
 ! Set non-canopy columns to resolved values
 ! NB. Only vars not ALREADY defined in non-canopy columns
@@ -1153,7 +1153,7 @@ c
            kc= nkc+k     ! 4th from top (nkt) to nkc+1 combined canopy plus resolved model layer
 
            do i = 1,im
-           IF (FRT_MASK(i) <=  0.) THEN
+           IF (FRT_MASK(i) <=  0.0_pbl_wp) THEN
 
 ! Above-canopy U-Wind/V-Wind/Temp     non-canopy columns
             u2_can3 (i,kc) = u2 (i,k)
@@ -1181,7 +1181,7 @@ c
 ! Canopy layers non-canopy columns
          do kc = 1, nkc ! 3-nkc canopy layers
            do i = 1,im
-           IF (FRT_MASK(i) <=  0.) THEN
+           IF (FRT_MASK(i) <=  0.0_pbl_wp) THEN
 
 ! Canopy layers U-wind/V-wind/Temp non-canopy columns
             u2_can3 (i,kc) = u2 (i,1)
@@ -1284,19 +1284,19 @@ c
 !    NB. Q2_can3 tracers array & t2_can3  after diffusion only updated 1:km
           rho2_can3 (:,km+nkc) = prsl (:,km  )/          ! after diffusion
      &                        (rd*t2 (:,km  )*
-     &                 (1.+fv*max(q2 (:,km  , ntqv),qmin))) ! ntqv=1
+     &                 (1.0_pbl_wp+fv*max(q2 (:,km  , ntqv),qmin))) ! ntqv=1
           rho2_can3 (:,km+2  ) = prsl (:,km-1)/          ! after diffusion
      &                        (rd*t2 (:,km-1)*
-     &                 (1.+fv*max(q2 (:,km-1, ntqv),qmin))) ! ntqv=1
+     &                 (1.0_pbl_wp+fv*max(q2 (:,km-1, ntqv),qmin))) ! ntqv=1
 
           rho2_can3 (:,km+1  ) = prsl (:,km-2)/          ! after diffusion
      &                        (rd*t2 (:,km-2)*
-     &                 (1.+fv*max(q2 (:,km-2, ntqv),qmin))) ! ntqv=1
+     &                 (1.0_pbl_wp+fv*max(q2 (:,km-2, ntqv),qmin))) ! ntqv=1
 
 ! Air density after diffusion on canopy layers
           rho2_can3 (:,1:km   ) = prsl_can3 (:,1:km)/           ! after diffusion
      &                          (rd*t2_can3 (:,1:km)*
-     &                   (1.+fv*max(q2_can3 (:,1:km, ntqv),qmin))) ! ntqv=1
+     &                 (1.0_pbl_wp+fv*max(q2_can3 (:,1:km, ntqv),qmin))) ! ntqv=1
 
       endif !do_canopy .and. cplaqm
 
@@ -1345,7 +1345,7 @@ c
           do i = 1,im
 
 ! Non-canopy columns set to resolved values
-          IF (FRT_MASK(i) <=  0.) THEN
+          IF (FRT_MASK(i) <=  0.0_pbl_wp) THEN
 
 ! Non-canopy columns after "canopy_to_resolved"  Line 1843: forrtl: error (78): process killed (SIGTERM)
             q2_mod (i,k, 1:ntrac1) = q2(i,k, 1:ntrac1)       ! after diffusion & after "canopy_to_resolved"
@@ -1372,12 +1372,12 @@ c
         do k = 1, km1-1     ! from bottom to top resolved model levels
 
           kount=0 
-          ZOOOX(:) = 1.
+          ZOOOX(:) = 1.0_pbl_wp
           do i = 1, im
 
 ! Canopy columns/grid cells
 ! There is a contiguous forest canopy, calculated integrated canopy correction over model layers
-          IF ( FRT_MASK(i) >  0. ) THEN
+          IF ( FRT_MASK(i) >  0.0_pbl_wp ) THEN
 
             FCH  = cfch(i)
 
@@ -1400,7 +1400,7 @@ c
               COUNTCAN = 0   ! Initialize canopy layers
 
               IF (k .EQ. 1) THEN  !Find bottom in each model layer
-                  BOTCAN = 0.0
+                  BOTCAN = 0.0_pbl_wp
               ELSE
                   BOTCAN = zi(i,k)
               END IF
@@ -1422,7 +1422,7 @@ c
      &                ZI05 <= zi_can3(i,kc+1) ) THEN
 
                    kc_can   = kc
-                    FZI05    = 1./
+                    FZI05    = 1.0_pbl_wp/
 !                             max(zi_can3 (i,kc+1) - 
 !     &                           zi_can3 (i,kc), epsilon) *
      &                           (zi_can3 (i,kc+1) - zi_can3 (i,kc)) *
@@ -1501,7 +1501,7 @@ c
 
                  END IF  ! ( ZI05 .LE. ZFL )
 
-                 ZI05 = ZI05-0.5  !step down in-canopy resolution of 0.5m
+                 ZI05 = ZI05-0.5_pbl_wp  !step down in-canopy resolution of 0.5m
 
               END DO ! DO WHILE (ZI05.GE.BOTCAN)
 
@@ -1546,7 +1546,7 @@ c
      &                     ZZ_INT
 
 ! Sum
-              TT_SUM = sum(  TTX(COUNTCAN:1:-1))/COUNTCAN
+              TT_SUM = sum(  TTX(COUNTCAN:1:-1))/real(COUNTCAN, kind=pbl_wp)
 
 ! U-wind/V-wind Canopy Columns
               u2_mod (i,k)   = UU_INT     ! after "canopy-to-resolved"
@@ -1587,7 +1587,7 @@ c
           do i = 1,im
 
           ! Update Canopy columns only
-          IF (FRT_MASK(i) >  0.) THEN
+          IF (FRT_MASK(i) >  0.0_pbl_wp) THEN
 
 ! Canopy Columns
 ! U-Wind/V-Wind after sub-canopy diffusion
@@ -1619,7 +1619,7 @@ c
         do k = 1,km
           do i = 1,im
 
-          IF (FRT_MASK(i) >  0.) THEN
+          IF (FRT_MASK(i) >  0.0_pbl_wp) THEN
 ! Tendency Wind components
 !             du (i,k) = du_mod (i,k)            ! <<<<<<<========== UPDATE UU  TEND =========>>>>>>>
 !             dv (i,k) = dv_mod (i,k)            ! <<<<<<<========== UPDATE VV  TEND =========>>>>>>>
@@ -1688,12 +1688,12 @@ c
         do k = 1,km
 
           do i = 1,im
-          IF (FRT_MASK(i) >  0.) THEN
+          IF (FRT_MASK(i) >  0.0_pbl_wp) THEN
 
 !!!!!!!!!!!!!!!!!!!!!!!!!
 ! Select all chemical tracers (selected tracers above)
 !!!!!!!!!!!!!!!!!!!!!!!!!
-            rtg(i,k, n) = rtg_mod(i,k, n)   ! <<<<<<<========== UPDATE TEND =========>>>>>>>
+            rtg(i,k, n) = real(rtg_mod(i,k,n), kind=kind_phys)   ! <<<<<<<========== UPDATE TEND =========>>>>>>>
           END IF
           end do
 

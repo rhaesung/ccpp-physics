@@ -1809,56 +1809,56 @@
 !
             if(sa3dtke) then
 !         obtaining 3d shear production from dycore
-              tem2 = 2.*dku_h(i,k)
+              tem2 = 2.0_pbl_wp*dku_h(i,k)
               tem1 = dku(i,k-1)*def_1(i,k-1)
               tem2 = dku(i,k)*def_1(i,k)+tem2*def_2(i,k)
             else
               tem1 = dku(i,k-1) * shr2(i,k-1)
               tem2 = dku(i,k) * shr2(i,k)
             endif
-            tem  = 0.5 * (tem1 + tem2)
+            tem  = 0.5_pbl_wp * (tem1 + tem2)
             tem1 = (u1(i,k+1)-u1(i,k))*rdzt(i,k)
             tem2 = (u1(i,k)-u1(i,k-1))*rdzt(i,k-1)
             if(pcnvflg(i) .and. k <= kpbl(i)) then
               ptem = xmf(i,k) * tem1 + xmf(i,k-1) * tem2
-              ptem1 = 0.5 * ptem * (u1(i,k)-ucko(i,k))
+              ptem1 = 0.5_pbl_wp * ptem * (u1(i,k)-ucko(i,k))
             else
-              ptem1 = 0.
+              ptem1 = 0.0_pbl_wp
             endif
             if(scuflg(i)) then
               if(k >= mrad(i) .and. k < krad(i)) then
                 ptem0 = xmfd(i,k) * tem1 + xmfd(i,k-1) * tem2
-                ptem2 = 0.5 * ptem0 * (ucdo(i,k)-u1(i,k))
+                ptem2 = 0.5_pbl_wp * ptem0 * (ucdo(i,k)-u1(i,k))
               else
-                ptem2 = 0.
+                ptem2 = 0.0_pbl_wp
               endif
             else
-              ptem2 = 0.
+              ptem2 = 0.0_pbl_wp
             endif
             shrp = tem + ptem1 + ptem2
             tem1 = (v1(i,k+1)-v1(i,k))*rdzt(i,k)
             tem2 = (v1(i,k)-v1(i,k-1))*rdzt(i,k-1)
             if(pcnvflg(i) .and. k <= kpbl(i)) then
               ptem = xmf(i,k) * tem1 + xmf(i,k-1) * tem2
-              ptem1 = 0.5 * ptem * (v1(i,k)-vcko(i,k))
+              ptem1 = 0.5_pbl_wp * ptem * (v1(i,k)-vcko(i,k))
             else
-              ptem1 = 0.
+              ptem1 = 0.0_pbl_wp
             endif
             if(scuflg(i)) then
               if(k >= mrad(i) .and. k < krad(i)) then
                 ptem0 = xmfd(i,k) * tem1 + xmfd(i,k-1) * tem2
-                ptem2 = 0.5 * ptem0 * (vcdo(i,k)-v1(i,k))
+                ptem2 = 0.5_pbl_wp * ptem0 * (vcdo(i,k)-v1(i,k))
               else
-                ptem2 = 0.
+                ptem2 = 0.0_pbl_wp
               endif
             else
-              ptem2 = 0.
+              ptem2 = 0.0_pbl_wp
             endif
             shrp = shrp + ptem1 + ptem2
           endif
           if(tte_edmf) then
-            if(buop > 0.) then
-              prod(i,k) = 2. * buop + shrp
+            if(buop > 0.0_pbl_wp) then
+              prod(i,k) = 2.0_pbl_wp * buop + shrp
             else
               prod(i,k) = shrp
             endif
@@ -1873,7 +1873,7 @@
 !
       if(sa3dtke) then
 !The following is for SA-3D-TKE
-       dtn = dt2 / float(ndt)
+       dtn = dt2 / real(ndt, pbl_wp)
        do n = 1, ndt
        do k = 1,km1
         do i=1,im
@@ -1882,12 +1882,12 @@
            ptem1 = ce0 / ele(i,k)
            dz = zi(i,k+1) - zi(i,k)
            tem1=(garea(i)*dz)**h1
-           tem2=0.19+0.51*ele_les(i,k)/tem1
+           tem2=0.19_pbl_wp+0.51_pbl_wp*ele_les(i,k)/tem1
            ptem2= tem2 / ele_les(i,k)
-           ptem=(1.0-pftke(i))*ptem2+pftke(i)*ptem1
+           ptem=(1.0_pbl_wp-pftke(i))*ptem2+pftke(i)*ptem1
            disste = ptem * te(i,k) * tem
            tem1 = prod(i,k) + te(i,k) / dtn
-           disste=max(min(disste, tem1), 0.)
+           disste=max(min(disste, tem1), 0.0_pbl_wp)
            if(.not. tte_edmf) diss(i,k) = disste
 !          tem=2.0*def_3(i,k)
            tem=def_3(i,k)
@@ -1899,7 +1899,7 @@
        enddo
        enddo
       else
-       dtn = dt2 / float(ndt)
+       dtn = dt2 / real(ndt, pbl_wp)
        do n = 1, ndt
        do k = 1,km1
         do i=1,im
@@ -1907,7 +1907,7 @@
            ptem = ce0 / ele(i,k)
            disste = ptem * te(i,k) * tem
            tem1 = prod(i,k) + te(i,k) / dtn
-           disste = max(min(disste, tem1), 0.)
+           disste = max(min(disste, tem1), 0.0_pbl_wp)
            if(.not. tte_edmf) diss(i,k) = disste
            te(i,k) = te(i,k) + dtn * (prod(i,k)-disste)
            te(i,k) = max(te(i,k), tkmnz(i,k))
@@ -1927,9 +1927,9 @@
             ptem1 = ce0 / ele(i,k)
             dz = zi(i,k+1) - zi(i,k)
             tem1=(garea(i)*dz)**h1
-            tem2=0.19+0.51*ele_les(i,k)/tem1
+            tem2=0.19_pbl_wp+0.51_pbl_wp*ele_les(i,k)/tem1
             ptem2= tem2 / ele_les(i,k)
-            ptem=(1.0-pftke(i))*ptem2+pftke(i)*ptem1
+            ptem=(1.0_pbl_wp-pftke(i))*ptem2+pftke(i)*ptem1
             diss(i,k) = ptem * tke(i,k) * tem
           else
             ptem = ce0 / ele(i,k)
@@ -1955,9 +1955,9 @@
         do i = 1, im
           if (pcnvflg(i) .and. k <= kpbl(i)) then
              dz   = zl(i,k) - zl(i,k-1)
-             tem  = 0.5 * xlamue(i,k-1) * dz
-             factor = 1. + tem
-             qcko(i,k,ntke)=((1.-tem)*qcko(i,k-1,ntke)+tem*
+             tem  = 0.5_pbl_wp * xlamue(i,k-1) * dz
+             factor = 1.0_pbl_wp + tem
+             qcko(i,k,ntke)=((1.0_pbl_wp-tem)*qcko(i,k-1,ntke)+tem*
      &                (te(i,k)+te(i,k-1)))/factor
           endif
         enddo
@@ -1967,9 +1967,9 @@
           if (scuflg(i) .and. k < krad(i)) then
             if(k >= mrad(i)) then
               dz = zl(i,k+1) - zl(i,k)
-              tem  = 0.5 * xlamde(i,k) * dz
-              factor = 1. + tem
-              qcdo(i,k,ntke)=((1.-tem)*qcdo(i,k+1,ntke)+tem*
+              tem  = 0.5_pbl_wp * xlamde(i,k) * dz
+              factor = 1.0_pbl_wp + tem
+              qcdo(i,k,ntke)=((1.0_pbl_wp-tem)*qcdo(i,k+1,ntke)+tem*
      &                 (te(i,k)+te(i,k+1)))/factor
             endif
           endif
@@ -1987,7 +1987,7 @@
       do n=1,ntrac1
         do k=1,kps
           do i=1,im
-            qh(i,k,n) = 0.5 * (q1(i,k,n)+q1(i,k+1,n))
+            qh(i,k,n) = 0.5_pbl_wp * (q1(i,k,n)+q1(i,k+1,n))
           enddo
         enddo
         do k=1,kps
@@ -1996,12 +1996,12 @@
           enddo
         enddo
         do i=1,im
-          if(q1(i,1,n) >= 0.) then
-            q_diff(i,0,n) = max(0.,2.*q1(i,1,n)-q1(i,2,n))-
-     &                          q1(i,1,n)
+          if(q1(i,1,n) >= 0.0_pbl_wp) then
+            q_diff(i,0,n) = max(0.0_pbl_wp,2.0_pbl_wp*q1(i,1,n)-
+     &                      q1(i,2,n))-q1(i,1,n)
           else
-            q_diff(i,0,n) = min(0.,2.*q1(i,1,n)-q1(i,2,n))-
-     &                          q1(i,1,n)
+            q_diff(i,0,n) = min(0.0_pbl_wp,2.0_pbl_wp*q1(i,1,n)-
+     &                      q1(i,2,n))-q1(i,1,n)
           endif
         enddo
       enddo
@@ -2013,7 +2013,7 @@
             kmx = max(kpbl(i), krad(i))
             q_half(i,k,n) = qh(i,k,n)
             if((pcnvflg(i) .or. scuflg(i)) .and. k < kmx) then
-              tem = 0.
+              tem = 0.0_pbl_wp
               if(pcnvflg(i) .and. k < kpbl(i)) then
                 tem = xmf(i,k)
               endif
@@ -2021,18 +2021,18 @@
      &            (k >= mrad(i) .and. k < krad(i))) then
                 tem = tem - xmfd(i,k)
               endif
-              if(tem > 0.) then
-                rrkp = 0.
-                if(abs(q_diff(i,k,n)) > 1.e-22)
+              if(tem > 0.0_pbl_wp) then
+                rrkp = 0.0_pbl_wp
+                if(abs(q_diff(i,k,n)) > 1.e-22_pbl_wp)
      &                 rrkp = q_diff(i,k+1,n) / q_diff(i,k,n)
-                phkp = (rrkp+abs(rrkp)) / (1.+abs(rrkp))
+                phkp = (rrkp+abs(rrkp)) / (1.0_pbl_wp+abs(rrkp))
                 q_half(i,k,n) = q1(i,k+1,n) +
      &                     phkp*(qh(i,k,n)-q1(i,k+1,n))
-              elseif (tem < 0.) then
-                rrkp = 0.
-                if(abs(q_diff(i,k,n)) > 1.e-22)
+              elseif (tem < 0.0_pbl_wp) then
+                rrkp = 0.0_pbl_wp
+                if(abs(q_diff(i,k,n)) > 1.0e-22_pbl_wp)
      &                 rrkp = q_diff(i,k-1,n) / q_diff(i,k,n)
-                phkp = (rrkp+abs(rrkp)) / (1.+abs(rrkp))
+                phkp = (rrkp+abs(rrkp)) / (1.0_pbl_wp+abs(rrkp))
                 q_half(i,k,n) = q1(i,k,n) +
      &                    phkp*(qh(i,k,n)-q1(i,k,n))
               endif
@@ -2046,7 +2046,7 @@
 !
       do k=1,kps
         do i=1,im
-          tei(i,k) = 0.5 * (te(i,k)+te(i,k+1))
+          tei(i,k) = 0.5_pbl_wp * (te(i,k)+te(i,k+1))
         enddo
       enddo
 
@@ -2056,11 +2056,11 @@
         enddo
       enddo
       do i=1,im
-        if(te(i,1) >= 0.) then
-          e_diff(i,0) = max(0.,2.*te(i,1)-te(i,2))-
+        if(te(i,1) >= 0.0_pbl_wp) then
+          e_diff(i,0) = max(0.0_pbl_wp,2.0_pbl_wp*te(i,1)-te(i,2))-
      &                        te(i,1)
         else
-          e_diff(i,0) = min(0.,2.*te(i,1)-te(i,2))-
+          e_diff(i,0) = min(0.0_pbl_wp,2.0_pbl_wp*te(i,1)-te(i,2))-
      &                          te(i,1)
         endif
       enddo
@@ -2070,7 +2070,7 @@
           kmx = max(kpbl(i), krad(i))
           e_half(i,k) = tei(i,k)
           if((pcnvflg(i) .or. scuflg(i)) .and. (k < kmx)) then
-            tem = 0.
+            tem = 0.0_pbl_wp
             if(pcnvflg(i) .and. k < kpbl(i)) then
               tem = xmf(i,k)
             endif
@@ -2078,18 +2078,18 @@
      &          (k >= mrad(i) .and. k < krad(i))) then
               tem = tem - xmfd(i,k)
             endif
-            if(tem > 0.) then
-              rrkp = 0.
-              if(abs(e_diff(i,k)) > 1.e-22)
+            if(tem > 0.0_pbl_wp) then
+              rrkp = 0.0_pbl_wp
+              if(abs(e_diff(i,k)) > 1.0e-22_pbl_wp)
      &               rrkp = e_diff(i,k+1) / e_diff(i,k)
-              phkp = (rrkp+abs(rrkp)) / (1.+abs(rrkp))
+              phkp = (rrkp+abs(rrkp)) / (1.0_pbl_wp+abs(rrkp))
               e_half(i,k) = te(i,k+1) +
      &                   phkp*(tei(i,k)-te(i,k+1))
-            elseif (tem < 0.) then
-              rrkp = 0.
-              if(abs(e_diff(i,k)) > 1.e-22)
+            elseif (tem < 0.0_pbl_wp) then
+              rrkp = 0.0_pbl_wp
+              if(abs(e_diff(i,k)) > 1.e-22_pbl_wp)
      &               rrkp = e_diff(i,k-1) / e_diff(i,k)
-              phkp = (rrkp+abs(rrkp)) / (1.+abs(rrkp))
+              phkp = (rrkp+abs(rrkp)) / (1.0_pbl_wp+abs(rrkp))
               e_half(i,k) = te(i,k) +
      &                  phkp*(tei(i,k)-te(i,k))
             endif
@@ -2101,7 +2101,7 @@
 !>  - Compute tridiagonal matrix elements for TKE or TTE
 !
       do i=1,im
-         ad(i,1) = 1.0
+         ad(i,1) = 1.0_pbl_wp
          f1(i,1) = te(i,1)
       enddo
 !
@@ -2116,11 +2116,11 @@
           au(i,k) = -dtodsd*dsdz2
           al(i,k) = -dtodsu*dsdz2
           ad(i,k) = ad(i,k)-au(i,k)
-          ad(i,k+1)= 1.-al(i,k)
+          ad(i,k+1)= 1.0_pbl_wp-al(i,k)
           tem2    = dsig * rdz
 !
           if(pcnvflg(i) .and. k < kpbl(i)) then
-             ptem      = 0.5 * tem2 * xmf(i,k)
+             ptem      = 0.5_pbl_wp * tem2 * xmf(i,k)
              ptem1     = dtodsd * ptem
              ptem2     = dtodsu * ptem
              ptem      = qcko(i,k,ntke) + qcko(i,k+1,ntke)
@@ -2132,7 +2132,7 @@
 !
           if(scuflg(i)) then
             if(k >= mrad(i) .and. k < krad(i)) then
-              ptem      = 0.5 * tem2 * xmfd(i,k)
+              ptem      = 0.5_pbl_wp * tem2 * xmfd(i,k)
               ptem1     = dtodsd * ptem
               ptem2     = dtodsu * ptem
               ptem      = qcdo(i,k,ntke) + qcdo(i,k+1,ntke)
@@ -2155,15 +2155,15 @@
 c
 !>  - Call tridit() to solve tridiagonal problem for TKE
 c
-      call tridit(im,km,1,al,ad,au,f1,au,f1)
+      call tridit_satmedmf(im,km,1,al,ad,au,f1,au,f1)
 !
 ! Negative TKE or TTE are set to zero after borrowing it from positive
 !   values within the mass-flux transport layers
 !
       do i = 1,im
-        tsumn(i) = 0.
-        tsump(i) = 0.
-        rtnp(i) = 1.
+        tsumn(i) = 0.0_pbl_wp
+        tsump(i) = 0.0_pbl_wp
+        rtnp(i) = 1.0_pbl_wp
       enddo
       do k = 1,kps
         do i = 1,im
@@ -2180,14 +2180,14 @@ c
           if((pcnvflg(i) .or. scuflg(i)) .and.
      &       (k >= kbx .and. k <= kmx)) then
             tem = f1(i,k) * del(i,k) * gravi
-            if(f1(i,k) < 0.) tsumn(i) = tsumn(i) + tem
-            if(f1(i,k) > 0.) tsump(i) = tsump(i) + tem
+            if(f1(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+            if(f1(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
           endif
         enddo
       enddo
       do i = 1,im
         if(pcnvflg(i) .or. scuflg(i)) then
-          if(tsump(i) > 0. .and. tsumn(i) < 0.) then
+          if(tsump(i) > 0.0_pbl_wp .and. tsumn(i) < 0.0_pbl_wp) then
             if(tsump(i) > abs(tsumn(i))) then
               rtnp(i) = tsumn(i) / tsump(i)
             else
@@ -2201,22 +2201,24 @@ c
           if(pcnvflg(i) .and. scuflg(i)) then
             kbx = 1
             kmx = max(kpbl(i), krad(i))
-          elseif(pcnvflg(i) .and. .not. scuflg(i)) then
+          else if(pcnvflg(i) .and. .not. scuflg(i)) then
             kbx = 1
             kmx = kpbl(i)
-          elseif(.not. pcnvflg(i) .and. scuflg(i)) then
+          else if(.not. pcnvflg(i) .and. scuflg(i)) then
             kbx = mrad(i)
             kmx = krad(i)
           endif
           if((pcnvflg(i) .or. scuflg(i)) .and.
      &       (k >= kbx .and. k <= kmx)) then
-            if(rtnp(i) < 0.) then
+            if(rtnp(i) < 0.0_pbl_wp) then
               if(tsump(i) > abs(tsumn(i))) then
-                if(f1(i,k) < 0.) f1(i,k) = 0.
-                if(f1(i,k) > 0.) f1(i,k) = (1.+rtnp(i))*f1(i,k)
+                if(f1(i,k) < 0.0_pbl_wp) f1(i,k) = 0.0_pbl_wp
+                if(f1(i,k) > 0.0_pbl_wp) f1(i,k) = (1.0_pbl_wp+rtnp(i))*
+     &             f1(i,k)
               else
-                if(f1(i,k) < 0.) f1(i,k) = (1.+rtnp(i))*f1(i,k)
-                if(f1(i,k) > 0.) f1(i,k) = 0.
+                if(f1(i,k) < 0.0_pbl_wp) f1(i,k) = (1.0_pbl_wp+rtnp(i))*
+     &             f1(i,k)
+                if(f1(i,k) > 0.0_pbl_wp) f1(i,k) = 0.0_pbl_wp
               endif
             endif
           endif
@@ -2228,19 +2230,19 @@ c
 !   positive TKEs or TTEs are borrowed again now from the entire layers
 !
       do i = 1,im
-        tsumn(i) = 0.
-        tsump(i) = 0.
-        rtnp(i) = 1.
+        tsumn(i) = 0.0_pbl_wp
+        tsump(i) = 0.0_pbl_wp
+        rtnp(i) = 1.0_pbl_wp
       enddo
       do k = 1,km
         do i = 1,im
           tem = f1(i,k) * del(i,k) * gravi
-          if(f1(i,k) < 0.) tsumn(i) = tsumn(i) + tem
-          if(f1(i,k) > 0.) tsump(i) = tsump(i) + tem
+          if(f1(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+          if(f1(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
         enddo
       enddo
       do i = 1,im
-        if(tsump(i) > 0. .and. tsumn(i) < 0.) then
+        if(tsump(i) > 0.0_pbl_wp .and. tsumn(i) < 0.0_pbl_wp) then
           if(tsump(i) > abs(tsumn(i))) then
             rtnp(i) = tsumn(i) / tsump(i)
           else
@@ -2250,13 +2252,15 @@ c
       enddo
       do k = 1,km
         do i = 1,im
-          if(rtnp(i) < 0.) then
+          if(rtnp(i) < 0.0_pbl_wp) then
             if(tsump(i) > abs(tsumn(i))) then
-              if(f1(i,k) < 0.) f1(i,k) = 0.
-              if(f1(i,k) > 0.) f1(i,k) = (1.+rtnp(i))*f1(i,k)
+              if(f1(i,k) < 0.0_pbl_wp) f1(i,k) = 0.0_pbl_wp
+              if(f1(i,k) > 0.0_pbl_wp) f1(i,k) = (1.0_pbl_wp+rtnp(i))*
+     &           f1(i,k)
             else
-              if(f1(i,k) < 0.) f1(i,k) = (1.+rtnp(i))*f1(i,k)
-              if(f1(i,k) > 0.) f1(i,k) = 0.
+              if(f1(i,k) < 0.0_pbl_wp) f1(i,k) = (1.0_pbl_wp+rtnp(i))*
+     &           f1(i,k)
+              if(f1(i,k) > 0.0_pbl_wp) f1(i,k) = 0.0_pbl_wp
             endif
           endif
         enddo
@@ -2282,7 +2286,7 @@ c
 !> ## Compute tridiagonal matrix elements for heat and moisture
 c
       do i=1,im
-         ad(i,1) = 1.
+         ad(i,1) = 1.0_pbl_wp
          f1(i,1) = t1(i,1)   + dtdz1(i) * heat(i)
          f2(i,1) = q1(i,1,1) + dtdz1(i) * evap(i)
       enddo
@@ -2305,17 +2309,18 @@ c
           dsdzt   = tem1 * gocp
           if (use_lpt > 0) then
             dsdzt = dsdzt-tem1*elocp*(qliq(i,k+1)-qliq(i,k))*rdz
-     &        -(1+0.33/2.5)*tem1*elocp*(qice(i,k+1)-qice(i,k))*rdz
+     &        -(1.0_pbl_wp+0.33_pbl_wp/2.5_pbl_wp)*tem1*elocp
+     &        *(qice(i,k+1)-qice(i,k))*rdz
           endif
           dsdz2   = tem1 * rdz
           au(i,k) = -dtodsd*dsdz2
           al(i,k) = -dtodsu*dsdz2
           ad(i,k) = ad(i,k)-au(i,k)
-          ad(i,k+1)= 1.-al(i,k)
+          ad(i,k+1)= 1.0_pbl_wp-al(i,k)
           tem2    = dsig * rdz
 !
           if(pcnvflg(i) .and. k < kpbl(i)) then
-             ptem      = 0.5 * tem2 * xmf(i,k)
+             ptem      = 0.5_pbl_wp * tem2 * xmf(i,k)
              ptem1     = dtodsd * ptem
              ptem2     = dtodsu * ptem
              tem       = t1(i,k) + t1(i,k+1)
@@ -2333,7 +2338,7 @@ c
 !
           if(scuflg(i)) then
             if(k >= mrad(i) .and. k < krad(i)) then
-              ptem      = 0.5 * tem2 * xmfd(i,k)
+              ptem      = 0.5_pbl_wp * tem2 * xmfd(i,k)
               ptem1     = dtodsd * ptem
               ptem2     = dtodsu * ptem
               ptem      = tcdo(i,k) + tcdo(i,k+1)
@@ -2369,7 +2374,7 @@ c
               tem2  = dsig * rdzt(i,k)
 !
               if(pcnvflg(i) .and. k < kpbl(i)) then
-                ptem  = 0.5 * tem2 * xmf(i,k)
+                ptem  = 0.5_pbl_wp* tem2 * xmf(i,k)
                 ptem1 = dtodsd * ptem
                 ptem2 = dtodsu * ptem
                 ptem  = qcko(i,k,n) + qcko(i,k+1,n)
@@ -2381,7 +2386,7 @@ c
 !
               if(scuflg(i)) then
                 if(k >= mrad(i) .and. k < krad(i)) then
-                  ptem  = 0.5 * tem2 * xmfd(i,k)
+                  ptem  = 0.5_pbl_wp * tem2 * xmfd(i,k)
                   ptem1 = dtodsd * ptem
                   ptem2 = dtodsu * ptem
                   ptem  = qcdo(i,k,n) + qcdo(i,k+1,n)
@@ -2406,39 +2411,39 @@ c
 c
 !> - Call tridin() to solve tridiagonal problem for heat and moisture
 c
-      call tridin(im,km,ntrac1,al,ad,au,f1,f2,au,f1,f2)
+      call tridin_satmedmf(im,km,ntrac1,al,ad,au,f1,f2,au,f1,f2)
 !
 ! Negative moisture is set to zero after borrowing it from
 !   positive values within the mass-flux transport layers
 !
       do i = 1,im
-        tsumn(i) = 0.
-        tsump(i) = 0.
-        rtnp(i) = 1.
+        tsumn(i) = 0.0_pbl_wp
+        tsump(i) = 0.0_pbl_wp
+        rtnp(i) = 1.0_pbl_wp
       enddo
       do k = 1,kps
         do i = 1,im
           if(pcnvflg(i) .and. scuflg(i)) then
             kbx = 1
             kmx = max(kpbl(i), krad(i))
-          elseif(pcnvflg(i) .and. .not. scuflg(i)) then
+          else if(pcnvflg(i) .and. .not. scuflg(i)) then
             kbx = 1
             kmx = kpbl(i)
-          elseif(.not. pcnvflg(i) .and. scuflg(i)) then
+          else if(.not. pcnvflg(i) .and. scuflg(i)) then
             kbx = mrad(i)
             kmx = krad(i)
           endif
           if((pcnvflg(i) .or. scuflg(i)) .and.
      &       (k >= kbx .and. k <= kmx)) then
             tem = f2(i,k) * del(i,k) * gravi
-            if(f2(i,k) < 0.) tsumn(i) = tsumn(i) + tem
-            if(f2(i,k) > 0.) tsump(i) = tsump(i) + tem
+            if(f2(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+            if(f2(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
           endif
         enddo
       enddo
       do i = 1,im
         if(pcnvflg(i) .or. scuflg(i)) then
-          if(tsump(i) > 0. .and. tsumn(i) < 0.) then
+          if(tsump(i) > 0.0_pbl_wp .and. tsumn(i) < 0.0_pbl_wp) then
             if(tsump(i) > abs(tsumn(i))) then
               rtnp(i) = tsumn(i) / tsump(i)
             else
@@ -2452,22 +2457,24 @@ c
           if(pcnvflg(i) .and. scuflg(i)) then
             kbx = 1
             kmx = max(kpbl(i), krad(i))
-          elseif(pcnvflg(i) .and. .not. scuflg(i)) then
+          else if(pcnvflg(i) .and. .not. scuflg(i)) then
             kbx = 1
             kmx = kpbl(i)
-          elseif(.not. pcnvflg(i) .and. scuflg(i)) then
+          else if(.not. pcnvflg(i) .and. scuflg(i)) then
             kbx = mrad(i)
             kmx = krad(i)
           endif
           if((pcnvflg(i) .or. scuflg(i)) .and.
      &       (k >= kbx .and. k <= kmx)) then
-            if(rtnp(i) < 0.) then
+            if(rtnp(i) < 0.0_pbl_wp) then
               if(tsump(i) > abs(tsumn(i))) then
-                if(f2(i,k) < 0.) f2(i,k) = 0.
-                if(f2(i,k) > 0.) f2(i,k) = (1.+rtnp(i))*f2(i,k)
+                if(f2(i,k) < 0.0_pbl_wp) f2(i,k) = 0.0_pbl_wp
+                if(f2(i,k) > 0.0_pbl_wp) f2(i,k) = (1.0_pbl_wp+rtnp(i))*
+     &             f2(i,k)
               else
-                if(f2(i,k) < 0.) f2(i,k) = (1.+rtnp(i))*f2(i,k)
-                if(f2(i,k) > 0.) f2(i,k) = 0.
+                if(f2(i,k) < 0.0_pbl_wp) f2(i,k) = (1.0_pbl_wp+rtnp(i))*
+     &             f2(i,k)
+                if(f2(i,k) > 0.0_pbl_wp) f2(i,k) = 0.0_pbl_wp
               endif
             endif
           endif
@@ -2480,19 +2487,19 @@ c
 !   positive moistures are borrowed again now from the entire layers
 !
       do i = 1,im
-        tsumn(i) = 0.
-        tsump(i) = 0.
-        rtnp(i) = 1.
+        tsumn(i) = 0.0_pbl_wp
+        tsump(i) = 0.0_pbl_wp
+        rtnp(i) = 1.0_pbl_wp
       enddo
       do k = 1,km
         do i = 1,im
           tem = f2(i,k) * del(i,k) * gravi
-          if(f2(i,k) < 0.) tsumn(i) = tsumn(i) + tem
-          if(f2(i,k) > 0.) tsump(i) = tsump(i) + tem
+          if(f2(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+          if(f2(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
         enddo
       enddo
       do i = 1,im
-        if(tsump(i) > 0. .and. tsumn(i) < 0.) then
+        if(tsump(i) > 0.0_pbl_wp .and. tsumn(i) < 0.0_pbl_wp) then
           if(tsump(i) > abs(tsumn(i))) then
             rtnp(i) = tsumn(i) / tsump(i)
           else
@@ -2502,13 +2509,15 @@ c
       enddo
       do k = 1,km
         do i = 1,im
-          if(rtnp(i) < 0.) then
+          if(rtnp(i) < 0.0_pbl_wp) then
             if(tsump(i) > abs(tsumn(i))) then
-              if(f2(i,k) < 0.) f2(i,k) = 0.
-              if(f2(i,k) > 0.) f2(i,k) = (1.+rtnp(i))*f2(i,k)
+              if(f2(i,k) < 0.0_pbl_wp) f2(i,k) = 0.0_pbl_wp
+              if(f2(i,k) > 0.0_pbl_wp) f2(i,k) = (1.0_pbl_wp+rtnp(i))*
+     &           f2(i,k)
             else
-              if(f2(i,k) < 0.) f2(i,k) = (1.+rtnp(i))*f2(i,k)
-              if(f2(i,k) > 0.) f2(i,k) = 0.
+              if(f2(i,k) < 0.0_pbl_wp) f2(i,k) = (1.0_pbl_wp+rtnp(i))*
+     &           f2(i,k)
+              if(f2(i,k) > 0.0_pbl_wp) f2(i,k) = 0.0_pbl_wp
             endif
           endif
         enddo
@@ -2529,25 +2538,25 @@ c
             if(pcnvflg(i) .and. scuflg(i)) then
               kbx = 1
               kmx = max(kpbl(i), krad(i))
-            elseif(pcnvflg(i) .and. .not. scuflg(i)) then
+            else if(pcnvflg(i) .and. .not. scuflg(i)) then
               kbx = 1
               kmx = kpbl(i)
-            elseif(.not. pcnvflg(i) .and. scuflg(i)) then
+            else if(.not. pcnvflg(i) .and. scuflg(i)) then
               kbx = mrad(i)
               kmx = krad(i)
             endif
             if((pcnvflg(i) .or. scuflg(i)) .and.
      &         (k >= kbx .and. k <= kmx)) then
-              if(f2(i,k+is) < 0.) then
+              if(f2(i,k+is) < 0.0_pbl_wp) then
                 tem = f2(i,k) + f2(i,k+is)
-                if(tem >= 0.0) then
+                if(tem >= 0.0_pbl_wp) then
                   f2(i,k) = tem
                   f1(i,k) = f1(i,k) - elocp * f2(i,k+is)
-                  f2(i,k+is) = 0.
-                elseif (f2(i,k) > 0.0) then
+                  f2(i,k+is) = 0.0_pbl_wp
+                elseif (f2(i,k) > 0.0_pbl_wp) then
                   f2(i,k+is) = tem
                   f1(i,k) = f1(i,k) + elocp * f2(i,k)
-                  f2(i,k) = 0.
+                  f2(i,k) = 0.0_pbl_wp
                 endif
               endif
             endif
@@ -2566,25 +2575,25 @@ c
             if(pcnvflg(i) .and. scuflg(i)) then
               kbx = 1
               kmx = max(kpbl(i), krad(i))
-            elseif(pcnvflg(i) .and. .not. scuflg(i)) then
+            else if(pcnvflg(i) .and. .not. scuflg(i)) then
               kbx = 1
               kmx = kpbl(i)
-            elseif(.not. pcnvflg(i) .and. scuflg(i)) then
+            else if(.not. pcnvflg(i) .and. scuflg(i)) then
               kbx = mrad(i)
               kmx = krad(i)
             endif
             if((pcnvflg(i) .or. scuflg(i)) .and.
      &         (k >= kbx .and. k <= kmx)) then
-              if(f2(i,k+is) < 0.) then
+              if(f2(i,k+is) < 0.0_pbl_wp) then
                 tem = f2(i,k) + f2(i,k+is)
-                if(tem >= 0.0) then
+                if(tem >= 0.0_pbl_wp) then
                   f2(i,k) = tem
                   f1(i,k) = f1(i,k) - elocp * f2(i,k+is)
-                  f2(i,k+is) = 0.
-                elseif (f2(i,k) > 0.0) then
+                  f2(i,k+is) = 0.0_pbl_wp
+                elseif (f2(i,k) > 0.0_pbl_wp) then
                   f2(i,k+is) = tem
                   f1(i,k) = f1(i,k) + elocp * f2(i,k)
-                  f2(i,k) = 0.
+                  f2(i,k) = 0.0_pbl_wp
                 endif
               endif
             endif
@@ -2597,33 +2606,33 @@ c
           is = (n-1) * km
 !
           do i = 1,im
-            tsumn(i) = 0.
-            tsump(i) = 0.
-            rtnp(i) = 1.
+            tsumn(i) = 0.0_pbl_wp
+            tsump(i) = 0.0_pbl_wp
+            rtnp(i) = 1.0_pbl_wp
           enddo
           do k = 1,kps
             do i = 1,im
               if(pcnvflg(i) .and. scuflg(i)) then
                 kbx = 1
                 kmx = max(kpbl(i), krad(i))
-              elseif(pcnvflg(i) .and. .not. scuflg(i)) then
+              else if(pcnvflg(i) .and. .not. scuflg(i)) then
                 kbx = 1
                 kmx = kpbl(i)
-              elseif(.not. pcnvflg(i) .and. scuflg(i)) then
+              else if(.not. pcnvflg(i) .and. scuflg(i)) then
                 kbx = mrad(i)
                 kmx = krad(i)
               endif
               if((pcnvflg(i) .or. scuflg(i)) .and.
      &           (k >= kbx .and. k <= kmx)) then
                 tem = f2(i,k+is) * del(i,k) * gravi
-                if(f2(i,k+is) < 0.) tsumn(i) = tsumn(i) + tem
-                if(f2(i,k+is) > 0.) tsump(i) = tsump(i) + tem
+                if(f2(i,k+is) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+                if(f2(i,k+is) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
               endif
             enddo
           enddo
           do i = 1,im
             if(pcnvflg(i) .or. scuflg(i)) then
-              if(tsump(i) > 0. .and. tsumn(i) < 0.) then
+              if(tsump(i) > 0.0_pbl_wp .and. tsumn(i) < 0.0_pbl_wp) then
                 if(tsump(i) > abs(tsumn(i))) then
                   rtnp(i) = tsumn(i) / tsump(i)
                 else
@@ -2637,22 +2646,24 @@ c
               if(pcnvflg(i) .and. scuflg(i)) then
                 kbx = 1
                 kmx = max(kpbl(i), krad(i))
-              elseif(pcnvflg(i) .and. .not. scuflg(i)) then
+              else if(pcnvflg(i) .and. .not. scuflg(i)) then
                 kbx = 1
                 kmx = kpbl(i)
-              elseif(.not. pcnvflg(i) .and. scuflg(i)) then
+              else if(.not. pcnvflg(i) .and. scuflg(i)) then
                 kbx = mrad(i)
                 kmx = krad(i)
               endif
               if((pcnvflg(i) .or. scuflg(i)) .and.
      &           (k >= kbx .and. k <= kmx)) then
-                if(rtnp(i) < 0.) then
+                if(rtnp(i) < 0.0_pbl_wp) then
                   if(tsump(i) > abs(tsumn(i))) then
-                    if(f2(i,k+is)<0.) f2(i,k+is)=0.
-                    if(f2(i,k+is)>0.) f2(i,k+is)=(1.+rtnp(i))*f2(i,k+is)
+                    if(f2(i,k+is)<0.0_pbl_wp) f2(i,k+is)=0.0_pbl_wp
+                    if(f2(i,k+is)>0.0_pbl_wp) f2(i,k+is)=(1.0_pbl_wp+
+     &              rtnp(i))*f2(i,k+is)
                   else
-                    if(f2(i,k+is)<0.) f2(i,k+is)=(1.+rtnp(i))*f2(i,k+is)
-                    if(f2(i,k+is)>0.) f2(i,k+is)=0.
+                    if(f2(i,k+is)<0.0_pbl_wp) f2(i,k+is)=(1.0_pbl_wp+
+     &              rtnp(i))*f2(i,k+is)
+                    if(f2(i,k+is)>0.0_pbl_wp) f2(i,k+is)=0.0_pbl_wp
                   endif
                 endif
               endif
@@ -2665,19 +2676,19 @@ c
 !   positive hydrometeors & tracers are borrowed again now from the entire layers
 !
           do i = 1,im
-            tsumn(i) = 0.
-            tsump(i) = 0.
-            rtnp(i) = 1.
+            tsumn(i) = 0.0_pbl_wp
+            tsump(i) = 0.0_pbl_wp
+            rtnp(i) = 1.0_pbl_wp
           enddo
           do k = 1,km
             do i = 1,im
               tem = f2(i,k+is) * del(i,k) * gravi
-              if(f2(i,k+is) < 0.) tsumn(i) = tsumn(i) + tem
-              if(f2(i,k+is) > 0.) tsump(i) = tsump(i) + tem
+              if(f2(i,k+is) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+              if(f2(i,k+is) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
             enddo
           enddo
           do i = 1,im
-            if(tsump(i) > 0. .and. tsumn(i) < 0.) then
+            if(tsump(i) > 0.0_pbl_wp .and. tsumn(i) < 0.0_pbl_wp) then
               if(tsump(i) > abs(tsumn(i))) then
                 rtnp(i) = tsumn(i) / tsump(i)
               else
@@ -2687,13 +2698,15 @@ c
           enddo
           do k = 1,km
             do i = 1,im
-              if(rtnp(i) < 0.) then
+              if(rtnp(i) < 0.0_pbl_wp) then
                 if(tsump(i) > abs(tsumn(i))) then
-                  if(f2(i,k+is)<0.) f2(i,k+is)=0.
-                  if(f2(i,k+is)>0.) f2(i,k+is)=(1.+rtnp(i))*f2(i,k+is)
+                  if(f2(i,k+is)<0.0_pbl_wp) f2(i,k+is)=0.0_pbl_wp
+                  if(f2(i,k+is)>0.0_pbl_wp) f2(i,k+is)=(1.0_pbl_wp+
+     &               rtnp(i))*f2(i,k+is)
                 else
-                  if(f2(i,k+is)<0.) f2(i,k+is)=(1.+rtnp(i))*f2(i,k+is)
-                  if(f2(i,k+is)>0.) f2(i,k+is)=0.
+                  if(f2(i,k+is)<0.0_pbl_wp) f2(i,k+is)=(1.0_pbl_wp+
+     &               rtnp(i))*f2(i,k+is)
+                  if(f2(i,k+is)>0.0_pbl_wp) f2(i,k+is)=0.0_pbl_wp
                 endif
               endif
             enddo
@@ -2806,7 +2819,7 @@ c
 !> ## Compute tridiagonal matrix elements for momentum
 c
       do i=1,im
-         ad(i,1) = 1.0 + dtdz1(i) * stress(i) / spd1(i)
+         ad(i,1) = 1.0_pbl_wp + dtdz1(i) * stress(i) / spd1(i)
          f1(i,1) = u1(i,1)
          f2(i,1) = v1(i,1)
       enddo
@@ -2822,11 +2835,11 @@ c
           au(i,k) = -dtodsd*dsdz2
           al(i,k) = -dtodsu*dsdz2
           ad(i,k) = ad(i,k)-au(i,k)
-          ad(i,k+1)= 1.-al(i,k)
+          ad(i,k+1)= 1.0_pbl_wp-al(i,k)
           tem2    = dsig * rdz
 !
           if(pcnvflg(i) .and. k < kpbl(i)) then
-             ptem      = 0.5 * tem2 * xmf(i,k)
+             ptem      = 0.5_pbl_wp * tem2 * xmf(i,k)
              ptem1     = dtodsd * ptem
              ptem2     = dtodsu * ptem
              tem       = u1(i,k) + u1(i,k+1)
@@ -2844,7 +2857,7 @@ c
 !
           if(scuflg(i)) then
             if(k >= mrad(i) .and. k < krad(i)) then
-              ptem      = 0.5 * tem2 * xmfd(i,k)
+              ptem      = 0.5_pbl_wp * tem2 * xmfd(i,k)
               ptem1     = dtodsd * ptem
               ptem2     = dtodsu * ptem
               tem       = u1(i,k) + u1(i,k+1)
@@ -2863,7 +2876,7 @@ c
 c
 !> - Call tridi2() to solve tridiagonal problem for momentum
 c
-      call tridi2(im,km,al,ad,au,f1,f2,au,f1,f2)
+      call tridi2_satmedmf(im,km,al,ad,au,f1,f2,au,f1,f2)
 c
 !> - Recover the tendencies of momentum
 c
@@ -2880,13 +2893,15 @@ c
       if (use_oceanuv) then
         do i = 1,im
           spd1_m=sqrt( (u1(i,1)-usfco(i))**2+(v1(i,1)-vsfco(i))**2 )
-          dusfc(i) = -1.*rho_a(i)*stress(i)*(u1(i,1)-usfco(i))/spd1_m
-          dvsfc(i) = -1.*rho_a(i)*stress(i)*(v1(i,1)-vsfco(i))/spd1_m
+          dusfc(i) = -1.0_pbl_wp*rho_a(i)*stress(i)*(u1(i,1)-usfco(i))/
+     &               spd1_m
+          dvsfc(i) = -1.0_pbl_wp*rho_a(i)*stress(i)*(v1(i,1)-vsfco(i))/
+     &               spd1_m
         enddo
       else
         do i = 1,im
-          dusfc(i) = -1.*rho_a(i)*stress(i)*u1(i,1)/spd1(i)
-          dvsfc(i) = -1.*rho_a(i)*stress(i)*v1(i,1)/spd1(i)
+          dusfc(i) = -1.0_pbl_wp*rho_a(i)*stress(i)*u1(i,1)/spd1(i)
+          dvsfc(i) = -1.0_pbl_wp*rho_a(i)*stress(i)*v1(i,1)/spd1(i)
         enddo
       endif
 !
