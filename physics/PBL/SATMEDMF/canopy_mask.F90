@@ -18,12 +18,12 @@
    implicit none
 
 ! Horizontal arrays
-   integer  :: im, km  ! horizontal & vertical domain specifications
+   integer, intent(in)  :: im, km  ! horizontal & vertical domain specifications
    integer, intent(in)  :: nkc, nkt
 
-   real(kind=kind_phys) :: claie(im), cfch(im), cfrt(im), &
-                            cclu(im),cpopu(im)
-   real(kind=pbl_wp) :: FRT_mask(im)
+   real(kind=kind_phys), intent(in) :: claie(im), cfch(im), cfrt(im), &
+                                       cclu(im),cpopu(im)
+   real(kind=pbl_wp), intent(out) :: FRT_mask(im)
 
    character(len=*), intent(out) :: errmsg
    integer,          intent(out) :: errflg
@@ -55,12 +55,12 @@
 !...Arguments:
 
 ! Horizontal arrays
-   integer  :: im, km  ! horizontal & vertical domain specifications
+   integer, intent(in)  :: im, km  ! horizontal & vertical domain specifications
    integer, intent(in) :: nkc, nkt
 
-   real(kind=kind_phys) :: claie(im), cfch(im),  cfrt(im), &
-                                      cclu(im), cpopu(im)
-   real(kind=pbl_wp) :: FRT_mask(im)
+   real(kind=kind_phys), intent(in) :: claie(im), cfch(im),  cfrt(im), &
+                                       cclu(im), cpopu(im)
+   real(kind=pbl_wp), intent(out) :: FRT_mask(im)
 
    character(len=*), intent(out) :: errmsg
    integer,          intent(out) :: errflg

@@ -27,25 +27,29 @@
 !
       implicit none
 !
-      integer            im, ix,  km, kmscu, ntcw, ntrac1
+      integer, intent(in) :: im, ix,  km, kmscu, ntcw, ntrac1
 !    &,                  me
-      integer   krad(im), mrad(im)
+      integer, intent(in) ::   krad(im)
+      integer, intent(inout) :: mrad(im)
 !
-      logical cnvflg(im)
-      real(kind=pbl_wp)    delt
-      real(kind=pbl_wp)    q1(ix,km,ntrac1),t1(ix,km),
-     &                     u1(ix,km),      v1(ix,km),
-     &                     plyr(im,km),    pix(im,km),
-     &                     thlx(im,km),
-     &                     thvx(im,km),    thlvx(im,km),
-     &                     gdx(im),
-     &                     zl(im,km),      zm(im,km),
-     &                     thetae(im,km),  radmin(im),
-     &                     buo(im,km), wush(im,km),
-     &                     tkemean(im),vez0fun(im),xmfd(im,km),
-     &                     tcdo(im,km),qcdo(im,km,ntrac1),
-     &                     ucdo(im,km),vcdo(im,km),
-     &                     xlamdeq(im,km-1)
+      logical, intent(inout) :: cnvflg(im)
+      real(kind=pbl_wp), intent(in) :: delt
+      real(kind=pbl_wp), intent(in) :: q1(ix,km,ntrac1),t1(ix,km),
+     &                                 u1(ix,km),      v1(ix,km),
+     &                                 plyr(im,km),    pix(im,km),
+     &                                 thlx(im,km),
+     &                                 thvx(im,km),    thlvx(im,km),
+     &                                 gdx(im),
+     &                                 zl(im,km),      zm(im,km),
+     &                                 thetae(im,km),  radmin(im),
+     &                                 tkemean(im),vez0fun(im), a1
+
+
+      real(kind=pbl_wp), intent(inout) :: buo(im,km), wush(im,km),
+     &                                    xmfd(im,km),
+     &                                  tcdo(im,km), qcdo(im,km,ntrac1),
+     &                                  ucdo(im,km), vcdo(im,km),
+     &                                  xlamdeq(im,km-1)
 !
 !  local variables and arrays
 !
@@ -58,7 +62,7 @@
      &                     tkcrt,   cmxfac,
      &                     gocp,    factor,  g,       tau,
      &                     b1,      f1,      bb1,     bb2,
-     &                     a1,      a2,
+     &                     a2,
      &                     cteit,   pgcon,
      &                     qmin,    qlmin,
      &                     xmmx,    tem,     tem1,    tem2,
@@ -153,8 +157,9 @@ c  physical parameters
            k = krad(i)
            tem = thetae(i,k) - thetae(i,k+1)
            tem1 = qtx(i,k) - qtx(i,k+1)
-           if (tem > 0. 0_pbl_wp.and. tem1 > 0.0_pbl_wp) then
-             cteit= cp*tem/(hvap*tem1)
+           if (tem > 0.0_pbl_wp.and. tem1 > 0.0_pbl_wp) then
+             cteit = real(cp, kind=pbl_wp) * tem / (real(hvap,
+     &               kind=pbl_wp) * tem1)
              if(cteit > actei) then
                ra1(i) = a2
              endif
@@ -258,19 +263,21 @@ c  physical parameters
      &                     (qtx(i,k)+qtx(i,k+1)))/factor
 !
             tld = thld(i,k) / pix(i,k)
-            es = 0.01_pbl_wp * fpvs(tld)      ! fpvs in pa
-            qs = max(qmin, eps * es / (plyr(i,k)+epsm1*es))
+            es = 0.01_pbl_wp * real(fpvs(real(tld, kind=kind_phys)),
+     &           kind=pbl_wp)      ! fpvs in pa
+            qs = max(qmin, real(eps, kind=pbl_wp) * es
+     &         / (plyr(i,k)+real(epsm1, kind=pbl_wp)*es))
             dq = qtd(i,k) - qs
 !
             if (dq > 0.0_pbl_wp) then
               gamma = el2orc * qs / (tld**2)
               qld = dq / (1.0_pbl_wp + gamma)
               qtd(i,k) = qs + qld
-              tem1 = 1.0_pbl_wp + fv * qs - qld
+              tem1 = 1.0_pbl_wp + real(fv, kind=pbl_wp) * qs - qld
               thdn = thld(i,k) + pix(i,k) * elocp * qld
               thvd = thdn * tem1
             else
-              tem1 = 1.0_pbl_wp + fv * qtd(i,k)
+              tem1 = 1.0_pbl_wp + real(fv, kind=pbl_wp) * qtd(i,k)
               thvd = thld(i,k) * tem1
             endif
             buo(i,k) = g * (1.0_pbl_wp - thvd / thvx(i,k))

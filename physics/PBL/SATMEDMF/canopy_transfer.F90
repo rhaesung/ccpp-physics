@@ -715,9 +715,11 @@
       use mo_pbl_kind, only : pbl_wp
       implicit none
       integer, intent(in) :: flag, i, nkc, nkt
-      real(kind=pbs_wp),      intent(in) :: mass_canopy(nkt), mass_model(km)
+      real(kind=pbl_wp),      intent(in) :: mass_canopy(nkt), mass_model(km)
       character(len=*), intent(out) :: errmsg
       integer, intent(out) :: errflg
+
+      integer :: k, kk, kc
 
       character(len=18) :: mode_transfer
       real(kind=pbl_wp) :: masstotcan, masstotres, massrat
