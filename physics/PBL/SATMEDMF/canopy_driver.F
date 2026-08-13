@@ -1,4 +1,4 @@
-!> \file canopy_driver.F      
+   !> \file canopy_driver.F      
 
 !> This file contains ...
       module canopy_driver
@@ -389,10 +389,11 @@
      &       frctc2r   (km+nkc, 2, im)
 
 !  local 32-bit arrays for external calls ---
-      real(kind=pbl_wp) :: claie_loc(:), cfch_loc(:), cfrt_loc(:), 
-     &                     cclu_loc(:), cpopu_loc(:)
-      real(kind=pbl_wp) :: du_loc(:,:), dv_loc(:,:), tdt_loc(:,:),
-     &                     rtg_loc(:,:,:), dkt_loc(:,:), dku_loc(:,:)
+      real(kind=pbl_wp) :: claie_loc(im), cfch_loc(im), cfrt_loc(im),
+     &                     cclu_loc(im), cpopu_loc(im)
+      real(kind=pbl_wp) :: du_loc(im,km), dv_loc(im,km), tdt_loc(im,km),
+     &                     rtg_loc(im,km,ntrac), dkt_loc(im,km),
+     &                     dku_loc(im,km)
 !!
       parameter(bfac=100.0_pbl_wp)
       parameter(wfac=7.0_pbl_wp,cfac=4.5_pbl_wp)
@@ -1038,7 +1039,7 @@
      &     real(eps,kind=pbl_wp),real(epsm1,kind=pbl_wp),
 !The following three variables are for SA-3D-TKE
      &     real(def_1,kind=pbl_wp),real(def_2,kind=pbl_wp),
-     &     real(def_3,kind=pbl_wp),real(sa3dtke,kind=pbl_wp),
+     &     real(def_3,kind=pbl_wp),sa3dtke,
      &     real(dum3d_h, kind=pbl_wp),real(dum3d_e, kind=pbl_wp),
      &     dv_can,du_can,tdt_can,rtg_can,                                 ! InOut
      &     u1_can,v1_can,t1_can, q1_can,                                  ! In: canopy inputs
@@ -1065,7 +1066,7 @@
      &     real(xkzm_s,kind=pbl_wp),real(dspfac, kind=pbl_wp),
      &     real(bl_upfr,kind=pbl_wp),real(bl_dnfr,kind=pbl_wp),
      &     real(rlmx,kind=pbl_wp),real(elmx,kind=pbl_wp),
-     &     real(sfc_rlm,kind=pbl_wp),
+     &     sfc_rlm,
      &     tc_pbl,use_lpt,
      &     do_canopy, cplaqm,           
      &     ntqv, dtend_can, dtidx,index_of_temperature,index_of_x_wind,   !inout: dtend (.ldiag3d.)
@@ -1139,9 +1140,10 @@ c
           duv_mod(:,1:km)    = duv(:,1:km)              ! before "canopy_to_resolved" (km)
 
 ! Air Density after diffusion model layers
-          rho2 (:,1:km) = prsl (:,1:km)/
-     &                  (rd*t2 (:,1:km)*
-     &           (1.0_pbl_wp+fv*max(q2 (:,1:km, ntqv),qmin))) ! ntqv=1 before "canopy_to_resolved"
+          rho2 (:,1:km) = real(prsl (:,1:km), kind=pbl_wp) /
+     &                  (real(rd, kind=pbl_wp) * t2 (:,1:km) *
+     &           (1.0_pbl_wp + real(fv, kind=pbl_wp) * max(q2 (:,1:km,
+     &            ntqv), qmin))) ! ntqv=1 before "canopy_to_resolved"
 
 ! Set non-canopy columns to resolved values
 ! NB. Only vars not ALREADY defined in non-canopy columns
@@ -1308,7 +1310,7 @@ c
 
         CALL canopy_transfer_run(im, km, nkc, nkt,   !in
      &        ntrac1, ntoz,                          !in
-     &        garea,                                 !in
+     &        real(garea, kind=pbl_wp),              !in
      &        zi, zl, zm,                            !in
      &        q2, rho2,                              !in kg kg-1
      &        1,                                     !in 1 = "canopy_to_resolved"
@@ -1379,13 +1381,14 @@ c
 ! There is a contiguous forest canopy, calculated integrated canopy correction over model layers
           IF ( FRT_MASK(i) >  0.0_pbl_wp ) THEN
 
-            FCH  = cfch(i)
+            FCH  = cfch_loc(i)
 
 ! Determine if canopy inside the model layer (kcan=1) or not (kcan=0)
             IF (k .EQ. 1) THEN !use model layer interfaces
               KCAN = 1
             ELSE
-              IF ( cfch(i) > zi(i,k) .AND. cfch(i) <= zi(i,k+1) ) THEN
+              IF ( cfch_loc(i) > zi(i,k) .AND. cfch_loc(i) <= zi(i,k+1))
+     &        THEN
                 KCAN = 1
               ELSE
                 KCAN= 0
@@ -1591,20 +1594,20 @@ c
 
 ! Canopy Columns
 ! U-Wind/V-Wind after sub-canopy diffusion
-            du_mod (i,k)  = (u2_mod (i,k) - u1 (i,k) )*rdt  ! after "canopy_to_resolved" dim(km)
-            dv_mod (i,k)  = (v2_mod (i,k) - v1 (i,k) )*rdt  ! after "canopy_to_resolved" dim(km)
+            du_mod(i,k) = (u2_mod(i,k) - real(u1(i,k), kind=pbl_wp))*rdt  ! after "canopy_to_resolved" dim(km)
+            dv_mod(i,k) = (v2_mod(i,k) - real(v1(i,k), kind=pbl_wp))*rdt  ! after "canopy_to_resolved" dim(km)
 
             duv_mod(i,k)  = (ws2_mod(i,k) - ws1(i,k) )*rdt  ! after "canopy_to_resolved" dim(km)
 
 ! Temperature after sub-canopy diffusion
-            tdt_mod(i,k) = (t2_mod(i,k) - t1(i,k) )*rdt  ! after "canopy_to_resolved" dim(km)
+            tdt_mod(i,k)= (t2_mod(i,k) - real(t1(i,k), kind=pbl_wp))*rdt  ! after "canopy_to_resolved" dim(km)
 
 ! Tendency mass tracers after sub-canopy diffusion
             rtg_mod(i,k, 1:ntrac1) = (q2_mod(i,k, 1:ntrac1) -
-     &                                q1    (i,k, 1:ntrac1))*rdt  ! after "canopy_to_resolved"
+     &                         real(q1(i,k, 1:ntrac1), kind=pbl_wp))*rdt  ! after "canopy_to_resolved"
 ! Tendency TKE  tracer  after sub-canopy diffusion
-            rtg_mod(i,k, ntke)     = (q2_mod(i,k,   ntke)   -
-     &                                q1    (i,k,   ntke)  )*rdt  ! after "canopy_to_resolved"
+            rtg_mod(i,k, ntke)     = (q2_mod(i,k,ntke) -
+     &                              real(q1(i,k,ntke), kind=pbl_wp))*rdt  ! after "canopy_to_resolved"
 
 !!!!!!!!!!!!!!!!!!!!!
 
