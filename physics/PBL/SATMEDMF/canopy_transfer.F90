@@ -121,10 +121,10 @@
    integer, intent(in)  :: im, km, nkc, nkt, ntrac, ntoz
    integer, intent(in)  :: flag
    real(kind=pbl_wp), intent(in) :: zi(im, km+1),  zl(im, km),   zm(im, km)
-   real(kind=kind_phys), intent(in) :: GAREA(im)
+   real(kind=pbl_wp), intent(in) :: GAREA(im)
 
 ! ** Q1 is concentration field (including gas and aerosol variables) mass mixing ratio kg kg-1
-   real(kind=kind_phys), intent(in) ::   Q1(im, km, ntrac)
+   real(kind=pbl_wp), intent(in) ::   Q1(im, km, ntrac)
 
    real(kind=pbl_wp), intent(in) :: DENS(im, km)
 
@@ -246,7 +246,7 @@
       zmom(km + 1) = 0.0_pbl_wp
       do k = km, 1, -1
          ! Paul's massairmod is our massair
-         massair(i, k) = dens3(k) * real(GAREA(i), kind=pbl_wp) * &
+         massair(i, k) = dens3(k) * GAREA(i) * &
                              (zmom(k) - zmom(k + 1))
       end do
 
@@ -286,7 +286,7 @@
       zmom_can(i, nkt+ 1) = 0.0_pbl_wp
       do k = nkt, 1, -1
          ! Paul's massaircan is our massair_can
-         massair_can(i, k) = dens_can3(k) * real(GAREA(i), kind=pbl_wp) * &
+         massair_can(i, k) = dens_can3(k) * GAREA(i) * &
                               (zmom_can(i, k) - zmom_can(i, k + 1))
       end do
 
@@ -305,7 +305,7 @@
       zmom(km + 1) = 0.0_pbl_wp
       do k = km, 1, -1
          ! Paul's massairmod is our massair
-         massair(i, k) = dens3(k) * real(GAREA(i), kind=pbl_wp) * &
+         massair(i, k) = dens3(k) * GAREA(i) * &
                              (zmom(k) - zmom(k + 1))
       end do
 
@@ -354,7 +354,8 @@
                nfrct(k,    i) = 1
                ifrct(k, 1, i) = kk
 !              frctr2c(k, 1, i) = (zmom_can(i, k) - zmom_can(i, k+1)) / max(zmom(kk) - zmom(kk+1), epsilon)
-               frctr2c(k, 1, i) = (zmom_can(i, k) - zmom_can(i, k+1)) / (zmom(kk) - zmom(kk+1))
+               frctr2c(k, 1, i) = (zmom_can(i, k) - zmom_can(i, k+1)) / &
+     &                            max(zmom(kk) - zmom(kk+1), tiny(1.0_pbl_wp))
                frctc2r(k, 1, i) = 1.0_pbl_wp  ! canopy layer resides within resolved model layer
             end if
 !  Resolved layer boundary splits a combined canopy layer:
@@ -370,13 +371,18 @@
 !  Fraction of resolved model layer contributing to canopy layer:
 !              frctr2c(k, 1, i) = (zmom(kk) - zmom_can(i, k+1)) / max(zmom(kk) - zmom(kk+1), epsilon)
 !              frctr2c(k, 2, i) = (zmom_can(i, k) - zmom(kk)) / max(zmom(kk-1) - zmom(kk), epsilon)
-               frctr2c(k, 1, i) = (zmom(kk) - zmom_can(i, k+1)) / (zmom(kk) - zmom(kk+1))
-               frctr2c(k, 2, i) = (zmom_can(i, k) - zmom(kk)) / (zmom(kk-1) - zmom(kk) )
+               frctr2c(k, 1, i) = (zmom(kk) - zmom_can(i, k+1)) / &
+     &                            max(zmom(kk) - zmom(kk+1), tiny(1.0_pbl_wp))
+               frctr2c(k, 2, i) = (zmom_can(i, k) - zmom(kk)) / &
+     &                            max(zmom(kk-1) - zmom(kk), tiny(1.0_pbl_wp))
 !  Fraction of canopy layer contributing to resolved model layer:
 !              frctc2r(k, 1, i) = (zmom(kk) - zmom_can(i, k+1)) / max(zmom_can(i, k) - zmom_can(i, k+1), epsilon)
 !              frctc2r(k, 2, i) = (zmom_can(i, k) - zmom(kk)) / max(zmom_can(i, k) - zmom_can(i, k+1), epsilon)
-               frctc2r(k, 1, i) = (zmom(kk) - zmom_can(i, k+1)) / (zmom_can(i, k) - zmom_can(i, k+1))
-               frctc2r(k, 2, i) = (zmom_can(i, k) - zmom(kk)) / (zmom_can(i, k) - zmom_can(i, k+1) )
+               frctc2r(k, 1, i) = (zmom(kk) - zmom_can(i, k+1)) / &
+     &                            max(zmom_can(i, k) - zmom_can(i, k+1), tiny(1.0_pbl_wp))
+               frctc2r(k, 2, i) = (zmom_can(i, k) - zmom(kk)) / &
+     &                            max(zmom_can(i, k) - zmom_can(i, k+1), tiny(1.0_pbl_wp))
+
             end if
          end do
       end do
@@ -490,7 +496,7 @@
             ! Paul's massairmod is our massair
             ! Paul's mass_resolved is our mass_resolved
 !           mmr_resolved(k) = mass_resolved(k) / max(massair(i, k), epsilon)  ! ug kg-1
-            mmr_resolved(k) = mass_resolved(k) / (massair(i, k))  ! ug kg-1
+            mmr_resolved(k) = mass_resolved(k) / max(massair(i, k), tiny(1.0_pbl_wp))  ! ug kg-1
 
 ! (3a) Convert back m.m.r. [ug kg-1] to [kg kg-1]
             ! NB. This is Q1_MOD to be used in gas-phase hrdriver call on canopy columns
@@ -533,9 +539,10 @@
                         mmr_canopy(kk) +                        &
                        (mmr_canopy(kk) -  mmr_canopy(kk + 1)) / &
 !                  max(zmid_can(i, kk) - zmid_can(i, kk + 1), epsilon) * &
-                      (zmid_can(i, kk) - zmid_can(i, kk + 1)) * &
-                          (diag_hgt    - zmid_can(i, kk + 1))        ! ug kg-1
-               vmr_resolved      (km + 1)      = FORWARD_CONV * mmr_diag       ! kg kg-1
+                        max(zmid_can(i, kk) - zmid_can(i, kk + 1), tiny(1.0_pbl_wp)) * &
+                       (zmid_can(i, kk) - zmid_can(i, kk + 1)) * &
+                       (diag_hgt - zmid_can(i, kk + 1))        ! ug kg-1
+               vmr_resolved(km + 1) = FORWARD_CONV * mmr_diag      ! kg kg-1
 
             end if
 
@@ -636,7 +643,7 @@
             do k = 1, nkt
                ! Paul's massaircan is our massair_can
 !              mmr_canopy(k) = mass_canopy(k) / max(massair_can(i, k), epsilon)  ! ug kg-1
-               mmr_canopy(k) = mass_canopy(k) /    (massair_can(i, k))  ! ug kg-1
+               mmr_canopy(k) = mass_canopy(k) / max(massair_can(i, k), tiny(1.0_pbl_wp))  ! ug kg-1
 
 ! Output diags
 !               ! if(S == 11) mmr_o3_can(i,k) = mmr_canopy(k) ! nto3=11 "resolved_to_canopy"

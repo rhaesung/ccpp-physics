@@ -22,19 +22,22 @@
      &                     au(l,n-1),a1(l,n)
       !
       do i=1,l
-        fk      = one / cm(i,1)
+        fk      = one / (sign(one, cm(i,1)) * max(abs(cm(i,1)),
+     &            tiny(one)))
         au(i,1) = fk*cu(i,1)
         a1(i,1) = fk*r1(i,1)
       enddo
       do k=2,n-1
         do i=1,l
-          fk      = one / (cm(i,k)-cl(i,k)*au(i,k-1))
+          fk      = one / (sign(one, cm(i,k)-cl(i,k)*au(i,k-1)) *
+     &              max(abs(cm(i,k)-cl(i,k)*au(i,k-1)), tiny(one)))
           au(i,k) = fk*cu(i,k)
           a1(i,k) = fk*(r1(i,k)-cl(i,k)*a1(i,k-1))
         enddo
       enddo
       do i=1,l
-        fk      = one / (cm(i,n)-cl(i,n)*au(i,n-1))
+        fk      = one / (sign(one, cm(i,n)-cl(i,n)*au(i,n-1)) *
+     &            max(abs(cm(i,n)-cl(i,n)*au(i,n-1)), tiny(one)))
         a1(i,n) = fk*(r1(i,n)-cl(i,n)*a1(i,n-1))
       enddo
       do k=n-1,1,-1
@@ -61,21 +64,24 @@
      &          au(l,n-1),a1(l,n),a2(l,n)
 !----------------------------------------------------------------------
       do i=1,l
-        fk      = one / cm(i,1)
+        fk      = one / (sign(one, cm(i,1)) * max(abs(cm(i,1)),
+     &            tiny(one)))
         au(i,1) = fk*cu(i,1)
         a1(i,1) = fk*r1(i,1)
         a2(i,1) = fk*r2(i,1)
       enddo
       do k=2,n-1
         do i=1,l
-          fk      = one / (cm(i,k)-cl(i,k)*au(i,k-1))
+          fk      = one / (sign(one, cm(i,k)-cl(i,k)*au(i,k-1)) *
+     &              max(abs(cm(i,k)-cl(i,k)*au(i,k-1)), tiny(one)))
           au(i,k) = fk*cu(i,k)
           a1(i,k) = fk*(r1(i,k)-cl(i,k)*a1(i,k-1))
           a2(i,k) = fk*(r2(i,k)-cl(i,k)*a2(i,k-1))
         enddo
       enddo
       do i=1,l
-        fk      = one / (cm(i,n)-cl(i,n)*au(i,n-1))
+        fk      = one / (sign(one, cm(i,n)-cl(i,n)*au(i,n-1)) *
+     &            max(abs(cm(i,n)-cl(i,n)*au(i,n-1)), tiny(one)))
         a1(i,n) = fk*(r1(i,n)-cl(i,n)*a1(i,n-1))
         a2(i,n) = fk*(r2(i,n)-cl(i,n)*a2(i,n-1))
       enddo
@@ -108,7 +114,8 @@
      &                  fkk(l,2:n-1)
 !-----------------------------------------------------------------------
       do i=1,l
-        fk(i)   = one / cm(i,1)
+        fk(i)   = one / (sign(one, cm(i,1)) * max(abs(cm(i,1)),
+     &            tiny(one)))
         au(i,1) = fk(i)*cu(i,1)
         a1(i,1) = fk(i)*r1(i,1)
       enddo
@@ -120,7 +127,8 @@
       enddo
       do k=2,n-1
         do i=1,l
-          fkk(i,k) = one / (cm(i,k)-cl(i,k)*au(i,k-1))
+          fkk(i,k) = one / (sign(one, cm(i,k)-cl(i,k)*au(i,k-1)) *
+     &               max(abs(cm(i,k)-cl(i,k)*au(i,k-1)), tiny(one)))
           au(i,k)  = fkk(i,k)*cu(i,k)
           a1(i,k)  = fkk(i,k)*(r1(i,k)-cl(i,k)*a1(i,k-1))
         enddo
@@ -134,7 +142,8 @@
         enddo
       enddo
       do i=1,l
-        fk(i)   = one / (cm(i,n)-cl(i,n)*au(i,n-1))
+        fk(i)   = one / (sign(one, cm(i,n)-cl(i,n)*au(i,n-1)) *
+     &            max(abs(cm(i,n)-cl(i,n)*au(i,n-1)), tiny(one)))
         a1(i,n) = fk(i)*(r1(i,n)-cl(i,n)*a1(i,n-1))
       enddo
       do k = 1, nt
@@ -178,7 +187,8 @@
      &                  fkk(l,2:n-1)
 !-----------------------------------------------------------------------
       do i=1,l
-        fk(i)   = one / cm(i,1)
+        fk(i)   = one / (sign(one, cm(i,1)) * max(abs(cm(i,1)),
+     &            tiny(one)))
         au(i,1) = fk(i)*cu(i,1)
       enddo
       do k = 1, nt
@@ -189,7 +199,8 @@
       enddo
       do k=2,n-1
         do i=1,l
-          fkk(i,k) = one / (cm(i,k)-cl(i,k)*au(i,k-1))
+          fkk(i,k) = one / (sign(one, cm(i,k)-cl(i,k)*au(i,k-1)) *
+     &               max(abs(cm(i,k)-cl(i,k)*au(i,k-1)), tiny(one)))
           au(i,k)  = fkk(i,k)*cu(i,k)
         enddo
       enddo
@@ -202,7 +213,8 @@
         enddo
       enddo
       do i=1,l
-        fk(i)   = one / (cm(i,n)-cl(i,n)*au(i,n-1))
+        fk(i)   = one / (sign(one, cm(i,n)-cl(i,n)*au(i,n-1)) *
+     &            max(abs(cm(i,n)-cl(i,n)*au(i,n-1)), tiny(one)))
       enddo
       do k = 1, nt
         is = (k-1) * n

@@ -452,7 +452,8 @@
 !     conw=1.0/g  ! for del in pa
 !!    parameter(cont=1000.*cp/g,conq=1000.*hvap/g,conw=1000./g) !kpa
       elocp  = real(hvap, kind=pbl_wp) / real(cp, kind=pbl_wp)
-      el2orc = real(hvap * hvap / (rv * cp), kind=pbl_wp)
+      el2orc = (real(hvap, kind=pbl_wp) * real(hvap, kind=pbl_wp))
+     &       / (real(rv, kind=pbl_wp) * real(cp, kind=pbl_wp))
 
 !
 !************************************************************************
@@ -462,7 +463,7 @@
 
 !> ## Compute preliminary variables from input arguments
       dt2  = real(delt, kind=pbl_wp)
-      rdt = 1.0_pbl_wp / dt2
+      rdt = 1.0_pbl_wp / max(dt2, tiny(1.0_pbl_wp))
 !
 ! the code is written assuming ntke=ntrac
 ! if ntrac > ntke, the code needs to be modified
@@ -522,7 +523,8 @@
             rho1(i,k) = real(prsl(i,k), kind=pbl_wp) / (real(rd,
      &                  kind=pbl_wp)*real(t1(i,k), kind=pbl_wp)
      &                * (1.0_pbl_wp+real(fv, kind=pbl_wp)
-     &                * max(real(q1(i,k, 1), kind=pbl_wp),qmin)))
+     &                * max(real(q1(i,k, 1), kind=pbl_wp),qmin)),
+     &                  tiny(1.0_pbl_wp))
 
           enddo
         enddo
@@ -777,9 +779,10 @@
 
             q1_can3(i,k, ntqv) = qv_can3(i,k) ! 2-m interpolated humidity
 
-            rho1_can3(i,k) = prsl_can3(i,k) / (real(rd, kind=pbl_wp)
+            rho1_can3(i,k) = prsl_can3(i,k) / max(real(rd, kind=pbl_wp)
      &                     * t1_can3(i,k) * (1.0_pbl_wp+real(fv,
-     &                     kind=pbl_wp)*max(q1_can3(i,k, ntqv),qmin))) ! ntqv=1 2-m interpolated
+     &                       kind=pbl_wp)*max(q1_can3(i,k, ntqv),qmin)),
+     &                       tiny(1.0_pbl_wp)) ! ntqv=1 2-m interpolated
 
           enddo
         enddo
@@ -797,9 +800,9 @@
 
 ! Exner function canopy layers
 ! !< exner function = (p/p0)**rocp
-             prslk_can3(i,kc) = (prsl_can3(i,kc) / real(pgr(i),
-     &                           kind=pbl_wp)) ** real(con_rocp,
-     &                           kind=pbl_wp)
+             prslk_can3(i,kc) = (prsl_can3(i,kc) / max(real(pgr(i),
+     &                          kind=pbl_wp), tiny(1.0_pbl_wp)))
+     &                        ** real(con_rocp, kind=pbl_wp)
            enddo
          enddo
 
@@ -819,9 +822,9 @@
 
 ! Exner function canopy layers
 ! !< exner function = (p/p0)**rocp
-             prslk_can3(i,kc) = (prsl_can3(i,kc) / real(pgr(i),
-     &                          kind=pbl_wp)) ** real(con_rocp,
-     &                          kind=pbl_wp)
+             prslk_can3(i,kc) = (prsl_can3(i,kc) / max(real(pgr(i),
+     &                         kind=pbl_wp), tiny(1.0_pbl_wp)))
+     &                        ** real(con_rocp, kind=pbl_wp)
            end do
          end do
 
@@ -1142,8 +1145,8 @@ c
 ! Air Density after diffusion model layers
           rho2 (:,1:km) = real(prsl (:,1:km), kind=pbl_wp) /
      &                  (real(rd, kind=pbl_wp) * t2 (:,1:km) *
-     &           (1.0_pbl_wp + real(fv, kind=pbl_wp) * max(q2 (:,1:km,
-     &            ntqv), qmin))) ! ntqv=1 before "canopy_to_resolved"
+     &                  (1.0_pbl_wp + real(fv, kind=pbl_wp) *
+     &                  max(q2 (:,1:km, ntqv), qmin)), tiny(1.0_pbl_wp)) ! ntqv=1 before "canopy_to_resolved"
 
 ! Set non-canopy columns to resolved values
 ! NB. Only vars not ALREADY defined in non-canopy columns
@@ -1285,20 +1288,28 @@ c
 ! Top 3 combined layers set to resolved
 !    NB. Q2_can3 tracers array & t2_can3  after diffusion only updated 1:km
           rho2_can3 (:,km+nkc) = prsl (:,km  )/          ! after diffusion
-     &                        (rd*t2 (:,km  )*
-     &                 (1.0_pbl_wp+fv*max(q2 (:,km  , ntqv),qmin))) ! ntqv=1
-          rho2_can3 (:,km+2  ) = prsl (:,km-1)/          ! after diffusion
-     &                        (rd*t2 (:,km-1)*
-     &                 (1.0_pbl_wp+fv*max(q2 (:,km-1, ntqv),qmin))) ! ntqv=1
+     &                           max(real(rd, kind=pbl_wp) * t2(:,km) *
+     &                           (1.0_pbl_wp + real(fv, kind=pbl_wp) *
+     &                           max(q2 (:,km  , ntqv), qmin)),
+     &                           tiny(1.0_pbl_wp)) 
+          rho2_can3 (:,km+2) = prsl (:,km-1)/          ! after diffusion
+     &                         max(real(rd, kind=pbl_wp) * t2(:,km-1) *
+     &                         (1.0_pbl_wp + real(fv, kind=pbl_wp) *
+     &                         max(q2 (:,km-1, ntqv), qmin)),
+     &                         tiny(1.0_pbl_wp)) ! ntqv=1
 
-          rho2_can3 (:,km+1  ) = prsl (:,km-2)/          ! after diffusion
-     &                        (rd*t2 (:,km-2)*
-     &                 (1.0_pbl_wp+fv*max(q2 (:,km-2, ntqv),qmin))) ! ntqv=1
+          rho2_can3 (:,km+1) = prsl (:,km-2)/          ! after diffusion
+     &                         max(real(rd, kind=pbl_wp) * t2(:,km-2) *
+     &                         (1.0_pbl_wp + real(fv, kind=pbl_wp) *
+     &                         max(q2 (:,km-2, ntqv), qmin)),
+     &                         tiny(1.0_pbl_wp)) ! ntqv=1
 
 ! Air density after diffusion on canopy layers
-          rho2_can3 (:,1:km   ) = prsl_can3 (:,1:km)/           ! after diffusion
-     &                          (rd*t2_can3 (:,1:km)*
-     &                 (1.0_pbl_wp+fv*max(q2_can3 (:,1:km, ntqv),qmin))) ! ntqv=1
+          rho2_can3 (:,1:km) = prsl_can3 (:,1:km)/           ! after diffusion
+     &                         max(real(rd, kind=pbl_wp) * t2_can3(:,
+     &                         1:km) * (1.0_pbl_wp + real(fv,
+     &                         kind=pbl_wp) * max(q2_can3(:,1:km, ntqv),
+     &                         qmin)), tiny(1.0_pbl_wp)) ! ntqv=1
 
       endif !do_canopy .and. cplaqm
 
@@ -1428,37 +1439,41 @@ c
                     FZI05    = 1.0_pbl_wp/
 !                             max(zi_can3 (i,kc+1) - 
 !     &                           zi_can3 (i,kc), epsilon) *
-     &                           (zi_can3 (i,kc+1) - zi_can3 (i,kc)) *
-     &                           (ZI05 - zi_can3 (i,kc))
+     &                         max(zi_can3 (i,kc+1) - zi_can3 (i,kc),
+     &                         tiny(1.0_pbl_wp)) * (zi_can3 (i,kc+1) -
+     &                         zi_can3 (i,kc)) * (ZI05 - zi_can3 (i,kc))
 
                    TTCORR   = (t2_can3 (i,kc+1) - t2_can3 (i,kc))/
 !     &                        max(zi_can3 (i,kc+1) - 
 !     &                            zi_can3 (i,kc), epsilon) *
-     &                        (zi_can3 (i,kc+1) - zi_can3 (i,kc)) *
-     &                        (ZI05    - zi_can3 (i,kc))
+     &                        max(zi_can3 (i,kc+1) - zi_can3 (i,kc),
+     &                        tiny(1.0_pbl_wp)) * (zi_can3 (i,kc+1) -
+     &                        zi_can3 (i,kc)) * (ZI05 - zi_can3(i,kc))
 
 ! U-Wind/V-Wind after diffusion on canopy layers
                    UUCAN  =  u2_can3 (i,kc  ) +
      &                      (u2_can3 (i,kc+1) - u2_can3 (i,kc))/
 !     &                      max(zi_can3 (i,kc+1) - 
 !     &                          zi_can3 (i,kc), epsilon) *
-     &                      (zi_can3 (i,kc+1) - zi_can3 (i,kc)) *
-     &                      (ZI05      - zi_can3 (i,kc))
+     &                      max(zi_can3 (i,kc+1) - zi_can3 (i,kc),
+     &                      tiny(1.0_pbl_wp)) * (zi_can3 (i,kc+1) -
+     &                      zi_can3 (i,kc)) * (ZI05 - zi_can3(i,kc))
 
                    VVCAN  =  v2_can3 (i,kc  ) +
      &                      (v2_can3 (i,kc+1) - v2_can3 (i,kc))/
 !     &                      max(zi_can3 (i,kc+1) - 
 !     &                          zi_can3 (i,kc), epsilon) *
-     &                      (zi_can3 (i,kc+1) - zi_can3 (i,kc)) *
-     &                      (ZI05             - zi_can3 (i,kc))
+     &                      max(zi_can3 (i,kc+1) - zi_can3 (i,kc),
+     &                      tiny(1.0_pbl_wp)) * (zi_can3 (i,kc+1) -
+     &                      zi_can3 (i,kc)) * (ZI05 - zi_can3(i,kc))
 ! Temperature after diffusion on canopy layers
                    TTCAN  =  t2_can3 (i,kc  ) +
      &                      (t2_can3 (i,kc+1) - t2_can3 (i,kc))/
 !     &                      max(zi_can3 (i,kc+1) - 
 !     &                          zi_can3 (i,kc), epsilon) *
-     &                      (zi_can3 (i,kc+1) - zi_can3 (i,kc)) *
-     &                      (ZI05      - zi_can3 (i,kc))
-
+     &                      max(zi_can3 (i,kc+1) - zi_can3 (i,kc),
+     &                      tiny(1.0_pbl_wp)) * (zi_can3 (i,kc+1) -
+     &                      zi_can3 (i,kc)) * (ZI05 - zi_can3 (i,kc))
 
 ! TKE after diffusion on canopy layers
                    TKECAN =  q2_can3 (i,kc, ntke) +
@@ -1466,16 +1481,18 @@ c
      &                       q2_can3 (i,kc  , ntke))/
 !     &                      max(zi_can3 (i,kc+1) - 
 !     &                          zi_can3 (i,kc), epsilon) *
-     &                      (zi_can3 (i,kc+1) - zi_can3 (i,kc)) *
-     &                      (ZI05      - zi_can3 (i,kc))
+     &                      max(zi_can3 (i,kc+1) - zi_can3 (i,kc),
+     &                      tiny(1.0_pbl_wp)) * (zi_can3 (i,kc+1) -
+     &                      zi_can3 (i,kc)) * (ZI05 - zi_can3 (i,kc))
 
 ! TKE half layers
                    TKEHCAN =  tkeh_can (i,kc  ) +
      &                      (tkeh_can (i,kc+1) - tkeh_can (i,kc))/
 !     &                      max(zi_can3(i,kc+1) - 
 !     &                          zi_can3(i,kc), epsilon) *
-     &                      (  zi_can3(i,kc+1) -   zi_can3(i,kc)) *
-     &                      (ZI05      -   zi_can3(i,kc))
+     &                      max(zi_can3(i,kc+1) - zi_can3(i,kc),
+     &                      tiny(1.0_pbl_wp)) * (zi_can3(i,kc+1) -
+     &                      zi_can3(i,kc)) * (ZI05 - zi_can3(i,kc))
 
                  END IF !  "zi_can3(kc) < ZI05 <= zi_can3(kc+1)"
 
@@ -1518,38 +1535,39 @@ c
      &                   ZCANX(COUNTCAN:1:-1) ,
      &                     UUX(COUNTCAN:1:-1) ) /
 !    &                     max(ZZ_INT, epsilon)
-     &                     ZZ_INT
+     &                     max(ZZ_INT, tiny(1.0_pbl_wp))
 
 ! V-wind
               VV_INT = IntegrateTrapezoid(
      &                   ZCANX(COUNTCAN:1:-1) ,
      &                     VVX(COUNTCAN:1:-1) ) /
 !    &                     max(ZZ_INT, epsilon)
-     &                     ZZ_INT
+     &                     max(ZZ_INT, tiny(1.0_pbl_wp))
 
 ! Temp
               TT_INT = IntegrateTrapezoid(
      &                   ZCANX(COUNTCAN:1:-1) ,
      &                     TTX(COUNTCAN:1:-1)   ) /
 !    &                     max(ZZ_INT, epsilon)
-     &                     ZZ_INT
+     &                     max(ZZ_INT, tiny(1.0_pbl_wp))
 
 ! TKE
               TKE_INT = IntegrateTrapezoid(
      &                    ZCANX(COUNTCAN:1:-1) ,
      &                     TKEX(COUNTCAN:1:-1)  ) /
 !    &                     max(ZZ_INT, epsilon)
-     &                     ZZ_INT
+     &                     max(ZZ_INT, tiny(1.0_pbl_wp))
 
 ! TKEH
               TKEH_INT= IntegrateTrapezoid(
      &                     ZCANX(COUNTCAN:1:-1) ,
      &                     TKEHX(COUNTCAN:1:-1) ) /
 !    &                     max(ZZ_INT, epsilon)
-     &                     ZZ_INT
+     &                     max(ZZ_INT, tiny(1.0_pbl_wp))
 
 ! Sum
-              TT_SUM = sum(  TTX(COUNTCAN:1:-1))/real(COUNTCAN, kind=pbl_wp)
+              TT_SUM = sum(TTX(COUNTCAN:3:-1))/max(real(COUNTCAN,
+     &                 kind=pbl_wp), 1.0_pbl_wp)
 
 ! U-wind/V-wind Canopy Columns
               u2_mod (i,k)   = UU_INT     ! after "canopy-to-resolved"

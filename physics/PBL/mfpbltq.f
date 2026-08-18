@@ -141,7 +141,7 @@ c  local variables and arrays
           k = kpbl(i) / 2
           k = max(k, 1)
           delz(i) = zl(i,k+1) - zl(i,k)
-          xlamax(i) = ce0t(i) / delz(i)
+          xlamax(i) = ce0t(i) / max(delz(i), tiny(1.0_pbl_wp))
         endif
       enddo
 !
@@ -149,9 +149,9 @@ c  local variables and arrays
         do i=1,im
           if(cnvflg(i)) then
             if(k < kpbl(i)) then
-              ptem = 1.0_pbl_wp/(zm(i,k)+delz(i))
+              ptem = 1.0_pbl_wp/max(zm(i,k)+delz(i), tiny(1.0_pbl_wp))
               tem = max((hpbl(i)-zm(i,k)+delz(i)) ,delz(i))
-              ptem1 = 1.0_pbl_wp/tem
+              ptem1 = 1.0_pbl_wp/max(tem, tiny(1.0_pbl_wp))
               xlamue(i,k) = ce0t(i) * (ptem+ptem1)
             else
               xlamue(i,k) = xlamax(i)
@@ -180,14 +180,15 @@ c  local variables and arrays
             qtu(i,k) = ((1.0_pbl_wp-tem)*qtu(i,k-1)+tem*
      &                  (qtx(i,k-1)+qtx(i,k)))/factor
 !
-            tlu = thlu(i,k) / pix(i,k)
+            tlu = thlu(i,k) / max(pix(i,k), tiny(1.0_pbl_wp))
             es = 0.01_pbl_wp * real(fpvs(real(tlu, kind=kind_phys)),
      &           kind=pbl_wp)     ! fpvs in pa
-            qs = max(qmin, eps * es / (plyr(i,k)+epsm1*es))
+            qs = max(qmin, eps * es / max(plyr(i,k)+epsm1*es,
+     &           tiny(1.0_pbl_wp)))
             dq = qtu(i,k) - qs
 !
             if (dq > 0.0_pbl_wp) then
-              gamma = el2orc * qs / (tlu**2)
+              gamma = el2orc * qs / max(tlu**2, tiny(1.0_pbl_wp))
               qlu = dq / (1.0_pbl_wp + gamma)
               qtu(i,k) = qs + qlu
               tem1 = 1.0_pbl_wp + fv * qs - qlu
@@ -197,7 +198,8 @@ c  local variables and arrays
               tem1 = 1.0_pbl_wp + fv * qtu(i,k)
               thvu = thlu(i,k) * tem1
             endif
-            buo(i,k) = g * (thvu / thvx(i,k) - 1.0_pbl_wp)
+            buo(i,k) = g * (thvu / max(thvx(i,k), tiny(1.0_pbl_wp))
+     &               - 1.0_pbl_wp)
 !
           endif
         enddo
@@ -274,7 +276,7 @@ c  local variables and arrays
            elseif(rbup(i) >= 0.0_pbl_wp) then
               rbint = 1.0_pbl_wp
            else
-              rbint = rbdn(i)/(rbdn(i)-rbup(i))
+              rbint = rbdn(i)/max(rbdn(i)-rbup(i), tiny(1.0_pbl_wp))
            endif
            hpblx(i) = zm(i,k-1) + rbint*(zm(i,k)-zm(i,k-1))
         endif
@@ -297,7 +299,7 @@ c  local variables and arrays
           k = kpbl(i) / 2
           k = max(k, 1)
           delz(i) = zl(i,k+1) - zl(i,k)
-          xlamax(i) = ce0t(i) / delz(i)
+          xlamax(i) = ce0t(i) / max(delz(i), tiny(1.0_pbl_wp))
         endif
       enddo
 !
@@ -306,9 +308,9 @@ c  local variables and arrays
           if(cnvflg(i) .and. kpblx(i) < kpbly(i)) then
 !         if(cnvflg(i)) then
             if(k < kpbl(i)) then
-              ptem = 1.0_pbl_wp/(zm(i,k)+delz(i))
+              ptem = 1.0_pbl_wp/max(zm(i,k)+delz(i), tiny(1.0_pbl_wp))
               tem = max((hpbl(i)-zm(i,k)+delz(i)) ,delz(i))
-              ptem1 = 1.0_pbl_wp/tem
+              ptem1 = 1.0_pbl_wp/max(tem, tiny(1.0_pbl_wp))
               xlamue(i,k) = ce0t(i) * (ptem+ptem1)
             else 
               xlamue(i,k) = xlamax(i)
@@ -337,7 +339,7 @@ c  local variables and arrays
       enddo
       do i = 1, im
         if(cnvflg(i)) then
-           xlamavg(i) = xlamavg(i) / sumx(i)
+           xlamavg(i) = xlamavg(i) / max(sumx(i), tiny(1.0_pbl_wp))
         endif
       enddo
 !
@@ -356,9 +358,9 @@ c  local variables and arrays
 !
       do i = 1, im
         if(cnvflg(i)) then
-          tem = 0.2_pbl_wp / xlamavg(i)
+          tem = 0.2_pbl_wp / max(xlamavg(i), tiny(1.0_pbl_wp))
           tem1 = 3.14_pbl_wp * tem * tem
-          sigma(i) = tem1 / (gdx(i) * gdx(i))
+          sigma(i) = tem1 / max(gdx(i) * gdx(i), tiny(1.0_pbl_wp))
           sigma(i) = max(sigma(i), 0.001_pbl_wp)
           sigma(i) = min(sigma(i), 0.999_pbl_wp)
         endif
@@ -384,11 +386,11 @@ c  local variables and arrays
         do i = 1, im
           if (cnvflg(i) .and. k < kpbl(i)) then
              if (sigma(i) > a1) then
-               xmf(i,k) = sigma(i) * xmf(i,k) / a1
+               xmf(i,k) = sigma(i) * xmf(i,k) / max(a1,tiny(1.0_pbl_wp))
              endif
              xmf(i,k) = scaldfunc(i) * xmf(i,k)
              dz   = zl(i,k+1) - zl(i,k)
-             xmmx = dz / dt2
+             xmmx = dz / max(dt2, tiny(1.0_pbl_wp))
              xmf(i,k) = min(xmf(i,k),xmmx)
           endif
         enddo
@@ -426,13 +428,15 @@ c  local variables and arrays
             qtu(i,k) = ((1.0_pbl_wp-tem)*qtu(i,k-1)+tem*
      &                  (qtx(i,k-1)+qtx(i,k)))/factor
 !
-            tlu = thlu(i,k) / pix(i,k)
-            es = 0.01_pbl_wp * fpvs(tlu)      ! fpvs in pa
-            qs = max(qmin, eps * es / (plyr(i,k)+epsm1*es))
+            tlu = thlu(i,k) / max(pix(i,k), tiny(1.0_pbl_wp))
+            es = 0.01_pbl_wp * real(fpvs(real(tlu, kind=kind_phys)),
+     &           kind=pbl_wp)      ! fpvs in pa
+            qs = max(qmin, eps * es / max(plyr(i,k)+epsm1*es,
+     &           tiny(1.0_pbl_wp)))
             dq = qtu(i,k) - qs
 !
             if (dq > 0.0_pbl_wp) then
-              gamma = el2orc * qs / (tlu**2)
+              gamma = el2orc * qs / max(tlu**2, tiny(1.0_pbl_wp))
               qlu = dq / (1.0_pbl_wp + gamma)
               qtu(i,k) = qs + qlu
               qcko(i,k,1) = qs
@@ -505,6 +509,6 @@ c  local variables and arrays
       endif
 !
       return
-      end
+      end subroutine mfpbltq
 !> @}
       end module mfpbltq_mod

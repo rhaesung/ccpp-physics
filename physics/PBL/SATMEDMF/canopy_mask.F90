@@ -21,8 +21,8 @@
    integer, intent(in)  :: im, km  ! horizontal & vertical domain specifications
    integer, intent(in)  :: nkc, nkt
 
-   real(kind=kind_phys), intent(in) :: claie(im), cfch(im), cfrt(im), &
-                                       cclu(im),cpopu(im)
+   real(kind=pbl_wp), intent(in) :: claie(im), cfch(im), cfrt(im), &
+                                    cclu(im), cpopu(im)
    real(kind=pbl_wp), intent(out) :: FRT_mask(im)
 
    character(len=*), intent(out) :: errmsg
@@ -58,8 +58,8 @@
    integer, intent(in)  :: im, km  ! horizontal & vertical domain specifications
    integer, intent(in) :: nkc, nkt
 
-   real(kind=kind_phys), intent(in) :: claie(im), cfch(im),  cfrt(im), &
-                                       cclu(im), cpopu(im)
+   real(kind=pbl_wp), intent(in) :: claie(im), cfch(im),  cfrt(im), &
+                                    cclu(im), cpopu(im)
    real(kind=pbl_wp), intent(out) :: FRT_mask(im)
 
    character(len=*), intent(out) :: errmsg
@@ -76,16 +76,14 @@
    do i=1,im
 
       !NOT a Continuous forest canopy
-      if (    real(claie(i), kind=pbl_wp) .LT. 0.1_pbl_wp                      &
-         .OR. real(cfch (i), kind=pbl_wp) .LT. 0.5_pbl_wp                      &
+         if (   claie(i) < 0.1_pbl_wp                                    &
+        .OR. cfch(i)  < 0.5_pbl_wp                                       &
 !IVAI: modified contiguous canopy condition
-!        .OR. MAX(0.0, 1.0 - cfrt(i)) .GT. 0.5
-         .OR. MAX(0.0_pbl_wp, 1.0_pbl_wp - real(cfrt(i), kind=pbl_wp))
-  &           .GT. 0.75_pbl_wp                                                 &
-         .OR. real(cpopu(i), kind=pbl_wp) .GT. 10000.0_pbl_wp                  &
-         .OR. (EXP(-0.5_pbl_wp*real(claie(i), kind=pbl_wp)*real(cclu(i),
-  &           kind=pbl_wp)) .GT. 0.45_pbl_wp  &
-         .AND. real(cfch(i), kind=pbl_wp)  .LT. 18.0_pbl_wp) ) THEN
+!        .OR. MAX(0.0, 1.0 - cfrt(i)) .GT. 0.5 
+        .OR. MAX(0.0_pbl_wp, 1.0_pbl_wp - cfrt(i)) > 0.75_pbl_wp         &
+        .OR. cpopu(i) > 10000.0_pbl_wp                                   &
+        .OR. (EXP(-0.5_pbl_wp * claie(i) * cclu(i)) > 0.45_pbl_wp        &
+        .AND. cfch(i) < 18.0_pbl_wp) ) THEN
 
          FRT_mask(i) = -1.0_pbl_wp
 

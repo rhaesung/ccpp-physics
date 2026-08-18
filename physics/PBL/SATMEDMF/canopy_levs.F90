@@ -33,15 +33,15 @@
    real(kind=pbl_wp), intent(in) ::    zi(im, km+1),   zl(im, km), &
                                                           zm(im, km), &
                                         prsi(im, km+1), prsl(im, km)
-   real(kind=kind_phys), intent(in) ::    dv(im, km),     du(im, km), &
+   real(kind=pbl_wp), intent(in) ::    dv(im, km),     du(im, km), &
                                          tdt(im, km),    rtg(im, km,ntrac)
-   real(kind=kind_phys), intent(in) ::    u1(im, km),     v1(im, km),  t1(im,km)
+   real(kind=pbl_wp), intent(in) ::    u1(im, km),     v1(im, km),  t1(im,km)
    real(kind=pbl_wp), intent(in) ::  dens(im, km)
-   real(kind=kind_phys), intent(in) ::   dkt(im, km), dku(im,km)
+   real(kind=pbl_wp), intent(in) ::   dkt(im, km), dku(im,km)
 !   real(kind=kind_phys), intent(in) :: dtend(im, km , ndtend)
 
 ! ** Q1 is concentration field (including gas and aerosol variables) mass mixing ratio kg kg-1
-   real(kind=kind_phys), intent(in) ::    Q1(im, km, ntrac)
+   real(kind=pbl_wp), intent(in) ::    Q1(im, km, ntrac)
 
    real(kind=pbl_wp), intent(out) ::  &
 ! tendencies
@@ -95,7 +95,7 @@
 !   dtend_can(:, :, : ) = 0.0
 
 ! Tracers
-   Q1_2M (:, :) = real(Q1(:,1, :), kind=pbl_wp)       ! kg kg-1
+   Q1_2M (:, :) = Q1(:,1, :)       ! kg kg-1
 
 ! Subset (km combined layers minus top nkc layers)
    do k = 1, km-nkc
@@ -105,12 +105,12 @@
      kc= nkc+k     ! 4th from top (nkt) to nkc+1 combined canopy plus resolved model layer
 
 ! Tendencies
-     DU_CAN  (:,kc)    = real(DU  (:,k), kind=pbl_wp)       ! m s-2
-     DV_CAN  (:,kc)    = real(DV  (:,k), kind=pbl_wp)       ! m s-2
-     TDT_CAN (:,kc)    = real(TDT (:,k), kind=pbl_wp)       ! K s-1
+     DU_CAN  (:,kc)    = DU (:,k)      ! m s-2
+     DV_CAN  (:,kc)    = DV (:,k)      ! m s-2
+     TDT_CAN (:,kc)    = TDT (:,k),    ! K s-1
 
-     RTG_CAN (:,kc, 1:ntrac-1) = real(RTG (:,k, 1:ntrac-1), kind=pbl_wp) ! kg kg-1 s-1
-     RTG_CAN (:,kc,   ntke   ) = real(RTG (:,k,   ntke   ), kind=pbl_wp) ! J   s-1 s-1
+     RTG_CAN (:,kc, 1:ntrac-1) = RTG (:,k, 1:ntrac-1) ! kg kg-1 s-1
+     RTG_CAN (:,kc,   ntke   ) = RTG (:,k,   ntke   ) ! J   s-1 s-1
 
    end do
 
@@ -128,25 +128,24 @@
 ! Pressure & temperature
      prsl_can(:,kc) = prsl(:,k)  ! km  combined canopy plus resolved layers
      prsi_can(:,kc) = prsi(:,k)  ! km  combined canopy plus resolved layers
-     T1_CAN  (:,kc) = real(T1  (:,k), kind=pbl_wp)
+     T1_CAN  (:,kc) = T1  (:,k)
      DENS_CAN(:,kc) = DENS(:,k)
 
 ! Diffusivities
-     DKT_CAN (:,kc) = real(DKT    (:,k), kind=pbl_wp)       ! m2 s-1
-     DKU_CAN (:,kc) = real(DKU    (:,k), kind=pbl_wp)       ! m2 s-1
+     DKT_CAN (:,kc) = DKT(:,k)   ! m2 s-1
+     DKU_CAN (:,kc) = DKU(:,k)   ! m2 s-1
 
 ! Wind
-     WS_CAN  (:,kc) = sqrt(real(u1(:,k), kind=pbl_wp)**2 + real(v1(:,k),
-   &                  kind=pbl_wp)**2)       ! m s-1
+     WS_CAN  (:,kc) = sqrt(u1(:,k)**2 + v1(:,k)**2)  ! m s-1
 
 ! Mass tracers
-     Q1_CAN  (:,kc, 1:ntrac-1) = real(Q1 (:,k, 1:ntrac-1), kind=pbl_wp) ! all tracers ntrac1
+     Q1_CAN  (:,kc,1:ntrac-1) = Q1(:,k,1:ntrac-1)  ! all tracers ntrac1
 
 ! TKE tracer
-     Q1_CAN  (:,kc,   ntke  ) = real(Q1 (:,k,   ntke  ), kind=pbl_wp) ! ntke=198  TKE tracer
+     Q1_CAN  (:,kc,ntke) = Q1(:,k,ntke) ! ntke=198  TKE tracer
 
 ! Humidity
-     QV_CAN(:,kc) = real(Q1(:,k, ntqv), kind=pbl_wp) ! ntqv=1
+     QV_CAN(:,kc) = Q1(:,k, ntqv) ! ntqv=1
 
    end do
    prsi_can(:,km + nkc +1 ) = prsi(:,km+1) ! nkt combined canopy plus resolved layers
@@ -155,12 +154,12 @@
    do kc = 1, nkc ! 3-nkc canopy layers
 
 ! Tendencies
-     DU_CAN  (:,kc)    = real(DU  (:,1), kind=pbl_wp)       ! m s-2
-     DV_CAN  (:,kc)    = real(DV  (:,1), kind=pbl_wp)       ! m s-2
-     TDT_CAN (:,kc)    = real(TDT (:,1), kind=pbl_wp)       ! K s-1
+     DU_CAN  (:,kc)    = DU(:,1)       ! m s-2
+     DV_CAN  (:,kc)    = DV(:,1)       ! m s-2
+     TDT_CAN (:,kc)    = TDT(:,1)      ! K s-1
 
-     RTG_CAN (:,kc, 1:ntrac-1) = real(RTG (:,1, 1:ntrac-1), kind=pbl_wp) ! kg kg-1 s-1
-     RTG_CAN (:,kc,   ntke   ) = real(RTG (:,1,   ntke   ), kind=pbl_wp) ! J   s-1 s-1
+     RTG_CAN (:,kc, 1:ntrac-1) = RTG(:,1,1:ntrac-1)  ! kg kg-1 s-1
+     RTG_CAN (:,kc,   ntke   ) = RTG(:,1,ntke) ! J   s-1 s-1
 
 ! Height
      ZL_CAN  (:,kc) = zl  (:,1)
@@ -169,25 +168,24 @@
 ! Pressure & temperature
      prsl_can(:,kc) = prsl(:,1)  ! km  combined canopy plus resolved layers
      prsi_can(:,kc) = prsi(:,1)  ! km  combined canopy plus resolved layers
-     T1_CAN  (:,kc) = real(T1  (:,1), kind=pbl_wp)
+     T1_CAN  (:,kc) = T1(:,1)
      DENS_CAN(:,kc) = DENS(:,1)
 
 ! Diffusivities
-     DKT_CAN (:,kc) = real(DKT    (:,1), kind=pbl_wp)       ! m2 s-1
-     DKU_CAN (:,kc) = real(DKU    (:,1), kind=pbl_wp)       ! m2 s-1
+     DKT_CAN (:,kc) = DKT(:,1)   ! m2 s-1
+     DKU_CAN (:,kc) = DKU(:,1)   ! m2 s-1
 
 ! Wind
-     WS_CAN  (:,kc) = sqrt(real(u1(:,1), kind=pbl_wp)**2 + real(v1(:,1),
-  &                   kind=pbl_wp)**2)       ! m s-1
+     WS_CAN  (:,kc) = sqrt(u1(:,1)**2 + v1(:,1)**2)       ! m s-1
 
 ! Mass tracers
-     Q1_CAN  (:,kc, 1:ntrac-1) = real(Q1 (:,1, 1:ntrac-1), kind=pbl_wp) ! all tracers ntrac1
+     Q1_CAN  (:,kc,1:ntrac-1) = Q1(:,1,1:ntrac-1) ! all tracers ntrac1
 
 ! TKE tracer
-     Q1_CAN  (:,kc,   ntke  ) = real(Q1 (:,1,   ntke  ), kind=pbl_wp) ! ntke=198  TKE tracer
+     Q1_CAN  (:,kc,ntke) = Q1(:,1,ntke)  ! ntke=198  TKE tracer
 
 ! Water vapor
-     QV_CAN  (:,kc) = real(Q1(:,1, ntqv), kind=pbl_wp) ! ntqv=1
+     QV_CAN  (:,kc) = Q1(:,1, ntqv)  ! ntqv=1
 
    end do
 
@@ -230,26 +228,26 @@
 !...Arguments:
 
    integer, intent(in)  :: im, km, nkc, nkt, ntrac, ntqv, ntke
-   real(kind=kind_phys), intent(in) :: RDGAS, PI
+   real(kind=pbl_wp), intent(in) :: RDGAS, PI
 
    real(kind=pbl_wp), intent(in) ::    zi(im,km+1),   zl(im,km), &
                                                          zm(im,km)
-   real(kind=kind_phys), intent(in) :: prsi(im,km+1), prsl(im,km)
-   real(kind=kind_phys), intent(in) ::    dv(im,km),     du(im,km),         &
+   real(kind=pbl_wp), intent(in) :: prsi(im,km+1), prsl(im,km)
+   real(kind=pbl_wp), intent(in) ::    dv(im,km),     du(im,km),         &
                                          tdt(im,km),    rtg(im,km,ntrac)
 
-   real(kind=kind_phys), intent(in) :: u1(im,km),     v1(im,km),  t1(im,km)
+   real(kind=pbl_wp), intent(in) :: u1(im,km),     v1(im,km),  t1(im,km)
    real(kind=pbl_wp), intent(in) ::    dens(im,km)
-   real(kind=kind_phys), intent(in) :: dkt(im,km), dku(im,km)
+   real(kind=pbl_wp), intent(in) :: dkt(im,km), dku(im,km)
 
-   real(kind=kind_phys), intent(in) :: psfc(im)   ! Pa
-   real(kind=kind_phys), intent(in) :: cfch(im), garea(im), u10m(im), v10m(im),  &
-                                       spd1(im),stress(im),                      &
-                                        t2m(im),   q2m(im),   fm(im),   fh(im),  &
+   real(kind=pbl_wp), intent(in) :: psfc(im)   ! Pa
+   real(kind=pbl_wp), intent(in) :: cfch(im), garea(im), u10m(im), v10m(im),  &
+                                    spd1(im),stress(im),                      &
+                                     t2m(im),   q2m(im),   fm(im),   fh(im),  &
                                      rbsoil(im)
 
 !     ** Q1 is concentration field (including gas and aerosol variables) kg kg-1
-   real(kind=kind_phys), intent(in) :: q1(im, km, ntrac)
+   real(kind=pbl_wp), intent(in) :: q1(im, km, ntrac)
 
    real(kind=pbl_wp), intent(in) :: FRT_mask(im)
 
@@ -357,7 +355,7 @@
 ! Initializations
 
 ! NB. mfpbltq_mod: q1(ix,km,ntrac1) kg kg-1
-   Q1_2M (:,   :) = real(Q1(:,1,:), kind=pbl_wp)       ! kg kg-1
+   Q1_2M (:,   :) = Q1(:,1,:)    ! kg kg-1
 
 ! Subset (km combined layers minus top nkc layers)
    do k = 1, km-nkc
@@ -366,12 +364,12 @@
      kc= nkc+k     ! 4th from top (nkt) to nkc+1 combined canopy plus resolved model layer
 
 ! PBL Tendencies are declared in CCPP_typdefs as dim(im,km) instead (im, nkt)
-     DU_CAN  (:,kc)    = real(DU  (:,k), kind=pbl_wp)       ! m s-2
-     DV_CAN  (:,kc)    = real(DV  (:,k), kind=pbl_wp)       ! m s-2
-     TDT_CAN (:,kc)    = real(TDT (:,k), kind=pbl_wp)       ! K s-1
+     DU_CAN  (:,kc)    = DU  (:,k)       ! m s-2
+     DV_CAN  (:,kc)    = DV  (:,k)       ! m s-2
+     TDT_CAN (:,kc)    = TDT (:,k)       ! K s-1
 
-     RTG_CAN (:,kc, 1:ntrac-1) = real(RTG (:,k, 1:ntrac-1), kind=pbl_wp) ! kg kg-1 s-1
-     RTG_CAN (:,kc,   ntke  ) = real(RTG (:,k,   ntke  ), kind=pbl_wp) ! J   s-1 s-1
+     RTG_CAN (:,kc, 1:ntrac-1) = RTG (:,k, 1:ntrac-1) ! kg kg-1 s-1
+     RTG_CAN (:,kc,   ntke  ) = RTG (:,k,   ntke  ) ! J   s-1 s-1
 
    end do
 
@@ -382,59 +380,57 @@
      kc= nkc+k     ! top (nkt) to nkc+1 combined canopy plus resolved model layer
 
 ! Pressure & Temperature
-     prsl_can(:,kc) = real(prsl(:,k), kind=pbl_wp)  ! km  combined canopy plus resolved layers
-     prsi_can(:,kc) = real(prsi(:,k), kind=pbl_wp)  ! km  combined canopy plus resolved layers
-     T1_CAN  (:,kc) = real(T1  (:,k), kind=pbl_wp)
+     prsl_can(:,kc) = prsl(:,k)  ! km  combined canopy plus resolved layers
+     prsi_can(:,kc) = prsi(:,k)  ! km  combined canopy plus resolved layers
+     T1_CAN  (:,kc) = T1  (:,k)
      DENS_CAN(:,kc) = DENS(:,k)
 
 ! Diffusivities
-     DKT_CAN (:,kc) = real(DKT    (:,k), kind=pbl_wp)       ! m2 s-1
-     DKU_CAN (:,kc) = real(DKU    (:,k), kind=pbl_wp)       ! m2 s-1
+     DKT_CAN (:,kc) = DKT    (:,k)       ! m2 s-1
+     DKU_CAN (:,kc) = DKU    (:,k)       ! m2 s-1
 
 ! Wind
-     WS_CAN  (:,kc) = sqrt(real(u1(:,k), kind=pbl_wp)**2  &
-                    + real(v1(:,k), kind=pbl_wp)**2)       ! m s-1
+     WS_CAN  (:,kc) = sqrt(u1(:,k)**2 + v1(:,k)**2)       ! m s-1
 
 ! Mass tracers
-     Q1_CAN  (:,kc, 1:ntrac-1) = real(Q1 (:,k, 1:ntrac-1), kind=pbl_wp) ! all tracers ntrac1
+     Q1_CAN  (:,kc, 1:ntrac-1) = Q1 (:,k, 1:ntrac-1) ! all tracers ntrac1
 
 ! TKE tracer
-     Q1_CAN  (:,kc,   ntke  ) = real(Q1 (:,k,   ntke  ), kind=pbl_wp) ! ntke=198  TKE tracer
+     Q1_CAN  (:,kc,   ntke  ) = Q1 (:,k,   ntke  ) ! ntke=198  TKE tracer
 
 ! Water vapor
-     QV_CAN(:,kc) = real(Q1(:,k, ntqv), kind=pbl_wp) ! ntqv=1
+     QV_CAN(:,kc) = Q1(:,k, ntqv) ! ntqv=1
 
    end do
-   prsi_can(:,nkt+1 ) = real(prsi(:,km+1), kind=pbl_wp)  ! km  combined canopy plus resolved layers
+   prsi_can(:,nkt+1 ) = prsi(:,km+1)  ! km  combined canopy plus resolved layers
 
 ! Canopy layers
    do kc = 1, nkc ! 3-nkc canopy layers
 
-     DU_CAN  (:,kc)    = real(DU  (:,1), kind=pbl_wp)       ! m s-2
-     DV_CAN  (:,kc)    = real(DV  (:,1), kind=pbl_wp)       ! m s-2
-     TDT_CAN (:,kc)    = real(TDT (:,1), kind=pbl_wp)       ! K s-1
+     DU_CAN  (:,kc)    = DU  (:,1)       ! m s-2
+     DV_CAN  (:,kc)    = DV  (:,1)       ! m s-2
+     TDT_CAN (:,kc)    = TDT (:,1)       ! K s-1
 
-     RTG_CAN (:,kc, 1:ntrac-1) = real(RTG (:,1, 1:ntrac-1), kind=pbl_wp) ! kg kg-1 s-1
-     RTG_CAN (:,kc,   ntke  ) = real(RTG (:,1,   ntke  ), kind=pbl_wp) ! J   s-1 s-1
+     RTG_CAN (:,kc, 1:ntrac-1) = RTG (:,1, 1:ntrac-1) ! kg kg-1 s-1
+     RTG_CAN (:,kc,   ntke  ) = RTG (:,1,   ntke  ) ! J   s-1 s-1
 
-     prsl_can(:,kc) = real(prsl(:,1), kind=pbl_wp)  ! km  combined canopy plus resolved layers
-     prsi_can(:,kc) = real(prsi(:,1), kind=pbl_wp)  ! km  combined canopy plus resolved layers
-     T1_CAN  (:,kc) = real(T1  (:,1), kind=pbl_wp)
+     prsl_can(:,kc) = prsl(:,1)  ! km  combined canopy plus resolved layers
+     prsi_can(:,kc) = prsi(:,1)  ! km  combined canopy plus resolved layers
+     T1_CAN  (:,kc) = T1  (:,1)
      DENS_CAN(:,kc) = DENS(:,1)
 
-     DKT_CAN (:,kc) = real(DKT    (:,1), kind=pbl_wp)       ! m2 s-1
-     DKU_CAN (:,kc) = real(DKU    (:,1), kind=pbl_wp)       ! m2 s-1
+     DKT_CAN (:,kc) = DKT    (:,1)       ! m2 s-1
+     DKU_CAN (:,kc) = DKU    (:,1)       ! m2 s-1
 
-     WS_CAN  (:,kc) = sqrt(real(u1(:,1), kind=pbl_wp)**2 + real(v1(:,1),  &
-                      kind=pbl_wp)**2)       ! m s-1
+     WS_CAN  (:,kc) = sqrt(u1(:,1)**2 + v1(:,1)**2)       ! m s-1
 ! Mass tracers
-     Q1_CAN  (:,kc, 1:ntrac-1) = real(Q1 (:,1, 1:ntrac-1), kind=pbl_wp) ! all tracers ntrac-1
+     Q1_CAN  (:,kc, 1:ntrac-1) = Q1 (:,1, 1:ntrac-1) ! all tracers ntrac-1
 
 ! TKE tracer
-     Q1_CAN  (:,kc,   ntke  ) = real(Q1 (:,1,   ntke  ), kind=pbl_wp) ! ntke=198  TKE tracer
+     Q1_CAN  (:,kc,   ntke  ) = Q1 (:,1,   ntke  ) ! ntke=198  TKE tracer
 
 ! Water vapor
-     QV_CAN  (:,kc) = real(Q1(:,1, ntqv), kind=pbl_wp) ! ntqv=1
+     QV_CAN  (:,kc) = Q1(:,1, ntqv) ! ntqv=1
 
    end do
 
@@ -442,11 +438,11 @@
    DO i = 1, im
 
       sfcflg(i)= .true.
-      if(real(rbsoil(i), kind=pbl_wp) > 0.0_pbl_wp) sfcflg(i) = .false.
+      if(rbsoil(i) > 0.0_pbl_wp) sfcflg(i) = .false.
 
-      dxdy(i) = real(garea(i), kind=pbl_wp) !  dx*dy ~1.6E+8 m2
+      dxdy(i) = garea(i) !  dx*dy ~1.6E+8 m2
 
-      ustar(i) = sqrt(real(stress(i), kind=pbl_wp))
+      ustar(i) = sqrt(stress(i))
 !      ws10m(i)  = sqrt(u10m(i)**2+v10m(i)**2)
 
 !> ## Compute Monin-Obukhov similarity parameters
@@ -458,7 +454,8 @@
 !!    \f]
 !!    where \f$F_m\f$ and \f$F_h\f$ are surface Monin-Obukhov stability functions calculated in sfc_diff.f and
 !!    \f$L\f$ is the Obukhov length.
-      zol(i) = max(real(rbsoil(i)*fm(i)*fm(i)/fh(i), kind=pbl_wp),rimin)
+      zol(i) = max(rbsoil(i) * fm(i) * fm(i) / max(fh(i),
+  &            tiny(1.0_pbl_wp)), rimin)
       if(sfcflg(i)) then
          zol(i) = min(zol(i),-zfmin)
       else
@@ -480,21 +477,21 @@
 !! Heights of the original model layers for the canopy columns are extracted to the zmom array.
 
          ! Create temperature & humidity array on reversed layer order for interpolation
-         ta3  (II) = real(T1  (i,k), kind=pbl_wp)               ! K
-         qv3  (II) = real(Q1  (i,k,1), kind=pbl_wp)      ! 1=water vapor kg kg-1
-         prsl3(II) = real(PRSL(i,k), kind=pbl_wp)  ! Pa  mean layer pressure
-         dens3(II) = DENS(i,k) ! kg m-3
-         ws3  (II) = sqrt(real(u1(i,k), kind=pbl_wp)**2 + real(v1(i,k), kind=pbl_wp)**2)  ! rename wspd3 ???
-         dkt3 (II) = real(DKT (i,k), kind=pbl_wp)  ! m2 s-2
-         dku3 (II) = real(DKU (i,k), kind=pbl_wp)  ! m2 s-2
+         ta3  (II) = T1  (i,k)        ! K
+         qv3  (II) = Q1  (i,k,1)      ! 1=water vapor kg kg-1
+         prsl3(II) = PRSL(i,k)        ! Pa  mean layer pressure
+         dens3(II) = DENS(i,k)        ! kg m-3
+         ws3  (II) = sqrt(u1(i,k)**2 + v1(i,k)**2)  ! rename wspd3 ???
+         dkt3 (II) = DKT (i,k)        ! m2 s-2
+         dku3 (II) = DKU (i,k)        ! m2 s-2
       end do ! k = 1, km     ! from bottom to top
 
       do k = 1, km+1     ! from bottom to top
          II = (km + 1) + 1 - k  ! from top to bottom of resolved model layers
 
-         prsi3  (II) = real(PRSI(i,k), kind=pbl_wp)  ! Pa  air pressure at model layer interfaces
+         prsi3  (II) = PRSI(i,k) ! Pa  air pressure at model layer interfaces
 ! ! [pgr] surface air pressure meta var
-         sigmom3(II) = real(PRSI(i, k), kind=pbl_wp) / real(psfc(i), kind=pbl_wp) ! PRES_FULL
+         sigmom3(II) = PRSI(i, k) / max(psfc(i), tiny(1.0_pbl_wp)) ! PRES_FULL
       end do ! k = 1, km+1
 
 !  First, carry over original model values for the matching layers
@@ -542,7 +539,7 @@
    ! Continuous forest canopy
    ELSE IF (FRT_mask(i) > 0.0_pbl_wp) THEN
 
-      hcan = real(cfch( i ), kind=pbl_wp)
+      hcan = cfch( i )
 !!! Extract the canopy height (FCH)
 
 ! Generate initial canopy levels, as altitude above sea level
@@ -573,7 +570,7 @@
 !       write(errmsg,*) 'canopy_levs: ZMID = ', i, II, zmid3(II)
 
         ! Paul's sigt2 is our sigmid2
-        sigmid2(II) = real(prsl(i,k), kind=pbl_wp) / real(psfc(i), kind=pbl_wp)
+        sigmid2(II) = prsl(i,k) / max(psfc(i), tiny(1.0_pbl_wp))
 
       end do
       sigmid2(km+1) = 1.0_pbl_wp
@@ -588,26 +585,26 @@
 !! Heights of the original model layers for the canopy columns are extracted to the zmom array.
 
          ! Create temperature & humidity array on reversed layer order for interpolation
-         ta3  (II) = real(T1  (i,k), kind=pbl_wp)                ! K
-         qv3  (II) = real(Q1  (i,k,1), kind=pbl_wp)      ! 1=water vapor kg kg-1
-         prsl3(II) = real(PRSL(i,k), kind=pbl_wp)  ! Pa  mean layer pressure
-         dens3(II) = DENS(i,k)  ! kg m-3
-         ws3  (II) = sqrt(real(u1(i,k), kind=pbl_wp)**2 + real(v1(i,k), kind=pbl_wp)**2)
-         dkt3 (II) = real(DKT (i,k), kind=pbl_wp)  ! m2 s-2
-         dku3 (II) = real(DKU (i,k), kind=pbl_wp)  ! m2 s-2
+         ta3  (II) = T1  (i,k)        ! K
+         qv3  (II) = Q1  (i,k,1)      ! 1=water vapor kg kg-1
+         prsl3(II) = PRSL(i,k)        ! Pa  mean layer pressure
+         dens3(II) = DENS(i,k)        ! kg m-3
+         ws3  (II) = sqrt(u1(i,k)**2 + v1(i,k)**2)
+         dkt3 (II) = DKT (i,k)        ! m2 s-2
+         dku3 (II) = DKU (i,k)        ! m2 s-2
 
 ! From satmedmfvdifq.F:
 ! MOL  = zol(i)/zl(i,k)  !Monin-Obukhov Length in layer
 ! ZL is mid layer height [m]
-         mol3(II) = zol(i)/ZL(i,k)  !Monin-Obukhov Length in layer
+         mol3(II) = zol(i)/max(ZL(i,k), tiny(1.0_pbl_wp))  !Monin-Obukhov Length in layer
       end do
 
       do k = 1, km+1     ! from bottom to top
          II = (km + 1) + 1 - k  ! from top to bottom of resolved model layers
 
-         prsi3  (II) = real(PRSI(i,k), kind=pbl_wp)  ! Pa  air pressure at model layer interfaces
+         prsi3  (II) = PRSI(i,k)  ! Pa  air pressure at model layer interfaces
 ! Paul's SIGM does not include surface layer lower interface (1.0) !!!
-         sigmom3(II) = real(PRSI(i, k), kind=pbl_wp) / real(psfc(i), kind=pbl_wp) ! PRES_FULL(i, k) / psfc(i)
+         sigmom3(II) = PRSI(i, k) / max(psfc(i), tiny(1.0_pbl_wp))  ! PRES_FULL(i, k) / psfc(i)
 
       end do
 
@@ -855,7 +852,7 @@
 ! Interpolate in sigma
                sigmid_can(i, kcan3(i,kc)) = sigmid2(k2-1)  +          &
                                  (sigmid2(k2) - sigmid2(k2-1)) /      &
-                                   (   z2(k2) -    z2(k2-1)) *        &
+                           max(z2(k2) - z2(k2-1), tiny(1.0_pbl_wp)) * &
                                    (zcan3(kc) -    z2(k2-1))
 
 ! Store grid locations for use in later interpolations
@@ -971,7 +968,7 @@
 !  Level is above first resolved model level
 
             k2 = klower_can(kc)
-            zm2 = (zcan3(kc) - z2(k2-1)) / (z2(k2) - z2(k2-1))
+            zm2 = (zcan3(kc) - z2(k2-1)) / max(z2(k2) - z2(k2-1), tiny(1.0_pbl_wp))
 !           zm2 = (zcan3(kc) - z2(k2-1)) / max(z2(k2) - z2(k2-1), epsilon)
 
             td = ( ta3(k2)  - ta3(k2-1)) * zm2
@@ -985,19 +982,20 @@
             if (zcan3(kc) - z2(km+1) >= 2.0_pbl_wp) then
             !  Level is below first resolved model level but above screen height
 
-               zm2 = (zcan3(kc) - z2(km+1) - 2.0_pbl_wp) / (z2(km) - z2(km+1) - 2.0_pbl_wp)
+               zm2 = (zcan3(kc) - z2(km+1) - 2.0_pbl_wp) / &
+                   max(z2(km) - z2(km+1) - 2.0_pbl_wp, tiny(1.0_pbl_wp)) 
 !              zm2 = (zcan3(kc) - z2(km+1) - 2.0) / max(z2(km) - z2(km+1) - 2.0, epsilon)
 
-               td = (ta3(km)  - real(T2M( i ), kind=pbl_wp) )  * zm2
-               hd = (qv3(km)  - real(Q2M( i ), kind=pbl_wp) )  * zm2
-               ta_can3(kk)  = real(T2M( i ), kind=pbl_wp) + td
-               qv_can3(kk)  = real(Q2M( i ), kind=pbl_wp) + hd
+               td = (ta3(km)  - T2M( i ))  * zm2
+               hd = (qv3(km)  - Q2M( i ))  * zm2
+               ta_can3(kk)  = T2M( i ) + td
+               qv_can3(kk)  = Q2M( i ) + hd
 
             else
             ! Level in canopy is below screen height; assume constant values below screen height
 
-               ta_can3(kk)  = real(T2M( i ), kind=pbl_wp) ! 2-m  temperature [K]
-               qv_can3(kk)  = real(Q2M( i ), kind=pbl_wp) ! 2-m  spec. humidity
+               ta_can3(kk)  = T2M( i ) ! 2-m  temperature [K]
+               qv_can3(kk)  = Q2M( i ) ! 2-m  spec. humidity
             end if
 
          end if
@@ -1009,8 +1007,8 @@
 !     psfc   is surface air pressure psfc
 
 ! get pressure from sigma levels in Pa
-         prsl_can3(kk) = sigmid_can(i, kk) * real(psfc(i), kind=pbl_wp)  ! ~zl mid-layers centers
-         prsi_can3(kk) = sigmom_can(i, kk) * real(psfc(i), kind=pbl_wp)  ! ~zm/zi layers interfaces
+         prsl_can3(kk) = sigmid_can(i, kk) * psfc(i)  ! ~zl mid-layers centers
+         prsi_can3(kk) = sigmom_can(i, kk) * psfc(i)  ! ~zm/zi layers interfaces
 
 ! aqm_methods: dens: buffer(k) = stateIn % prl(c,r,l) / ( rdgas * stateIn % temp(c,r,l) )
          ! (1)       is top model  layer
@@ -1018,7 +1016,7 @@
          ! (km)   is 1hy model  layer
          ! (km+1) is top canopy layer
          ! (nkt)   is 1st canopy layer
-         dens_can3(kk) = prsl_can3(kk) / ( real(RDGAS, kind=pbl_wp) * ta_can3(kk))  ! kg m-3
+         dens_can3(kk) = prsl_can3(kk) / max(RDGAS * ta_can3(kk), tiny(1.0_pbl_wp))  ! kg m-3
 
 
 !  The following variables are assumed to have uniform values throughout the
@@ -1086,7 +1084,7 @@
          kk = kcan3(i,kc)
 !  Ratio of lowest model level to canopy height:
 !
-         zr = (zmid3(km) - z2(km+1)) / hcan
+         zr = (zmid3(km) - z2(km+1)) / max(hcan, tiny(1.0_pbl_wp))
 !
 !  Horizontal wind and KT profiles are from Raupach, Quarterly Journal
 !  of the Royal Meteorological Society, vol 115, pp 609-632, 1989, examples
@@ -1107,7 +1105,7 @@
          ! Paul's hc is our hcan
             uspr = ustar(i) / karman * &
                    log((zmid3(km) - z2(km+1) - 0.75_pbl_wp * hcan) / &
-                   (0.07530_pbl_wp * hcan))
+                   max(0.07530_pbl_wp * hcan, tiny(1.0_pbl_wp)))
 !                  log(max((zmid3(km) - z2(km+1) - 0.75 * hcan) / &
 !                  (0.07530 * hcan), epsilon))
          else
@@ -1116,23 +1114,24 @@
 !  wndr is the ratio of the wind to Raupach's average us(), eqn 51.
 !  This is used to scale the wind speed with height values from eqn 51 to the current grid square
          ! Paul's WS(nk) is our spd1, wind speed at lowest model level m s-1
-         wndr = real(spd1(i), kind=pbl_wp) / uspr
+         wndr = spd1(i) / max(uspr, tiny(1.0_pbl_wp))
 !        wndr = spd1(i) / max(uspr, epsilon)
 !  Using Raupach's formulae for wind speed, multiplied by the above ratio, for the canopy layers:
 !
-         zr = (zcan3(kc) - z2(km+1)) / hcan
+         zr = (zcan3(kc) - z2(km+1)) / max(hcan, tiny(1.0_pbl_wp))
          if (zr >= 1.0_pbl_wp) then
             uspr = log((zcan3(kc) - z2(km+1) - 0.75_pbl_wp * hcan) / &
-                   (0.07530_pbl_wp * hcan)) * ustar(i)
+                   max(0.07530_pbl_wp * hcan, tiny(1.0_pbl_wp))) * ustar(i)
          else
-            uspr = uh * exp(- 2.0_pbl_wp * (1.0_pbl_wp - (zcan3(kc) - z2(km+1)) / hcan))
+            uspr = uh * exp(- 2.0_pbl_wp * (1.0_pbl_wp - (zcan3(kc) - z2(km+1)) / &
+                   max(hcan, tiny(1.0_pbl_wp))))
          end if
 
          ws_can3(kk) = wndr * uspr
 !
 !  Coefficients of diffusivity:
 !  Find value of K at first model level from raupach's sigw and TL formulae (eqns 48, 49)
-         zr = (zmid3(km) - z2(km+1)) / hcan
+         zr = (zmid3(km) - z2(km+1)) / max(hcan, tiny(1.0_pbl_wp))
 !  Gradient in stability under the canopy is reduced for higher stability conditions
 !  in accord with Shaw, den Hartog and Neumann, BLM 45, 391-409, 1988, Fig 16.
          ! Paul's zl is our hol (as in satmedmfvdifq.F)
@@ -1175,22 +1174,24 @@
                sigw = ustar(i) * 0.25_pbl_wp
          else
            if(zr < 1.25_pbl_wp) then
-               sigw = ustar(i) * ( a1 + b1 * cos(real(pi, kind=pbl_wp) / 1.06818_pbl_wp * &
-                      (1.25_pbl_wp - (zmid3(km) - z2(km+1)) / hcan)))
+               sigw = ustar(i) * ( a1 + b1 * cos(pi / 1.06818_pbl_wp * &
+                      (1.25_pbl_wp - (zmid3(km) - z2(km+1)) / max(hcan, tiny(1.0_pbl_wp)))))
            else
                sigw = ustar(i) * c1
            end if
          end if
 
 !        tl = hcan / max(ustar(i), epsilon)  * &
-         tl = hcan / ustar(i)  * &
-              (0.256_pbl_wp * ((zmid3(km) - z2(km+1) - 0.75_pbl_wp * hcan) / hcan) + &
-               0.492_pbl_wp * exp (-(0.256_pbl_wp * ((zmid3(km) - z2(km+1)) / hcan) / 0.492_pbl_wp)))
+         tl = hcan / max(ustar(i), tiny(1.0_pbl_wp)) * &
+              (0.256_pbl_wp * ((zmid3(km) - z2(km+1) - 0.75_pbl_wp * hcan) / &
+              max(hcan, tiny(1.0_pbl_wp))) + &
+               0.492_pbl_wp * exp (-(0.256_pbl_wp * ((zmid3(km) - z2(km+1)) / &
+              max(hcan, tiny(1.0_pbl_wp))) / 0.492_pbl_wp)))
 ! ktr is the ratio of the resolved model diffusivity at the lowest resolved
 ! model level to that derived by Raupach's formula
 !
-         ktr =  dkt3(km) / (sigw * sigw * tl)
-         kur =  dku3(km) / (sigw * sigw * tl)
+         ktr =  dkt3(km) / max(sigw * sigw * tl, tiny(1.0_pbl_wp))
+         kur =  dku3(km) / max(sigw * sigw * tl, tiny(1.0_pbl_wp))
 !        ktr =  dkt3(km) / max(sigw * sigw * tl, epsilon)
 !        kur =  dku3(km) / max(sigw * sigw * tl, epsilon)
 
@@ -1198,7 +1199,7 @@
 !
 !  Use Raupach's formulae for diffusivity, multiplied by the above ratio, for the canopy layers:
 !
-         zr = (zcan3(kc) - z2(km+1)) / hcan
+         zr = (zcan3(kc) - z2(km+1)) / max(hcan, tiny(1.0_pbl_wp))
 !  Gradient in stability under the canopy is reduced for higher stability conditions
 !  in accord with Shaw, den Hartog and Neumann, BLM 45, 391-409, 1988, Fig 16.
 !  Raupach's original:
@@ -1208,20 +1209,22 @@
 !            sigw = ustar(i) * ( 0.75 + 0.5 * cos(pi * (1.0 - (zcan3(kc) - z2(km+1))/hcan) ) )
 !         end if
          if(zr < 0.175_pbl_wp) then
-               sigw = ustar(i) * 0.25
+               sigw = ustar(i) * 0.25_pbl_wp
          else
            if(zr < 1.25_pbl_wp) then
-               sigw = ustar(i) * ( a1 + b1 * cos(real(pi, kind=pbl_wp) / 1.06818_pbl_wp * &
-                      (1.25_pbl_wp - (zcan3(kc) - z2(km+1))/hcan)))
+               sigw = ustar(i) * ( a1 + b1 * cos(pi / 1.06818_pbl_wp * &
+                      (1.25_pbl_wp - (zcan3(kc) - z2(km+1))/max(hcan, tiny(1.0_pbl_wp)))))
            else
                sigw = ustar(i) * c1
            end if
          end if
 !
 !        tl = hcan / max(ustar(i), epsilon) *  &
-         tl = hcan / ustar(i) * &
-              (0.256_pbl_wp * ( (zcan3(kc) - z2(km+1) - 0.75_pbl_wp * hcan) / hcan) + &
-              (0.492_pbl_wp * exp (-(0.256_pbl_wp * (zcan3(kc) - z2(km+1)) / hcan) / 0.492_pbl_wp) ) )
+         tl = hcan / max(ustar(i), tiny(1.0_pbl_wp)) * &
+              (0.256_pbl_wp * ( (zcan3(kc) - z2(km+1) - 0.75_pbl_wp * hcan) / &
+              max(hcan, tiny(1.0_pbl_wp))) + &
+              (0.492_pbl_wp * exp (-(0.256_pbl_wp * (zcan3(kc) - z2(km+1)) / &
+              max(hcan, tiny(1.0_pbl_wp))) / 0.492_pbl_wp) ) )
 
          dkt_can3(kk)  = (sigw * sigw * tl) * ktr
          dku_can3(kk)  = (sigw * sigw * tl) * kur
