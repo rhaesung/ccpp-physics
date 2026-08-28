@@ -76,7 +76,7 @@
    do i=1,im
 
       !NOT a Continuous forest canopy
-         if (   claie(i) < 0.1_pbl_wp                                    &
+      if (   claie(i) < 0.1_pbl_wp                                       &
         .OR. cfch(i)  < 0.5_pbl_wp                                       &
 !IVAI: modified contiguous canopy condition
 !        .OR. MAX(0.0, 1.0 - cfrt(i)) .GT. 0.5 

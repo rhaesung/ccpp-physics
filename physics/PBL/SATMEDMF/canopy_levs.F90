@@ -454,8 +454,8 @@
 !!    \f]
 !!    where \f$F_m\f$ and \f$F_h\f$ are surface Monin-Obukhov stability functions calculated in sfc_diff.f and
 !!    \f$L\f$ is the Obukhov length.
-      zol(i) = max(rbsoil(i) * fm(i) * fm(i) / max(fh(i),
-  &            tiny(1.0_pbl_wp)), rimin)
+      zol(i) = max(rbsoil(i) * fm(i) * fm(i) / fh(i),
+  &            rimin)
       if(sfcflg(i)) then
          zol(i) = min(zol(i),-zfmin)
       else
@@ -491,7 +491,7 @@
 
          prsi3  (II) = PRSI(i,k) ! Pa  air pressure at model layer interfaces
 ! ! [pgr] surface air pressure meta var
-         sigmom3(II) = PRSI(i, k) / max(psfc(i), tiny(1.0_pbl_wp)) ! PRES_FULL
+         sigmom3(II) = PRSI(i, k) / psfc(i) ! PRES_FULL
       end do ! k = 1, km+1
 
 !  First, carry over original model values for the matching layers
@@ -570,7 +570,7 @@
 !       write(errmsg,*) 'canopy_levs: ZMID = ', i, II, zmid3(II)
 
         ! Paul's sigt2 is our sigmid2
-        sigmid2(II) = prsl(i,k) / max(psfc(i), tiny(1.0_pbl_wp))
+        sigmid2(II) = prsl(i,k) / psfc(i)
 
       end do
       sigmid2(km+1) = 1.0_pbl_wp
@@ -596,7 +596,7 @@
 ! From satmedmfvdifq.F:
 ! MOL  = zol(i)/zl(i,k)  !Monin-Obukhov Length in layer
 ! ZL is mid layer height [m]
-         mol3(II) = zol(i)/max(ZL(i,k), tiny(1.0_pbl_wp))  !Monin-Obukhov Length in layer
+         mol3(II) = zol(i)/ZL(i,k) !Monin-Obukhov Length in layer
       end do
 
       do k = 1, km+1     ! from bottom to top
@@ -604,7 +604,7 @@
 
          prsi3  (II) = PRSI(i,k)  ! Pa  air pressure at model layer interfaces
 ! Paul's SIGM does not include surface layer lower interface (1.0) !!!
-         sigmom3(II) = PRSI(i, k) / max(psfc(i), tiny(1.0_pbl_wp))  ! PRES_FULL(i, k) / psfc(i)
+         sigmom3(II) = PRSI(i, k) / psfc(i)  ! PRES_FULL(i, k) / psfc(i)
 
       end do
 
@@ -852,8 +852,8 @@
 ! Interpolate in sigma
                sigmid_can(i, kcan3(i,kc)) = sigmid2(k2-1)  +          &
                                  (sigmid2(k2) - sigmid2(k2-1)) /      &
-                           max(z2(k2) - z2(k2-1), tiny(1.0_pbl_wp)) * &
-                                   (zcan3(kc) -    z2(k2-1))
+                                 (z2(k2) - z2(k2-1)) * &
+                                 (zcan3(kc) -    z2(k2-1))
 
 ! Store grid locations for use in later interpolations
                klower_can(kc) = k2
@@ -968,7 +968,7 @@
 !  Level is above first resolved model level
 
             k2 = klower_can(kc)
-            zm2 = (zcan3(kc) - z2(k2-1)) / max(z2(k2) - z2(k2-1), tiny(1.0_pbl_wp))
+            zm2 = (zcan3(kc) - z2(k2-1)) / (z2(k2) - z2(k2-1)
 !           zm2 = (zcan3(kc) - z2(k2-1)) / max(z2(k2) - z2(k2-1), epsilon)
 
             td = ( ta3(k2)  - ta3(k2-1)) * zm2
@@ -983,7 +983,7 @@
             !  Level is below first resolved model level but above screen height
 
                zm2 = (zcan3(kc) - z2(km+1) - 2.0_pbl_wp) / &
-                   max(z2(km) - z2(km+1) - 2.0_pbl_wp, tiny(1.0_pbl_wp)) 
+                     (z2(km) - z2(km+1) - 2.0_pbl_wp) 
 !              zm2 = (zcan3(kc) - z2(km+1) - 2.0) / max(z2(km) - z2(km+1) - 2.0, epsilon)
 
                td = (ta3(km)  - T2M( i ))  * zm2
@@ -1016,7 +1016,7 @@
          ! (km)   is 1hy model  layer
          ! (km+1) is top canopy layer
          ! (nkt)   is 1st canopy layer
-         dens_can3(kk) = prsl_can3(kk) / max(RDGAS * ta_can3(kk), tiny(1.0_pbl_wp))  ! kg m-3
+         dens_can3(kk) = prsl_can3(kk) / (RDGAS * ta_can3(kk))  ! kg m-3
 
 
 !  The following variables are assumed to have uniform values throughout the
@@ -1084,7 +1084,7 @@
          kk = kcan3(i,kc)
 !  Ratio of lowest model level to canopy height:
 !
-         zr = (zmid3(km) - z2(km+1)) / max(hcan, tiny(1.0_pbl_wp))
+         zr = (zmid3(km) - z2(km+1)) / hcan
 !
 !  Horizontal wind and KT profiles are from Raupach, Quarterly Journal
 !  of the Royal Meteorological Society, vol 115, pp 609-632, 1989, examples
@@ -1105,7 +1105,7 @@
          ! Paul's hc is our hcan
             uspr = ustar(i) / karman * &
                    log((zmid3(km) - z2(km+1) - 0.75_pbl_wp * hcan) / &
-                   max(0.07530_pbl_wp * hcan, tiny(1.0_pbl_wp)))
+                   (0.07530_pbl_wp * hcan))
 !                  log(max((zmid3(km) - z2(km+1) - 0.75 * hcan) / &
 !                  (0.07530 * hcan), epsilon))
          else
@@ -1114,24 +1114,24 @@
 !  wndr is the ratio of the wind to Raupach's average us(), eqn 51.
 !  This is used to scale the wind speed with height values from eqn 51 to the current grid square
          ! Paul's WS(nk) is our spd1, wind speed at lowest model level m s-1
-         wndr = spd1(i) / max(uspr, tiny(1.0_pbl_wp))
+         wndr = spd1(i) / uspr
 !        wndr = spd1(i) / max(uspr, epsilon)
 !  Using Raupach's formulae for wind speed, multiplied by the above ratio, for the canopy layers:
 !
-         zr = (zcan3(kc) - z2(km+1)) / max(hcan, tiny(1.0_pbl_wp))
+         zr = (zcan3(kc) - z2(km+1)) / hcan
          if (zr >= 1.0_pbl_wp) then
             uspr = log((zcan3(kc) - z2(km+1) - 0.75_pbl_wp * hcan) / &
-                   max(0.07530_pbl_wp * hcan, tiny(1.0_pbl_wp))) * ustar(i)
+                   (0.07530_pbl_wp * hcan)) * ustar(i)
          else
             uspr = uh * exp(- 2.0_pbl_wp * (1.0_pbl_wp - (zcan3(kc) - z2(km+1)) / &
-                   max(hcan, tiny(1.0_pbl_wp))))
+                   hcan))
          end if
 
          ws_can3(kk) = wndr * uspr
 !
 !  Coefficients of diffusivity:
 !  Find value of K at first model level from raupach's sigw and TL formulae (eqns 48, 49)
-         zr = (zmid3(km) - z2(km+1)) / max(hcan, tiny(1.0_pbl_wp))
+         zr = (zmid3(km) - z2(km+1)) / hcan
 !  Gradient in stability under the canopy is reduced for higher stability conditions
 !  in accord with Shaw, den Hartog and Neumann, BLM 45, 391-409, 1988, Fig 16.
          ! Paul's zl is our hol (as in satmedmfvdifq.F)
@@ -1175,23 +1175,23 @@
          else
            if(zr < 1.25_pbl_wp) then
                sigw = ustar(i) * ( a1 + b1 * cos(pi / 1.06818_pbl_wp * &
-                      (1.25_pbl_wp - (zmid3(km) - z2(km+1)) / max(hcan, tiny(1.0_pbl_wp)))))
+                      (1.25_pbl_wp - (zmid3(km) - z2(km+1)) / hcan)))
            else
                sigw = ustar(i) * c1
            end if
          end if
 
 !        tl = hcan / max(ustar(i), epsilon)  * &
-         tl = hcan / max(ustar(i), tiny(1.0_pbl_wp)) * &
+         tl = hcan / ustar(i) * &
               (0.256_pbl_wp * ((zmid3(km) - z2(km+1) - 0.75_pbl_wp * hcan) / &
-              max(hcan, tiny(1.0_pbl_wp))) + &
+              hcan) + &
                0.492_pbl_wp * exp (-(0.256_pbl_wp * ((zmid3(km) - z2(km+1)) / &
-              max(hcan, tiny(1.0_pbl_wp))) / 0.492_pbl_wp)))
+              hcan) / 0.492_pbl_wp)))
 ! ktr is the ratio of the resolved model diffusivity at the lowest resolved
 ! model level to that derived by Raupach's formula
 !
-         ktr =  dkt3(km) / max(sigw * sigw * tl, tiny(1.0_pbl_wp))
-         kur =  dku3(km) / max(sigw * sigw * tl, tiny(1.0_pbl_wp))
+         ktr =  dkt3(km) / (sigw * sigw * tl)
+         kur =  dku3(km) / (sigw * sigw * tl)
 !        ktr =  dkt3(km) / max(sigw * sigw * tl, epsilon)
 !        kur =  dku3(km) / max(sigw * sigw * tl, epsilon)
 
@@ -1199,7 +1199,7 @@
 !
 !  Use Raupach's formulae for diffusivity, multiplied by the above ratio, for the canopy layers:
 !
-         zr = (zcan3(kc) - z2(km+1)) / max(hcan, tiny(1.0_pbl_wp))
+         zr = (zcan3(kc) - z2(km+1)) / hcan
 !  Gradient in stability under the canopy is reduced for higher stability conditions
 !  in accord with Shaw, den Hartog and Neumann, BLM 45, 391-409, 1988, Fig 16.
 !  Raupach's original:
@@ -1213,18 +1213,18 @@
          else
            if(zr < 1.25_pbl_wp) then
                sigw = ustar(i) * ( a1 + b1 * cos(pi / 1.06818_pbl_wp * &
-                      (1.25_pbl_wp - (zcan3(kc) - z2(km+1))/max(hcan, tiny(1.0_pbl_wp)))))
+                      (1.25_pbl_wp - (zcan3(kc) - z2(km+1))/hcan)))
            else
                sigw = ustar(i) * c1
            end if
          end if
 !
 !        tl = hcan / max(ustar(i), epsilon) *  &
-         tl = hcan / max(ustar(i), tiny(1.0_pbl_wp)) * &
+         tl = hcan / ustar(i) * &
               (0.256_pbl_wp * ( (zcan3(kc) - z2(km+1) - 0.75_pbl_wp * hcan) / &
-              max(hcan, tiny(1.0_pbl_wp))) + &
+              hcan) + &
               (0.492_pbl_wp * exp (-(0.256_pbl_wp * (zcan3(kc) - z2(km+1)) / &
-              max(hcan, tiny(1.0_pbl_wp))) / 0.492_pbl_wp) ) )
+              hcan) / 0.492_pbl_wp) ) )
 
          dkt_can3(kk)  = (sigw * sigw * tl) * ktr
          dku_can3(kk)  = (sigw * sigw * tl) * kur

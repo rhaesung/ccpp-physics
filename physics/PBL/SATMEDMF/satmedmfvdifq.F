@@ -420,14 +420,12 @@ _pbl_wp!> \file satmedmfvdifq.F
         ch1   = 0.15_pbl_wp
       endif
 
-      gravi = 1.0_pbl_wp / max(real(grav, kind=pbl_wp),tiny(1.0_pbl_wp))
+      gravi = 1.0_pbl_wp / real(grav, kind=pbl_wp)
       g = real(grav, kind=pbl_wp)
-      gocp = g / max(real(cp, kind=pbl_wp), tiny(1.0_pbl_wp))
-      elocp  = real(hvap, kind=pbl_wp) / max(real(cp, kind=pbl_wp),
-     &         tiny(1.0_pbl_wp))
+      gocp = g / real(cp, kind=pbl_wp)
+      elocp  = real(hvap, kind=pbl_wp) / real(cp, kind=pbl_wp)
       el2orc = real(hvap, kind=pbl_wp) * real(hvap, kind=pbl_wp)
-     &       / max(real(rv, kind=pbl_wp) * real(cp, kind=pbl_wp),
-     &         tiny(1.0_pbl_wp))
+     &       / (real(rv, kind=pbl_wp) * real(cp, kind=pbl_wp))
 !
 !************************************************************************
 ! Initialize CCPP error handling variables
@@ -503,8 +501,7 @@ _pbl_wp!> \file satmedmfvdifq.F
 !>  - Compute reciprocal of \f$ \Delta z \f$ (rdzt)
       do k = 1,km1
         do i=1,im
-          rdzt(i,k) = 1.0_pbl_wp / max(zl(i,k+1) - zl(i,k),
-     &                tiny(1.0_pbl_wp))
+          rdzt(i,k) = 1.0_pbl_wp / (zl(i,k+1) - zl(i,k))
           prn(i,k)  = pr0
         enddo
       enddo
@@ -522,8 +519,7 @@ _pbl_wp!> \file satmedmfvdifq.F
 !
       do i=1,im
         kx1(i) = 1
-        tx1(i) = 1.0_pbl_wp / max(real(prsi(i,1), kind=pbl_wp),
-     &           tiny(1.0_pbl_wp))
+        tx1(i) = 1.0_pbl_wp / real(prsi(i,1)
         tx2(i) = tx1(i)
         if(gdx(i) >= xkgdx) then
           xkzm_hx(i) = real(xkzm_h, kind=pbl_wp)
@@ -557,7 +553,7 @@ _pbl_wp!> \file satmedmfvdifq.F
               kx1(i)     = k + 1
             else
               if (k == kx1(i) .and. k > 1) tx2(i) = 1.0_pbl_wp
-     &           / max(real(prsi(i,k), kind=pbl_wp), tiny(1.0_pbl_wp))
+     &           / real(prsi(i,k), kind=pbl_wp)
               tem1 = 1.0_pbl_wp - real(prsi(i,k+1), kind=pbl_wp)
      &             * tx2(i)
               tem1 = tem1 * tem1 * 5.0_pbl_wp
@@ -570,11 +566,10 @@ _pbl_wp!> \file satmedmfvdifq.F
 !>  - Some output variables and logical flags are initialized
       do i = 1,im
          z0(i)    = 0.01_pbl_wp * real(zorl(i), kind=pbl_wp)
-         rho_a(i) = real(prsl(i,1), kind=pbl_wp) / max(real(rd,
+         rho_a(i) = real(prsl(i,1), kind=pbl_wp) / (real(rd,
      &              kind=pbl_wp) * real(t1(i,1), kind=pbl_wp)
      &            * (1.0_pbl_wp + real(fv, kind=pbl_wp)
-     &            * max(real(q1(i,1,1), kind=pbl_wp), qmin)),
-     &              tiny(1.0_pbl_wp))
+     &            * max(real(q1(i,1,1), kind=pbl_wp), qmin)))
          dusfc(i) = 0.0_pbl_wp
          dvsfc(i) = 0.0_pbl_wp
          dtsfc(i) = 0.0_pbl_wp
@@ -618,8 +613,8 @@ _pbl_wp!> \file satmedmfvdifq.F
 !! \f$\theta_v\f$(thvx),\f$\theta_{l,v}\f$ (thlvx) including ice water
       do k=1,km
         do i=1,im
-          pix(i,k)   = real(psk(i), kind=pbl_wp) / max(real(prslk(i,k),
-     &                 kind=pbl_wp), tiny(1.0_pbl_wp))
+          pix(i,k)   = real(psk(i), kind=pbl_wp) / real(prslk(i,k),
+     &                 kind=pbl_wp)
           theta(i,k) = real(t1(i,k), kind=pbl_wp) * pix(i,k)
           qice(i,k)  = 0.0_pbl_wp
           qliq(i,k)  = 0.0_pbl_wp
@@ -658,7 +653,7 @@ _pbl_wp!> \file satmedmfvdifq.F
      &                 kind=pbl_wp), qmin)
           thetae(i,k)= theta(i,k) +  ptem1
 !         gotvx(i,k) = g / tvx(i,k)
-          gotvx(i,k) = g / max(thvx(i,k), tiny(1.0_pbl_wp))
+          gotvx(i,k) = g / thvx(i,k)
         enddo
       enddo
 !
@@ -670,11 +665,10 @@ _pbl_wp!> \file satmedmfvdifq.F
 !  --- ...  compute relative humidity
           es = 0.01_pbl_wp * real(fpvs(real(t1(i,k), kind=kind_phys)),
      &         kind=pbl_wp)       ! fpvs in pa
-          qs  = max(qmin, real(eps, kind=pbl_wp) * es / max(plyr(i,k)
-     &        + real(epsm1, kind=pbl_wp) * es, tiny(1.0_pbl_wp)))
+          qs  = max(qmin, real(eps, kind=pbl_wp) * es / (plyr(i,k)
+     &        + real(epsm1, kind=pbl_wp) * es))
           rhly(i,k) = max(0.0_pbl_wp, min(1.0_pbl_wp, max(qmin,
-     &                real(q1(i,k,1), kind=pbl_wp))/max(qs,
-     &                tiny(1.0_pbl_wp))))
+     &                real(q1(i,k,1), kind=pbl_wp))/qs))
           qstl(i,k) = qs
         enddo
       enddo
@@ -687,7 +681,7 @@ _pbl_wp!> \file satmedmfvdifq.F
             onemrh = max(1.e-10_pbl_wp, 1.0_pbl_wp-rhly(i,k))
             tem1   = min(max((onemrh * qstl(i,k))**0.49_pbl_wp,
      &               0.0001_pbl_wp), 1.0_pbl_wp)
-            tem1   = cql / max(tem1, tiny(1.0_pbl_wp))
+            tem1   = cql / tem1
             value = max(min(tem1 * qlx(i,k), 50.0_pbl_wp), 0.0_pbl_wp)
             tem2   = sqrt(sqrt(rhly(i,k)))
             cfly(i,k) = min(max(tem2 * (1.0_pbl_wp - exp(-value)),
@@ -704,8 +698,8 @@ _pbl_wp!> \file satmedmfvdifq.F
           tem1 = 0.5_pbl_wp * real(t1(i,k) + t1(i,k+1), kind=pbl_wp)
           tem2 = 0.5_pbl_wp * (qstl(i,k) + qstl(i,k+1))
           cfh  = min(cfly(i,k+1),0.5_pbl_wp*(cfly(i,k)+cfly(i,k+1)))
-          alp  = g / max(tem, tiny(1.0_pbl_wp))
-          gamma = el2orc * tem2 / max(tem1**2, tiny(1.0_pbl_wp))
+          alp  = g / tem
+          gamma = el2orc * tem2 / (tem1**2)
           epsi  = tem1 / elocp
           beta  = (1.0_pbl_wp + gamma * epsi * (1.0_pbl_wp + real(fv, kind=pbl_wp)))
      &          / (1.0_pbl_wp + gamma)
@@ -774,17 +768,16 @@ _pbl_wp!> \file satmedmfvdifq.F
           thermal(i) = thvs(i)
           tem = sqrt(real(u10m(i)**2 + v10m(i)**2, kind=pbl_wp))
           tem = max(tem, 1.0_pbl_wp)
-          robn = tem / max(real(f0, kind=pbl_wp) * real(z0(i),
-     &           kind=pbl_wp), tiny(1.0_pbl_wp))
+          robn = tem / (real(f0, kind=pbl_wp) * real(z0(i),
+     &           kind=pbl_wp))
           tem1 = 1.e-7_pbl_wp * robn
-          crb(i) = 0.16_pbl_wp * (max(tem1, tiny(1.0_pbl_wp))
-     &           ** (-0.18_pbl_wp))
+          crb(i) = 0.16_pbl_wp * (tem1 ** (-0.18_pbl_wp))
           crb(i) = max(min(crb(i), crbmax), crbmin)
         endif
       enddo
 !>  - Compute \f$\frac{\Delta t}{\Delta z}\f$ , \f$u_*\f$
       do i=1,im
-         dtdz1(i)  = dt2 / max(zi(i,2) - zi(i,1), tiny(1.0_pbl_wp))
+         dtdz1(i)  = dt2 / (zi(i,2) - zi(i,1))
       enddo
 !
       do i=1,im
@@ -826,15 +819,14 @@ _pbl_wp!> \file satmedmfvdifq.F
 !           rbup(i) = (thvx(i,k)-thermal(i))*
 !    &                (g*zl(i,k)/thvx(i,1))/spdk2
             rbup(i) = (thlvx(i,k) - thermal(i)) * (g * zl(i,k)
-     &                / max(thlvx(i,1), tiny(1.0_pbl_wp))) / spdk2
+     &                / thlvx(i,1)) / spdk2
 
           else if (tc_pbl == 1) then
             spdk2   = real(u1(i,k) - u1(i,1), kind=pbl_wp)**2
      &              + real(v1(i,k) - v1(i,1), kind=pbl_wp)**2
      &              + bfac * ustar(i)**2
             rbup(i) = (thlvx(i,k) - thermal(i)) * (g * (zl(i,k)
-     &              - zl(i,1)) / max(thlvx(i,1), tiny(1.0_pbl_wp)))
-     &              / spdk2
+     &              - zl(i,1)) / thlvx(i,1)) / spdk2
           endif
           kpblx(i) = k
           flg(i)  = rbup(i) > crb(i)
@@ -852,8 +844,7 @@ _pbl_wp!> \file satmedmfvdifq.F
           elseif(rbup(i) <= crb(i)) then
             rbint = 1.0_pbl_wp
           else
-            rbint = (crb(i)-rbdn(i))/max(rbup(i)-rbdn(i),
-     &              tiny(1.0_pbl_wp))
+            rbint = (crb(i)-rbdn(i))/(rbup(i)-rbdn(i))
           endif
           hpblx(i) = zl(i,k-1) + rbint * (zl(i,k) - zl(i,k-1))
           if(hpblx(i) < zi(i,kpblx(i)))
@@ -913,13 +904,12 @@ _pbl_wp!> \file satmedmfvdifq.F
 !           rbup(i) = (thvx(i,k)-thermal(i))*
 !    &                (g*zl(i,k)/thvx(i,1))/spdk2
             rbup(i) = (thlvx(i,k) - thermal(i)) * (g * zl(i,k)
-     &                / max(thlvx(i,1), tiny(1.0_pbl_wp))) / spdk2
+     &                / thlvx(i,1)) / spdk2
           else if (tc_pbl == 1) then
             spdk2   = max(real((u1(i,k)-u1(i,1))**2+(v1(i,k)-v1(i,1))**2
      &              , kind=pbl_wp),1.0_pbl_wp) + bfac*ustar(i)**2
             rbup(i) = (thlvx(i,k) - thermal(i)) * (g * (zl(i,k) &
-     &              - zl(i,1)) / max(thlvx(i,1), tiny(1.0_pbl_wp)))
-     &              / spdk2
+     &              - zl(i,1)) / thlvx(i,1)) / spdk2
           endif
           kpblx(i) = k
           flg(i)  = rbup(i) > crb(i)
@@ -934,8 +924,7 @@ _pbl_wp!> \file satmedmfvdifq.F
           elseif(rbup(i) <= crb(i)) then
             rbint = 1.0_pbl_wp
           else
-            rbint = (crb(i)-rbdn(i))/max(rbup(i)-rbdn(i),
-     &              tiny(1.0_pbl_wp))
+            rbint = (crb(i)-rbdn(i))/(rbup(i)-rbdn(i))
           endif
           hpblx(i) = zl(i,k-1) + rbint * (zl(i,k) - zl(i,k-1))
           if(hpblx(i) < zi(i,kpblx(i)))
@@ -964,7 +953,7 @@ _pbl_wp!> \file satmedmfvdifq.F
       enddo
       do i = 1, im
         if(tkemean(i) > 0.0_pbl_wp .and. sumx(i) > 0.0_pbl_wp) then
-          tkemean(i) = tkemean(i) / max(sumx(i), tiny(1.0_pbl_wp))
+          tkemean(i) = tkemean(i) / sumx(i)
         endif
       enddo
 !
@@ -976,7 +965,7 @@ _pbl_wp!> \file satmedmfvdifq.F
       kps = max(kmpbl, kmscu)
       do k = 2, kps
       do i = 1, im
-        dz = max(zi(i,k+1) - zi(i,k), tiny(1.0_pbl_wp))
+        dz = zi(i,k+1) - zi(i,k)
         tem = (0.5_pbl_wp * real(u1(i,k-1) - u1(i,k+1), kind=pbl_wp)
      &      / dz)**2
         tem1 = tem + (0.5_pbl_wp * real(v1(i,k-1) - v1(i,k+1),
@@ -995,9 +984,9 @@ _pbl_wp!> \file satmedmfvdifq.F
 !!    where \f$F_m\f$ and \f$F_h\f$ are surface Monin-Obukhov stability functions calculated in sfc_diff.f and 
 !!    \f$L\f$ is the Obukhov length.
       do i=1,im
-         zol(i) = max(real(rbsoil(i), kind=pbl_wp) * real(fm(i) * fm(i)
-     &          / max(real(fh(i), kind=pbl_wp), tiny(1.0_pbl_wp)),
-     &            kind=pbl_wp),rimin)
+         zol(i) = max(real(rbsoil(i), kind=pbl_wp) * real(fm(i),
+     &            kind=pbl_wp) * real(fm(i), kind=pbl_wp)
+     &          / real(fh(i), kind=pbl_wp), rimin)
          if(sfcflg(i)) then
            zol(i) = min(zol(i),-zfmin)
          else
@@ -1014,14 +1003,12 @@ _pbl_wp!> \file satmedmfvdifq.F
 !!     \f[
 !!     \phi_m=\phi_t=(1+5\frac{0.1h}{L})
 !!     \f]
-         zol1 = zol(i)*sfcfrac*hpbl(i)/max(zl(i,1), tiny(1.0_pbl_wp))
+         zol1 = zol(i)*sfcfrac*hpbl(i)/zl(i,1)
          if(sfcflg(i)) then
-           tem     = 1.0_pbl_wp / max(1.0_pbl_wp - aphi16*zol1,
-     &               tiny(1.0_pbl_wp))
+           tem     = 1.0_pbl_wp / (1.0_pbl_wp - aphi16*zol1)
            phih(i) = sqrt(tem)
            phim(i) = sqrt(phih(i))
-           tem1    = 1.0_pbl_wp / max(1.0_pbl_wp - aphi16*zol(i),
-     &               tiny(1.0_pbl_wp))
+           tem1    = 1.0_pbl_wp / (1.0_pbl_wp - aphi16*zol(i))
            phihs(i) = sqrt(tem1)
            phims(i) = sqrt(phihs(i))
          else
@@ -1066,10 +1053,8 @@ _pbl_wp!> \file satmedmfvdifq.F
 !
       do i = 1,im
          if(pcnvflg(i)) then
-           hgamt(i) = real(heat(i), kind=pbl_wp)/max(wscale(i),
-     &                tiny(1.0_pbl_wp))
-           hgamq(i) = real(evap(i), kind=pbl_wp)/max(wscale(i),
-     &                tiny(1.0_pbl_wp))
+           hgamt(i) = real(heat(i), kind=pbl_wp)/wscale(i)
+           hgamq(i) = real(evap(i), kind=pbl_wp)/wscale(i)
            vpert(i) = hgamt(i) + hgamq(i) *real(fv, kind=pbl_wp)
      &              * theta(i,1)
            vpert(i) = max(vpert(i),0.0_pbl_wp)
@@ -1096,13 +1081,13 @@ _pbl_wp!> \file satmedmfvdifq.F
             spdk2   = max(real(u1(i,k)**2+v1(i,k)**2, kind=pbl_wp),
      &                1.0_pbl_wp)      
             rbup(i) = (thlvx(i,k) - thermal(i)) * (g * zl(i,k)
-     &                / max(thlvx(i,1), tiny(1.0_pbl_wp))) / spdk2
+     &                / thlvx(i,1)) / spdk2
           else if (tc_pbl == 1) then
             spdk2   = max(real((u1(i,k) - u1(i,1))**2 + (v1(i,k)
      &              - v1(i,1))**2, kind=pbl_wp),1.0_pbl_wp)
      &              + bfac *ustar(i)**2
             rbup(i) = (thlvx(i,k) - thermal(i)) * (g * (zl(i,k) &
-     &            - zl(i,1)) / max(thlvx(i,1), tiny(1.0_pbl_wp))) /spdk2
+     &            - zl(i,1)) / thlvx(i,1)) /spdk2
           endif
           kpbl(i) = k
           flg(i)  = rbup(i) > crb(i)
@@ -1117,8 +1102,7 @@ _pbl_wp!> \file satmedmfvdifq.F
            elseif(rbup(i) <= crb(i)) then
              rbint = 1.0_pbl_wp
            else
-             rbint = (crb(i)-rbdn(i))/max(rbup(i)-rbdn(i),
-     &               tiny(1.0_pbl_wp))
+             rbint = (crb(i)-rbdn(i))/(rbup(i)-rbdn(i))
            endif
            hpbl(i) = zl(i,k-1) + rbint * (zl(i,k) - zl(i,k-1))
            if(hpbl(i) < zi(i,kpbl(i))) then
@@ -1139,7 +1123,7 @@ _pbl_wp!> \file satmedmfvdifq.F
 !
       do i = 1, im
         tem = phims(i) * phims(i)
-        ris(i) = zol(i) * phihs(i) / max(tem, tiny(1.0_pbl_wp)
+        ris(i) = zol(i) * phihs(i) / tem
         ris(i) = max(ris(i), rimin)
       enddo
       do k = 1, km1
@@ -1150,17 +1134,17 @@ _pbl_wp!> \file satmedmfvdifq.F
           else
             if(k == 1) then
               tem = gotvx(i,1) * (thlvx(i,1)-thvs(i))
-              tem1 = tem / max(zl(i,1), tiny(1.0_pbl_wp))
+              tem1 = tem / zl(i,1)
               tem1 = 0.5_pbl_wp * (tem1 + bf(i,1))
               ptem = max(real(u1(i,1)**2 + v1(i,1)**2, kind=pbl_wp),
      &               1.0_pbl_wp)
-              ptem1 = ptem / max(zl(i,1) * zl(i,1), tiny(1.0_pbl_wp))
+              ptem1 = ptem / (zl(i,1) * zl(i,1))
               ptem1 = 0.5_pbl_wp * (ptem1 + shr2(i,1))
-              ri = max(tem1/max(ptem1, tiny(1.0_pbl_wp)), rimin)
+              ri = max(tem1/ptem1, rimin)
             else
               tem1 = 0.5_pbl_wp * (bf(i,k-1) + bf(i,k))
               ptem1 = 0.5_pbl_wp * (shr2(i,k-1) + shr2(i,k))
-              ri = max(tem1/max(ptem1, tiny(1.0_pbl_wp)), rimin)
+              ri = max(tem1/ptem1, rimin)
             endif
           endif
           if(ri < 0.0_pbl_wp) then
@@ -1194,7 +1178,7 @@ _pbl_wp!> \file satmedmfvdifq.F
       enddo
       do i = 1, im
         if(tkemean(i) > 0.0_pbl_wp .and. sumx(i) > 0.0_pbl_wp) then
-          tkemean(i) = tkemean(i) / max(sumx(i), tiny(1.0_pbl_wp))
+          tkemean(i) = tkemean(i) / sumx(i)
         endif
       enddo
 !
@@ -1345,11 +1329,10 @@ _pbl_wp!> \file satmedmfvdifq.F
       do k = 1, kmpbl
         do i = 1, im
           if(k < kpbl(i)) then
-            tem = phih(i)/max(phim(i), tiny(1.0_pbl_wp))
+            tem = phih(i)/phim(i)
             ptem = sfcfrac*real(hpbl(i), kind=pbl_wp)
             tem1 = max(zi(i,k+1)-ptem, 0.0_pbl_wp)
-            tem2 = tem1 / max(real(hpbl(i), kind=pbl_wp) - ptem,
-     &             tiny(1.0_pbl_wp))
+            tem2 = tem1 / (real(hpbl(i), kind=pbl_wp) - ptem)
             if(pcnvflg(i)) then
               tem = min(tem, pr0)
               prn(i,k) = tem + (pr0 - tem) * tem2
@@ -1423,8 +1406,7 @@ _pbl_wp!> \file satmedmfvdifq.F
               e2(i,n+1) = e2(i,n) + (tem1 - tem2) * dz
               zlup = zlup + dz
               if(e2(i,n+1) < 0.0_pbl_wp) then
-                ptem = e2(i,n+1) / min(e2(i,n+1) - e2(i,n),
-     &                -tiny(1.0_pbl_wp))
+                ptem = e2(i,n+1) / (e2(i,n+1) - e2(i,n))
                 zlup = zlup - ptem * dz
                 zlup = max(zlup, 0.0_pbl_wp)
                 mlenflg = .false.
@@ -1441,7 +1423,7 @@ _pbl_wp!> \file satmedmfvdifq.F
      &              + real(fv, kind=pbl_wp) * max(real(q1(i,1,1),
      &                kind=pbl_wp), qmin))
                 tem1 = 2.0_pbl_wp*gotvx(i,n)*(tem-thvx(i,k))
-                tem2 = ustar(i)*phims(i)/max(vk*dz, tiny(1.0_pbl_wp))
+                tem2 = ustar(i)*phims(i)/(vk*dz)
                 tem2 = cs0*sqrt(e2(i,n))*tem2
                 e2(i,n-1) = e2(i,n) + (tem1 - tem2) * dz
               else
@@ -1452,8 +1434,7 @@ _pbl_wp!> \file satmedmfvdifq.F
               endif
               zldn = zldn + dz
               if(e2(i,n-1) < 0.0_pbl_wp) then
-                ptem = e2(i,n-1) / min(e2(i,n-1) - e2(i,n),
-     &                -tiny(1.0_pbl_wp))
+                ptem = e2(i,n-1) / (e2(i,n-1) - e2(i,n))
                 zldn = zldn - ptem * dz
                 zldn = max(zldn, 0.0_pbl_wp)
                 mlenflg = .false.
@@ -1506,11 +1487,11 @@ _pbl_wp!> \file satmedmfvdifq.F
             zk = tem / 3.7_pbl_wp
           else
             ptem = 1.0_pbl_wp + 2.7_pbl_wp * zol(i)
-            zk = tem / max(ptem, tiny(1.0_pbl_wp))
+            zk = tem / ptem
           endif
 
           if (tc_pbl == 0) then
-            elm(i,k) = zk*rlam(i,k)/max(rlam(i,k)+zk, tiny(1.0_pbl_wp))
+            elm(i,k) = zk*rlam(i,k)/(rlam(i,k)+zk)
 !>  - If sfc_rlm=1, use zk for elm within surface layer
             if ( sfc_rlm == 1 ) then
               if ( sfcflg(i) .and.
@@ -1519,9 +1500,8 @@ _pbl_wp!> \file satmedmfvdifq.F
             endif
           else if (tc_pbl == 1) then
             ! new blending method for mixing length
-            elm(i,k) = sqrt( 1.0_pbl_wp/max( 1.0_pbl_wp/ max(zk**2,
-     &                 tiny(1.0_pbl_wp))+1.0_pbl_wp / max(rlam(i,k)**2,
-     &                 tiny(1.0_pbl_wp)), tiny(1.0_pbl_wp) ) )
+            elm(i,k) = sqrt( 1.0_pbl_wp / ( 1.0_pbl_wp / (zk**2)
+     &               + 1.0_pbl_wp / (rlam(i,k)**2) ) )
           endif
 
 !
@@ -1557,7 +1537,7 @@ _pbl_wp!> \file satmedmfvdifq.F
            if (zi(i,k+1) <= ptem) then
              ri = ris(i)
            else
-             ri = max(bf(i,k)/max(shr2(i,k), tiny(1.0_pbl_wp)),rimin)
+             ri = max(bf(i,k)/shr2(i,k),rimin)
            endif
            if(ri < 0.0_pbl_wp) then
              tem = 2.0_pbl_wp * ri - pr0
@@ -1567,7 +1547,7 @@ _pbl_wp!> \file satmedmfvdifq.F
              epotte = ri / tem
            endif
            tkeh(i,k) = tteh(i,k) * (1.0_pbl_wp - epotte)
-           tesq(i,k) = tkeh(i,k) / sqrt(max(tteh(i,k),tiny(1.0_pbl_wp)))
+           tesq(i,k) = tkeh(i,k) / sqrt(tteh(i,k))
         enddo
       enddo
 !
@@ -1585,15 +1565,15 @@ _pbl_wp!> \file satmedmfvdifq.F
         do i = 1, im
            tem = 0.5_pbl_wp * (elm(i,k) + elm(i,k+1))
            tem = tem * tesq(i,k)
-           ri = max(bf(i,k)/max(shr2(i,k), tiny(1.0_pbl_wp)),rimin)
+           ri = max(bf(i,k)/shr2(i,k),rimin)
            if(k < kpbl(i)) then
              if(pcnvflg(i)) then
                dku(i,k) = ckz(i,k) * tem
-               dkt(i,k) = dku(i,k) / max(prn(i,k), tiny(1.0_pbl_wp))
+               dkt(i,k) = dku(i,k) / prn(i,k)
              else
                if(ri < 0.0_pbl_wp) then ! unstable regime
                  dku(i,k) = ckz(i,k) * tem
-                 dkt(i,k) = dku(i,k) / max(prn(i,k), tiny(1.0_pbl_wp))
+                 dkt(i,k) = dku(i,k) / prn(i,k)
                else             ! stable regime
                  dkt(i,k) = chz(i,k) * tem
                  dku(i,k) = dkt(i,k) * prn(i,k)
@@ -1618,7 +1598,7 @@ _pbl_wp!> \file satmedmfvdifq.F
                else
                  tem1 = ckz(i,k) * tem
                endif
-               ptem1 = tem1 / max(prscu, tiny(1.0_pbl_wp))
+               ptem1 = tem1 / prscu
                dku(i,k) = max(dku(i,k), tem1)
                dkt(i,k) = max(dkt(i,k), ptem1)
              endif
@@ -1643,20 +1623,19 @@ _pbl_wp!> \file satmedmfvdifq.F
         do k=1,km
           do i=1,im
           pix(i,k)   = real(psk(i), kind=pbl_wp)
-     &               / max(real(prslk(i,k), kind=pbl_wp),
-     &                 tiny(1.0_pbl_wp))
+     &               / real(prslk(i,k), kind=pbl_wp)
           theta(i,k) = t1_loc(i,k) * pix(i,k)
-          tem=theta(i,k)/max(t1_loc(i,k), tiny(1.0_pbl_wp))
+          tem=theta(i,k)/t1_loc(i,k)
           if(ntiw > 0) then
             tem1=max(q1_loc(i,k,ntcw),qlmin)+
      &           max(q1_loc(i,k,ntiw)+q1_loc(i,k,5)+q1_loc(i,k,6),qlmin)
             thetal(i,k)=theta(i,k)-(real(hvap, kind=pbl_wp)+real(hfus,
-     &                  kind=pbl_wp))/max(real(cp, kind=pbl_wp),
-     &                  tiny(1.0_pbl_wp))*tem*tem1
+     &                  kind=pbl_wp))/real(cp, kind=pbl_wp)
+     &                 *tem*tem1
           else
             tem1=max(q1_loc(i,k,ntcw),qlmin)
-            thetal(i,k)=theta(i,k)-real(hvap, kind=pbl_wp)/max(real(cp,
-     &                  kind=pbl_wp), tiny(1.0_pbl_wp))*tem*tem1
+            thetal(i,k)=theta(i,k)-real(hvap, kind=pbl_wp)/real(cp,
+     &                  kind=pbl_wp)*tem*tem1
           endif
           enddo
         enddo
@@ -1678,16 +1657,15 @@ _pbl_wp!> \file satmedmfvdifq.F
             tem1=(real(garea(i), kind=pbl_wp)*dz)**h1
 ! calculate LES mixing length
             if(tem > 0.0_pbl_wp) then
-              elm_les=0.76_pbl_wp*sqrt(tke(i,k))/sqrt(max(tem,
-     &                tiny(1.0_pbl_wp)))
+              elm_les=0.76_pbl_wp*sqrt(tke(i,k))/sqrt(tem)
               elm_les=min(elm_les,tem1)
             else
               elm_les=tem1
             endif
 ! calculate km, kh, and kq for LES
             dku_les(i,k)=0.1_pbl_wp*elm_les*sqrt(tkeh(i,k))
-            dkt_les(i,k)=(1.0_pbl_wp+2.0_pbl_wp*elm_les/max(tem1,
-     &                   tiny(1.0_pbl_wp)))*dku_les(i,k)
+            dkt_les(i,k)=(1.0_pbl_wp+2.0_pbl_wp*elm_les/tem1)
+     &                  *dku_les(i,k)
             dkq_les(i,k)=dkt_les(i,k)
             dku_les(i,k) = min(dku_les(i,k),dkmaxles)
             dkt_les(i,k) = min(dkt_les(i,k),dkmaxles)
@@ -1730,7 +1708,7 @@ _pbl_wp!> \file satmedmfvdifq.F
           scl(i)=max(scl(i), sclmin)
           scl(i)=min(scl(i), sclmax)
           scl(i)=max(scl(i), real(hpbl(i), kind=pbl_wp))
-          pfdx(i)=gdx(i)/max(scl(i), tiny(1.0_pbl_wp))
+          pfdx(i)=gdx(i)/scl(i)
         enddo
 !
         do i = 1, im
@@ -1770,19 +1748,16 @@ _pbl_wp!> \file satmedmfvdifq.F
           do i = 1, im
             if(k > 1) then
               dz = zl(i,k+1) - zl(i,k-1)
-              tem=gotvx(i,k)*(thetal(i,k+1)-thetal(i,k-1))/max(dz,
-     &            tiny(1.0_pbl_wp))
+              tem=gotvx(i,k)*(thetal(i,k+1)-thetal(i,k-1))/dz
             else
               dz = zl(i,k+1)
-              tem=gotvx(i,k)*(thetal(i,k+1)-thvs(i))/max(dz,
-     &            tiny(1.0_pbl_wp))
+              tem=gotvx(i,k)*(thetal(i,k+1)-thvs(i))/dz
             endif
             dz = zi(i,k+1) - zi(i,k)
             tem1=(real(garea(i), kind=pbl_wp)*dz)**h1
 ! calculate LES mixing length
             if(tem > 0.0_pbl_wp) then
-              elm_les=0.76_pbl_wp*sqrt(tke(i,k))/sqrt(max(tem,
-     &                tiny(1.0_pbl_wp)))
+              elm_les=0.76_pbl_wp*sqrt(tke(i,k))/sqrt(tem)
               elm_les=min(elm_les,tem1)
             else
               elm_les=tem1
@@ -1792,8 +1767,8 @@ _pbl_wp!> \file satmedmfvdifq.F
             dku_les(i,k)=0.1_pbl_wp*elm_les*sqrt(tke(i,k))
             dkq_les(i,k)=(1.0_pbl_wp+2.0_pbl_wp*elm_les/tem1)
      &                  *dku_les(i,k)
-            dkq_les(i,k)=(1.0_pbl_wp+2.0_pbl_wp*elm_les/max(tem1,
-     &                   tiny(1.0_pbl_wp)))*dku_les(i,k)
+            dkq_les(i,k)=(1.0_pbl_wp+2.0_pbl_wp*elm_les/tem1)
+     &                  *dku_les(i,k)
             dku_les(i,k) = min(dku_les(i,k),dkmaxles)
             dkq_les(i,k) = min(dkq_les(i,k),dkmaxles)
           enddo
@@ -1855,9 +1830,8 @@ _pbl_wp!> \file satmedmfvdifq.F
 !concentrations to
 ! source distributions in vegetation canopies. Q. J. R. Meteor. Soc.
 ! (1989), 115, pp 609-632
-              MOL  = zol(i)/max(zl(i,k), tiny(1.0_pbl_wp))  !Monin-Obukhov Length in layer
-              HOL = FCH/(sign(1.0_pbl_wp, MOL) * max(abs(MOL),
-     &              tiny(1.0_pbl_wp)))  !local canopy stability parameter (hc/MOL)
+              MOL  = zol(i)/zl(i,k)  !Monin-Obukhov Length in layer
+              HOL = FCH/MOL  !local canopy stability parameter (hc/MOL)
               ZCAN = zi(i,k+1) ! Initialize each model layer top that contains canopy (m)
                              ! Integrate across total model interface
               ZFL = ZCAN     ! Set ZFL = ZCAN
@@ -1871,7 +1845,7 @@ _pbl_wp!> \file satmedmfvdifq.F
 
               DO WHILE (ZCAN.GE.BOTCAN)
                  ! TLCAN = Lagrangian timescale
-                 TLCAN = (FCH/max(ustar(i), tiny(1.0_pbl_wp))) * (
+                 TLCAN = (FCH/ustar(i)) * (
      &                   (0.256_pbl_wp * (ZCAN-(0.75_pbl_wp*FCH))
      &                 / FCH ) + (0.492_pbl_wp * EXP((-0.256_pbl_wp
      &                 * ZCAN / FCH) /0.492_pbl_wp)) )
@@ -1962,7 +1936,7 @@ _pbl_wp!> \file satmedmfvdifq.F
 
                  EDDYVEST_INT = IntegrateTrapezoid((ZCANX(COUNTCAN:1:-1)
      &                                ),EDDYVESTX(COUNTCAN:1:-1)) / 
-     &                                  max(ZZ_INT, tiny(1.0_pbl_wp))
+     &                                  ZZ_INT
               END IF
 
 ! Comment out to turn OFF the integrated canopy effect
@@ -2063,7 +2037,7 @@ _pbl_wp!> \file satmedmfvdifq.F
             ptem2 = ptem2 + ptem
 
             tem2 = real(stress(i), kind=pbl_wp)*ustar(i)*phims(i)
-     &            /max(vk*zl(i,1), tiny(1.0_pbl_wp))
+     &            /(vk*zl(i,1))
             shrp = 0.5_pbl_wp* (tem1 + ptem1 + ptem2 + tem2)
           else
             tem1 = -dkt(i,k-1) * bf(i,k-1)
@@ -2159,12 +2133,11 @@ _pbl_wp!> \file satmedmfvdifq.F
         do i=1,im
            tem = sqrt(te(i,k))
 !        calculating 3D TKE transport and pressure correlation
-           ptem1 = ce0 / max(ele(i,k), tiny(1.0_pbl_wp))
+           ptem1 = ce0 / ele(i,k)
            dz = zi(i,k+1) - zi(i,k)
            tem1=(real(garea(i), kind=pbl_wp)*dz)**h1
-           tem2=0.19_pbl_wp+0.51_pbl_wp*ele_les(i,k)/max(tem1,
-     &          tiny(1.0_pbl_wp))
-           ptem2= tem2 / max(ele_les(i,k), tiny(1.0_pbl_wp))
+           tem2=0.19_pbl_wp+0.51_pbl_wp*ele_les(i,k)/tem1
+           ptem2= tem2 / ele_les(i,k)
            ptem=(1.0_pbl_wp-pftke(i))*ptem2+pftke(i)*ptem1
            disste = ptem * te(i,k) * tem
            tem1 = prod(i,k) + te(i,k) / dtn
@@ -2185,7 +2158,7 @@ _pbl_wp!> \file satmedmfvdifq.F
        do k = 1,km1
         do i=1,im
            tem = sqrt(te(i,k))
-           ptem = ce0 / max(ele(i,k), tiny(1.0_pbl_wp))
+           ptem = ce0 / ele(i,k)
            disste = ptem * te(i,k) * tem
            tem1 = prod(i,k) + te(i,k) / dtn
            disste = max(min(disste, tem1), 0.0_pbl_wp)
@@ -2205,16 +2178,15 @@ _pbl_wp!> \file satmedmfvdifq.F
         do i = 1, im
           tem = sqrt(tke(i,k))
           if(sa3dtke) then
-            ptem1 = ce0 / max(ele(i,k), tiny(1.0_pbl_wp))
+            ptem1 = ce0 / ele(i,k)
             dz = zi(i,k+1) - zi(i,k)
             tem1=(real(garea(i), kind=pbl_wp)*dz)**h1
-            tem2=0.19_pbl_wp+0.51_pbl_wp*ele_les(i,k)/max(tem1,
-     &           tiny(1.0_pbl_wp))
+            tem2=0.19_pbl_wp+0.51_pbl_wp*ele_les(i,k)/tem1
             ptem2= tem2 / ele_les(i,k)
             ptem=(1.0_pbl_wp-pftke(i))*ptem2+pftke(i)*ptem1
             diss(i,k) = ptem * tke(i,k) * tem
           else
-            ptem = ce0 / max(ele(i,k), tiny(1.0_pbl_wp))
+            ptem = ce0 / ele(i,k)
             diss(i,k) = ptem * tke(i,k) * tem
           endif
         enddo
@@ -2389,10 +2361,8 @@ _pbl_wp!> \file satmedmfvdifq.F
 !
       do k = 1,km1
         do i=1,im
-          dtodsd  = dt2/max(real(del(i,k), kind=pbl_wp),
-     &              tiny(1.0_pbl_wp))
-          dtodsu  = dt2/max(real(del(i,k+1), kind=pbl_wp),
-     &              tiny(1.0_pbl_wp))
+          dtodsd  = dt2/real(del(i,k), kind=pbl_wp)
+          dtodsu  = dt2/real(del(i,k+1), kind=pbl_wp)
           dsig    = real(prsl(i,k), kind=pbl_wp)-real(prsl(i,k+1),
      &              kind=pbl_wp)
           rdz     = rdzt(i,k)
@@ -2591,10 +2561,8 @@ c
 c
       do k = 1,km1
         do i = 1,im
-          dtodsd  = dt2/max(real(del(i,k), kind=pbl_wp),
-     &              tiny(1.0_pbl_wp))
-          dtodsu  = dt2/max(real(del(i,k+1), kind=pbl_wp),
-     &              tiny(1.0_pbl_wp))
+          dtodsd  = dt2/real(del(i,k), kind=pbl_wp)
+          dtodsu  = dt2/real(del(i,k+1), kind=pbl_wp)
           dsig    = real(prsl(i,k), kind=pbl_wp)-real(prsl(i,k+1),
      &              kind=pbl_wp)
           rdz     = rdzt(i,k)
@@ -3089,7 +3057,7 @@ c
 !           tem = min(diss(i,k), dspmax)
 !           ttend = tem / cp
             ten_t(i,k) = ten_t(i,k) + dspfac * real(diss(i,k),
-     &                   kind=kind_phys) / max(cp, tiny(1.0_kind_phys))
+     &                   kind=kind_phys) / cp
           enddo
         enddo
         if(ldiag3d .and. .not. gen_tend) then
@@ -3099,8 +3067,7 @@ c
               do i = 1,im
                 dtend(i,k,idtend) = dtend(i,k,idtend)+
      &                              (dspfac * real(diss(i,k),
-     &                              kind=kind_phys) / max(cp,
-     &                              tiny(1.0_kind_phys)))*delt
+     &                              kind=kind_phys) / cp)*delt
               enddo
             enddo
           endif
@@ -3111,17 +3078,15 @@ c
 c
       do i=1,im
          ad(i,1) = 1.0_pbl_wp + dtdz1(i) * real(stress(i), kind=pbl_wp)
-     &           / max(real(spd1(i), kind=pbl_wp), tiny(1.0_pbl_wp))
+     &           / real(spd1(i), kind=pbl_wp)
          f1(i,1) = u1_loc(i,1)
          f2(i,1) = v1_loc(i,1)
       enddo
 c
       do k = 1,km1
         do i=1,im
-          dtodsd  = dt2/max(real(del(i,k), kind=pbl_wp),
-     &              tiny(1.0_pbl_wp))
-          dtodsu  = dt2/max(real(del(i,k+1), kind=pbl_wp),
-     &              tiny(1.0_pbl_wp))
+          dtodsd  = dt2/real(del(i,k), kind=pbl_wp)
+          dtodsu  = dt2/real(del(i,k+1), kind=pbl_wp)
           dsig    = real(prsl(i,k), kind=pbl_wp)-real(prsl(i,k+1),
      &              kind=pbl_wp)
           rdz     = rdzt(i,k)
@@ -3188,20 +3153,18 @@ c
           spd1_m = real(sqrt((u1(i,1)-usfco(i))**2+(v1(i,1)
      &           - vsfco(i))**2), kind=pbl_wp)
           dusfc(i) = -1.0_kind_phys * real(rho_a(i), kind=kind_phys)
-     &             * stress(i) * (u1(i,1) - usfco(i)) / max(real(spd1_m,
-     &                 kind=kind_phys), tiny(1.0_kind_phys))
+     &             * stress(i) * (u1(i,1) - usfco(i)) / real(spd1_m,
+     &                 kind=kind_phys)
           dvsfc(i) = -1.0_kind_phys * real(rho_a(i), kind=kind_phys)
-     &             * stress(i) * (v1(i,1) - vsfco(i)) / max(real(spd1_m,
-     &                 kind=kind_phys), tiny(1.0_kind_phys))
+     &             * stress(i) * (v1(i,1) - vsfco(i)) / real(spd1_m,
+     &                 kind=kind_phys)
         enddo
       else
         do i = 1,im
           dusfc(i) = -1.0_kind_phys * real(rho_a(i), kind=kind_phys)
-     &             * stress(i) *u1(i,1) / max(spd1(i),
-     &               tiny(1.0_kind_phys))
+     &             * stress(i) *u1(i,1) / spd1(i)
           dvsfc(i) = -1.0_kind_phys * real(rho_a(i), kind=kind_phys)
-     &             * stress(i) *v1(i,1) / max(spd1(i),
-     &               tiny(1.0_kind_phys))
+     &             * stress(i) *v1(i,1) / max(spd1(i)
         enddo
       endif
 !
