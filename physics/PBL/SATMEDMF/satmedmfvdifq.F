@@ -1,4 +1,4 @@
-_pbl_wp!> \file satmedmfvdifq.F
+!> \file satmedmfvdifq.F
 
 !> This file contains the CCPP-compliant SATMEDMF scheme (updated version) which
 !! computes subgrid vertical turbulence mixing using scale-aware TKE-based moist
@@ -381,7 +381,8 @@ _pbl_wp!> \file satmedmfvdifq.F
       !The following variables are for SA-3D-TKE
       parameter(cpl1=0.280_pbl_wp,cpl2=0.870_pbl_wp,cpl3=0.913_pbl_wp)
       parameter(cpl4=0.153_pbl_wp,cpl5=0.278_pbl_wp,cpl6=0.720_pbl_wp)
-      parameter(cptke1=0.07_pbl_wp,cptke2=0.142_pbl_wp,cptke3=0.071_pbl_wp)
+      parameter(cptke1=0.07_pbl_wp,cptke2=0.142_pbl_wp,
+     &          cptke3=0.071_pbl_wp)
       parameter(dkmaxles=300.0_pbl_wp,sclmin=500.0_pbl_wp,
      &          sclmax=2500.0_pbl_wp)
       parameter(elmhfac=1.5_pbl_wp,elmhmx=1000.0_pbl_wp,ckh=0.4_pbl_wp)
@@ -519,7 +520,7 @@ _pbl_wp!> \file satmedmfvdifq.F
 !
       do i=1,im
         kx1(i) = 1
-        tx1(i) = 1.0_pbl_wp / real(prsi(i,1)
+        tx1(i) = 1.0_pbl_wp / real(prsi(i,1), kind=pbl_wp)
         tx2(i) = tx1(i)
         if(gdx(i) >= xkgdx) then
           xkzm_hx(i) = real(xkzm_h, kind=pbl_wp)
@@ -701,8 +702,8 @@ _pbl_wp!> \file satmedmfvdifq.F
           alp  = g / tem
           gamma = el2orc * tem2 / (tem1**2)
           epsi  = tem1 / elocp
-          beta  = (1.0_pbl_wp + gamma * epsi * (1.0_pbl_wp + real(fv, kind=pbl_wp)))
-     &          / (1.0_pbl_wp + gamma)
+          beta  = (1.0_pbl_wp + gamma * epsi * (1.0_pbl_wp
+     &          + real(fv, kind=pbl_wp))) / (1.0_pbl_wp + gamma)
           chx   = cfh * alp * beta + (1.0_pbl_wp - cfh) * alp
           cqx   = cfh * alp * real(hvap, kind=pbl_wp) * (beta - epsi)
           cqx   = cqx + (1.0_pbl_wp - cfh) * real(fv, kind=pbl_wp) * g
@@ -908,7 +909,7 @@ _pbl_wp!> \file satmedmfvdifq.F
           else if (tc_pbl == 1) then
             spdk2   = max(real((u1(i,k)-u1(i,1))**2+(v1(i,k)-v1(i,1))**2
      &              , kind=pbl_wp),1.0_pbl_wp) + bfac*ustar(i)**2
-            rbup(i) = (thlvx(i,k) - thermal(i)) * (g * (zl(i,k) &
+            rbup(i) = (thlvx(i,k) - thermal(i)) * (g * (zl(i,k)
      &              - zl(i,1)) / thlvx(i,1)) / spdk2
           endif
           kpblx(i) = k
@@ -1086,7 +1087,7 @@ _pbl_wp!> \file satmedmfvdifq.F
             spdk2   = max(real((u1(i,k) - u1(i,1))**2 + (v1(i,k)
      &              - v1(i,1))**2, kind=pbl_wp),1.0_pbl_wp)
      &              + bfac *ustar(i)**2
-            rbup(i) = (thlvx(i,k) - thermal(i)) * (g * (zl(i,k) &
+            rbup(i) = (thlvx(i,k) - thermal(i)) * (g * (zl(i,k)
      &            - zl(i,1)) / thlvx(i,1)) /spdk2
           endif
           kpbl(i) = k
@@ -3164,7 +3165,7 @@ c
           dusfc(i) = -1.0_kind_phys * real(rho_a(i), kind=kind_phys)
      &             * stress(i) *u1(i,1) / spd1(i)
           dvsfc(i) = -1.0_kind_phys * real(rho_a(i), kind=kind_phys)
-     &             * stress(i) *v1(i,1) / max(spd1(i)
+     &             * stress(i) *v1(i,1) / spd1(i)
         enddo
       endif
 !

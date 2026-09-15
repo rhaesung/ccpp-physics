@@ -18,7 +18,7 @@
       integer             k,n,l,i
       real(kind=pbl_wp) fk
       !
-      real(kind=pbl_wp) cl(l,2:n),cm(l,n),cu(l,n-1),r1(l,n),         &
+      real(kind=pbl_wp) cl(l,2:n),cm(l,n),cu(l,n-1),r1(l,n),
      &                     au(l,n-1),a1(l,n)
       !
       do i=1,l
@@ -57,7 +57,7 @@
       integer             k,n,l,i
       real(kind=pbl_wp) fk
 !
-      real(kind=pbl_wp) cl(l,2:n),cm(l,n),cu(l,n-1),r1(l,n),r2(l,n), &
+      real(kind=pbl_wp) cl(l,2:n),cm(l,n),cu(l,n-1),r1(l,n),r2(l,n),
      &          au(l,n-1),a1(l,n),a2(l,n)
 !----------------------------------------------------------------------
       do i=1,l
@@ -102,9 +102,9 @@
       integer             is,k,kk,n,nt,l,i
       real(kind=pbl_wp) fk(l)
 !
-      real(kind=pbl_wp) cl(l,2:n), cm(l,n), cu(l,n-1),               &
-     &                  r1(l,n),   r2(l,n*nt),                       &
-     &                  au(l,n-1), a1(l,n), a2(l,n*nt),              &
+      real(kind=pbl_wp) cl(l,2:n), cm(l,n), cu(l,n-1),
+     &                  r1(l,n),   r2(l,n*nt),
+     &                  au(l,n-1), a1(l,n), a2(l,n*nt),
      &                  fkk(l,2:n-1)
 !-----------------------------------------------------------------------
       do i=1,l
@@ -172,9 +172,9 @@
       integer             is,k,kk,n,nt,l,i
       real(kind=pbl_wp) fk(l)
 !!
-      real(kind=pbl_wp) cl(l,2:n), cm(l,n), cu(l,n-1),               &
-     &                  rt(l,n*nt),                                  &
-     &                  au(l,n-1), at(l,n*nt),                       &
+      real(kind=pbl_wp) cl(l,2:n), cm(l,n), cu(l,n-1),
+     &                  rt(l,n*nt),
+     &                  au(l,n-1), at(l,n*nt),
      &                  fkk(l,2:n-1)
 !-----------------------------------------------------------------------
       do i=1,l

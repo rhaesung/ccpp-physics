@@ -429,7 +429,7 @@ c  local variables and arrays
             tlu = thlu(i,k) / pix(i,k)
             es = 0.01_pbl_wp * real(fpvs(real(tlu, kind=kind_phys)),
      &           kind=pbl_wp)      ! fpvs in pa
-            qs = max(qmin, eps * es / (plyr(i,k)+epsm1*es)
+            qs = max(qmin, eps * es / (plyr(i,k)+epsm1*es))
             dq = qtu(i,k) - qs
 !
             if (dq > 0.0_pbl_wp) then

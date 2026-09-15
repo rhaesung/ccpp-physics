@@ -103,7 +103,20 @@
       real(kind=pbl_wp), intent(inout) :: dv(:,:),     du(:,:),
      &                     tdt(:,:),    rtg(:,:,:),    tkeh(:,:)
       real(kind=pbl_wp), intent(in) ::
+     &                     u1(:,:),     v1(:,:),
+     &                     usfco(:),    vsfco(:),
+     &                     t1(:,:),     q1(:,:,:),
+!The following two variables are for SA-3D-TKE
+     &                     def_1(:,:),  def_2(:,:), def_3(:,:),
      &                     swh(:,:),    hlw(:,:),
+     &                     xmu(:),      garea(:),
+     &                     zvfun(:),    sigmaf(:),
+     &                     psk(:),      rbsoil(:),
+     &                     zorl(:),     tsea(:),
+     &                     u10m(:),     v10m(:),
+     &                     fm(:),       fh(:),
+     &                     evap(:),     heat(:),
+     &                     stress(:),   spd1(:),
      &                     prsi(:,:),   del(:,:),
      &                     prsl(:,:),   prslk(:,:),
      &                     phii(:,:),   phil(:,:)
@@ -116,28 +129,10 @@
       real(kind=pbl_wp), intent(out) ::
      &                     dusfc(:),     dvsfc(:),
      &                     dtsfc(:),     dqsfc(:),
+     &                     hpbl(:)
       real(kind=pbl_wp), intent(out) ::
      &                     dkt(:,:), dku(:,:)
 
-      real(kind=pbl_wp), intent(in) :: &
-     &                     u1(:,:),     v1(:,:),
-     &                     t1(:,:),     q1(:,:,:)
-
-      real(kind=pbl_wp), intent(out) :: &
-     &                     hpbl(:)
-
-      real(kind=pbl_wp), intent(in) ::
-     &                     usfco(:),    vsfco(:),
-!The following two variables are for SA-3D-TKE
-     &                     def_1(:,:),  def_2(:,:), def_3(:,:),
-     &                     xmu(:),      garea(:),
-     &                     zvfun(:),    sigmaf(:),
-     &                     psk(:),      rbsoil(:),
-     &                     zorl(:),     tsea(:),
-     &                     u10m(:),     v10m(:),
-     &                     fm(:),       fh(:),
-     &                     evap(:),     heat(:),
-     &                     stress(:),   spd1(:)
 !
       logical, intent(in)  :: sa3dtke !flag for SA-3D-TKE scheme
 !
@@ -332,7 +327,8 @@
       !The following variables are for SA-3D-TKE
       parameter(cpl1=0.280_pbl_wp,cpl2=0.870_pbl_wp,cpl3=0.913_pbl_wp)
       parameter(cpl4=0.153_pbl_wp,cpl5=0.278_pbl_wp,cpl6=0.720_pbl_wp)
-      parameter(cptke1=0.07_pbl_wp,cptke2=0.142_pbl_wp,cptke3=0.071_pbl_wp)
+      parameter(cptke1=0.07_pbl_wp,cptke2=0.142_pbl_wp,
+     &          cptke3=0.071_pbl_wp)
       parameter(dkmaxles=300.0_pbl_wp,sclmin=500.0_pbl_wp,
      &          sclmax=2500.0_pbl_wp)
       parameter(elmhfac=1.5_pbl_wp,elmhmx=1000.0_pbl_wp,ckh=0.4_pbl_wp)
@@ -603,7 +599,7 @@
         do i = 1, im
           plyr(i,k)   = 0.01_pbl_wp * prsl(i,k)   ! pa to mb (hpa)
 !  --- ...  compute relative humidity
-          es  = 0.01_pbl_wp * fpvs(t1(i,k) ! fpvs in pa
+          es  = 0.01_pbl_wp * fpvs(t1(i,k)) ! fpvs in pa
           qs        = max(qmin, eps * es / (plyr(i,k) + epsm1 * es))
           rhly(i,k) = max(0.0_pbl_wp, min(1.0_pbl_wp, max(qmin,
      &                q1(i,k,1))/qs))

@@ -144,7 +144,7 @@
    real(kind=pbl_wp), intent(inout) ::  Q1_2M  (im,      ntrac)
 
    integer, intent(inout) ::  nfrct  (km+nkc,    im) , &
-                              ifrct  (km+nkc, 2, im), klower_can(nkc)
+                              ifrct  (km+nkc, 2, im)
 
    real(kind=pbl_wp), intent(inout) ::  massair_can(im, km+nkc), &
                                         massair    (im, km)    , &
@@ -164,6 +164,7 @@
                              zcan3    (nkc)  ,&
              pres_can3 (nkt),   pres3    (km)  , &
              dens_can3 (nkt),   dens3    (km)  , &
+             klower_can(nkc)            , &
              dxdy      (im)
 
    real(kind=pbl_wp) ::         &

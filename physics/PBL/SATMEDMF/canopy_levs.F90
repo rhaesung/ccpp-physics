@@ -107,7 +107,7 @@
 ! Tendencies
      DU_CAN  (:,kc)    = DU (:,k)      ! m s-2
      DV_CAN  (:,kc)    = DV (:,k)      ! m s-2
-     TDT_CAN (:,kc)    = TDT (:,k),    ! K s-1
+     TDT_CAN (:,kc)    = TDT (:,k)     ! K s-1
 
      RTG_CAN (:,kc, 1:ntrac-1) = RTG (:,k, 1:ntrac-1) ! kg kg-1 s-1
      RTG_CAN (:,kc,   ntke   ) = RTG (:,k,   ntke   ) ! J   s-1 s-1
@@ -290,7 +290,7 @@
 
    logical         :: sfcflg(im)
 
-   integer :: ka(im), kl(im), klower_can(nkc)
+   integer :: ka(im), kl(im)
 
    real(kind=pbl_wp) ::      zmid3    (km)  , &
                                 zmom3    (km)  , & ! Paul's zfull
@@ -306,7 +306,8 @@
              prsl_can3 (nkt),   prsl3    (km)  , &
              prsi_can3 (nkt+1), prsi3    (km+1), &
              dens_can3 (nkt),   dens3    (km)  , &
-                                mol3     (km)
+                                mol3     (km)  , &
+             klower_can(nkc)
 
    real(kind=pbl_wp) ::                  &
              dxdy      (im),  ustar   (im), &
@@ -454,8 +455,7 @@
 !!    \f]
 !!    where \f$F_m\f$ and \f$F_h\f$ are surface Monin-Obukhov stability functions calculated in sfc_diff.f and
 !!    \f$L\f$ is the Obukhov length.
-      zol(i) = max(rbsoil(i) * fm(i) * fm(i) / fh(i),
-  &            rimin)
+      zol(i) = max(rbsoil(i)*fm(i)*fm(i)/fh(i),rimin)
       if(sfcflg(i)) then
          zol(i) = min(zol(i),-zfmin)
       else
@@ -968,7 +968,7 @@
 !  Level is above first resolved model level
 
             k2 = klower_can(kc)
-            zm2 = (zcan3(kc) - z2(k2-1)) / (z2(k2) - z2(k2-1)
+            zm2 = (zcan3(kc) - z2(k2-1)) / (z2(k2) - z2(k2-1))
 !           zm2 = (zcan3(kc) - z2(k2-1)) / max(z2(k2) - z2(k2-1), epsilon)
 
             td = ( ta3(k2)  - ta3(k2-1)) * zm2
