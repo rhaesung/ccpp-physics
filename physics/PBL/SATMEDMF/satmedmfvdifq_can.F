@@ -584,7 +584,7 @@
           tvx(i,k)   = t1(i,k) * tem2
           qtx(i,k) = max(q1(i,k,1),qmin)+qlx(i,k)
           thlx(i,k)  = theta(i,k) - pix(i,k)*elocp*qlx(i,k)
-          thlvx(i,k) = thlvx(i,k) * (1.0_pbl_wp + fv * qtx(i,k))
+          thlvx(i,k) = thlx(i,k) * (1.0_pbl_wp + fv * qtx(i,k))
           svx(i,k)   = cp * tvx(i,k)
           ptem1      = elocp * pix(i,k) * max(q1(i,k,1),qmin)
           thetae(i,k)= theta(i,k) +  ptem1
@@ -1529,7 +1529,7 @@
           if(ntiw > 0) then
             tem1=max(q1(i,k,ntcw),qlmin)+
      &         max(q1(i,k,ntiw)+q1(i,k,5)+q1(i,k,6),qlmin)
-            thetal(i,k)=theta(i,k)-hvap/cp*tem*tem1
+            thetal(i,k)=theta(i,k)-(hvap+hfus)/cp*tem*tem1
           else
             tem1=max(q1(i,k,ntcw),qlmin)
             thetal(i,k)=theta(i,k)-hvap/cp*tem*tem1

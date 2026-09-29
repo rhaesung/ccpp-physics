@@ -68,7 +68,7 @@
       enddo
       do k=2,n-1
         do i=1,l
-          fk      = one / (cm(i,n)-cl(i,n)*au(i,n-1))
+          fk      = one / (cm(i,k)-cl(i,k)*au(i,k-1))
           au(i,k) = fk*cu(i,k)
           a1(i,k) = fk*(r1(i,k)-cl(i,k)*a1(i,k-1))
           a2(i,k) = fk*(r2(i,k)-cl(i,k)*a2(i,k-1))
@@ -156,7 +156,7 @@
           enddo
         enddo
       enddo
-!-----------------------------------------------------------------------
+
       return
       end subroutine tridin_satmedmf
 

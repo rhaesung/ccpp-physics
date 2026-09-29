@@ -1,4 +1,4 @@
-   !> \file canopy_driver.F      
+!> \file canopy_driver.F      
 
 !> This file contains ...
       module canopy_driver
@@ -913,7 +913,7 @@
 
          CALL canopy_transfer_run(im, km, nkc, nkt,  !in
      &        ntrac, ntoz,                           !in
-     &        real(garea, kind=pbl_wp)               !in
+     &        real(garea, kind=pbl_wp),              !in
      &        zi, zl, zm,                            !in
      &        real(q1, kind=pbl_wp), rho1,           !in kg kg-1
      &        0,                                     !in 0 = "resolved_to_canopy"
@@ -1041,7 +1041,7 @@
 !The following three variables are for SA-3D-TKE
      &     real(def_1,kind=pbl_wp),real(def_2,kind=pbl_wp),
      &     real(def_3,kind=pbl_wp),sa3dtke,
-     &     real(dum3d_h, kind=pbl_wp),real(dum3d_e, kind=pbl_wp),
+     &     dum3d_h,dum3d_e,
      &     dv_can,du_can,tdt_can,rtg_can,                                 ! InOut
      &     u1_can,v1_can,t1_can, q1_can,                                  ! In: canopy inputs
      &     real(usfco, kind=pbl_wp), real(vsfco, kind=pbl_wp),
@@ -1057,8 +1057,8 @@
      &     real(stress, kind=pbl_wp),real(spd1,kind=pbl_wp),   
      &     kpbl_can,                                                      ! Out
      &     prsi_can,del_can,prsl_can,prslk_can,phii_can,phil_can,         ! In: canopy inputs
-     &     real(delt, kind=pbl_wp), real(tte_edmf, kind=pbl_wp),
-     &     real(dspheat, kind=pbl_wp),
+     &     real(delt, kind=pbl_wp), tte_edmf,
+     &     dspheat,
      &     dusfc_can,dvsfc_can,dtsfc_can,dqsfc_can,hpbl_can,              ! Out
      &     dkt,     dku,     tkeh_can,                                    ! Out/Out:tkeh_can
      &     dkt_can,dku_can,                                               ! In: canopy inputs
@@ -1561,7 +1561,7 @@ c
      &                     ZZ_INT
 
 ! Sum
-              TT_SUM = sum(TTX(COUNTCAN:3:-1))/real(COUNTCAN,
+              TT_SUM = sum(TTX(COUNTCAN:1:-1))/real(COUNTCAN,
      &                 kind=pbl_wp)
 
 ! U-wind/V-wind Canopy Columns

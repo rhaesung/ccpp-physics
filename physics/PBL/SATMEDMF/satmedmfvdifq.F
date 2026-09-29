@@ -13,6 +13,7 @@
       use mfscuq_mod
       !PCC_CANOPY_utilities
       use canopy_utils_mod
+      use, intrinsic :: ieee_arithmetic
 
       contains
 
@@ -351,6 +352,10 @@
      &          0.00_pbl_wp, 0.00_pbl_wp, 0.00_pbl_wp, 0.00_pbl_wp,
      &          0.00_pbl_wp, 0.00_pbl_wp, 0.00_pbl_wp, 0.00_pbl_wp,
      &          0.00_pbl_wp, 0.00_pbl_wp /
+
+
+      integer :: i_chk, k_chk
+      logical :: pbl_anomaly_found
 !----------------------------------------------
       parameter(bfac=100.0_pbl_wp)
       parameter(wfac=7.0_pbl_wp)
@@ -427,6 +432,7 @@
       elocp  = real(hvap, kind=pbl_wp) / real(cp, kind=pbl_wp)
       el2orc = real(hvap, kind=pbl_wp) * real(hvap, kind=pbl_wp)
      &       / (real(rv, kind=pbl_wp) * real(cp, kind=pbl_wp))
+
 !
 !************************************************************************
 ! Initialize CCPP error handling variables
@@ -823,9 +829,9 @@
      &                / thlvx(i,1)) / spdk2
 
           else if (tc_pbl == 1) then
-            spdk2   = real(u1(i,k) - u1(i,1), kind=pbl_wp)**2
-     &              + real(v1(i,k) - v1(i,1), kind=pbl_wp)**2
-     &              + bfac * ustar(i)**2
+            spdk2   = max(real((u1(i,k) - u1(i,1))**2 + (v1(i,k)
+     &              - v1(i,1))**2, kind=pbl_wp), 1.0_pbl_wp) + bfac
+     &              * ustar(i)**2
             rbup(i) = (thlvx(i,k) - thermal(i)) * (g * (zl(i,k)
      &              - zl(i,1)) / thlvx(i,1)) / spdk2
           endif
@@ -1768,8 +1774,6 @@
             dku_les(i,k)=0.1_pbl_wp*elm_les*sqrt(tke(i,k))
             dkq_les(i,k)=(1.0_pbl_wp+2.0_pbl_wp*elm_les/tem1)
      &                  *dku_les(i,k)
-            dkq_les(i,k)=(1.0_pbl_wp+2.0_pbl_wp*elm_les/tem1)
-     &                  *dku_les(i,k)
             dku_les(i,k) = min(dku_les(i,k),dkmaxles)
             dkq_les(i,k) = min(dkq_les(i,k),dkmaxles)
           enddo
@@ -2016,7 +2020,6 @@
             if(scuflg(i) .and. mrad(i) == 1) then
               ptem = ucdo(i,1)+ucdo(i,2)-u1_loc(i,1)-u1_loc(i,2)
               ptem = 0.5_pbl_wp * tem * xmfd(i,1) * ptem      
-              ptem = 0.5_pbl_wp * tem * xmfd(i,1) * ptem
             else
               ptem = 0.0_pbl_wp
             endif
@@ -2984,9 +2987,9 @@ c
 c
       do  k = 1,km
          do i = 1,im
-            ten_t(i,k)   = real((f1(i,k)-t1_loc(i,k))*rdt,
+            ten_t(i,k)   = real((f1_loc(i,k)-t1_loc(i,k))*rdt,
      &                     kind=kind_phys)
-            qtend        = (f2(i,k)-q1_loc(i,k,1))*rdt
+            qtend        = (f2_loc(i,k)-q1_loc(i,k,1))*rdt
             rtg(i,k,1)   = rtg(i,k,1) + real(qtend, kind=kind_phys)
 !           dtsfc(i)   = dtsfc(i)+cont*del(i,k)*ttend
 !           dqsfc(i)   = dqsfc(i)+conq*del(i,k)*qtend
@@ -3143,8 +3146,10 @@ c
 c
       do k = 1,km
          do i = 1,im
-            ten_u(i,k) = real((f1(i,k)-u1_loc(i,k))*rdt, kind=kind_phys)
-            ten_v(i,k) = real((f2(i,k)-v1_loc(i,k))*rdt, kind=kind_phys)
+            ten_u(i,k) = real((f1_loc(i,k)-u1_loc(i,k))*rdt,
+     &                   kind=kind_phys)
+            ten_v(i,k) = real((f2_loc(i,k)-v1_loc(i,k))*rdt,
+     &                   kind=kind_phys)
 !           dusfc(i) = dusfc(i)+conw*del(i,k)*utend
 !           dvsfc(i) = dvsfc(i)+conw*del(i,k)*vtend
          enddo
