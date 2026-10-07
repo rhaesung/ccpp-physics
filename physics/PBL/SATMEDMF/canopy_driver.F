@@ -1318,7 +1318,7 @@ c
      &        ntrac1, ntoz,                          !in
      &        real(garea, kind=pbl_wp),              !in
      &        zi, zl, zm,                            !in
-     &        q2, rho2,                              !in kg kg-1
+     &        real(q2, kind=pbl_wp), rho2,           !in kg kg-1
      &        1,                                     !in 1 = "canopy_to_resolved"
      &        FRT_MASK,                              !in
      &        kmod, kcan3,                           !in
