@@ -1276,10 +1276,16 @@
           endif
         enddo
       enddo
-      do n = 1, ntrac1
+      do n = 1, ntrac
       do k = 1, km
         do i = 1, im
           q1_loc(i,k,n) = real(q1(i,k,n), kind=pbl_wp)
+        enddo
+      enddo
+      enddo
+      do n = 1, ntrac1
+      do k = 1, km
+        do i = 1, im
           if(pcnvflg(i)) then
             qcko(i,k,n) = q1_loc(i,k,n)
           endif
@@ -2438,10 +2444,10 @@ c
           endif
           if((pcnvflg(i) .or. scuflg(i)) .and.
      &       (k >= kbx .and. k <= kmx)) then
-            tem = f1(i,k) * real(del(i,k), kind=pbl_wp) * real(gravi,
-     &            kind=pbl_wp) 
-            if(f1(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
-            if(f1(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
+            tem = f1_loc(i,k) * real(del(i,k), kind=pbl_wp)
+     &          * real(gravi, kind=pbl_wp) 
+            if(f1_loc(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+            if(f1_loc(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
           endif
         enddo
       enddo
@@ -2472,13 +2478,13 @@ c
      &       (k >= kbx .and. k <= kmx)) then
             if(rtnp(i) < 0.0_pbl_wp) then
               if(tsump(i) > abs(tsumn(i))) then
-                if(f1(i,k) < 0.0_pbl_wp) f1(i,k) = 0.0_pbl_wp
-                if(f1(i,k) > 0.0_pbl_wp) f1(i,k) = (1.0_pbl_wp+rtnp(i))
-     &                                            *f1(i,k)
+                if(f1_loc(i,k) < 0.0_pbl_wp) f1_loc(i,k) = 0.0_pbl_wp
+                if(f1_loc(i,k) > 0.0_pbl_wp) f1_loc(i,k) = (1.0_pbl_wp
+     &             + rtnp(i)) * f1_loc(i,k)
               else
-                if(f1(i,k) < 0.0_pbl_wp) f1(i,k) = (1.0_pbl_wp+rtnp(i))
-     &                                            *f1(i,k)
-                if(f1(i,k) > 0.0_pbl_wp) f1(i,k) = 0.0_pbl_wp
+                if(f1_loc(i,k) < 0.0_pbl_wp) f1_loc(i,k) = (1.0_pbl_wp
+     &             + rtnp(i)) * f1_loc(i,k)
+                if(f1_loc(i,k) > 0.0_pbl_wp) f1_loc(i,k) = 0.0_pbl_wp
               endif
             endif
           endif
@@ -2496,10 +2502,10 @@ c
       enddo
       do k = 1,km
         do i = 1,im
-          tem = f1(i,k) * real(del(i,k), kind=pbl_wp) * real(gravi,
+          tem = f1_loc(i,k) * real(del(i,k), kind=pbl_wp) * real(gravi,
      &          kind=pbl_wp)
-          if(f1(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
-          if(f1(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
+          if(f1_loc(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+          if(f1_loc(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
         enddo
       enddo
       do i = 1,im
@@ -2515,13 +2521,13 @@ c
         do i = 1,im
           if(rtnp(i) < 0.0_pbl_wp) then
             if(tsump(i) > abs(tsumn(i))) then
-              if(f1(i,k) < 0.0_pbl_wp) f1(i,k) = 0.0_pbl_wp
-              if(f1(i,k) > 0.0_pbl_wp) f1(i,k) = (1.0_pbl_wp+rtnp(i))
-     &                                          *f1(i,k)
+              if(f1_loc(i,k) < 0.0_pbl_wp) f1_loc(i,k) = 0.0_pbl_wp
+              if(f1_loc(i,k) > 0.0_pbl_wp) f1_loc(i,k) = (1.0_pbl_wp
+     &           + rtnp(i)) * f1_loc(i,k)
             else
-              if(f1(i,k) < 0.0_pbl_wp) f1(i,k) = (1.0_pbl_wp+rtnp(i))
-     &                                          *f1(i,k)
-              if(f1(i,k) > 0.0_pbl_wp) f1(i,k) = 0.0_pbl_wp
+              if(f1_loc(i,k) < 0.0_pbl_wp) f1_loc(i,k) = (1.0_pbl_wp
+     &           + rtnp(i)) * f1_loc(i,k)
+              if(f1_loc(i,k) > 0.0_pbl_wp) f1_loc(i,k) = 0.0_pbl_wp
             endif
           endif
         enddo
@@ -2532,7 +2538,8 @@ c
       do k = 1,km
          do i = 1,im
 !           f1(i,k) = max(f1(i,k), tkmin)
-            qtend = (f1(i,k)-q1_loc(i,k,ntke))*real(rdt, kind=pbl_wp)
+            qtend = (f1_loc(i,k) - q1_loc(i,k,ntke)) * real(rdt,
+     &              kind=pbl_wp)
             rtg(i,k,ntke) = rtg(i,k,ntke) + real(qtend, kind=kind_phys)
          enddo
       enddo
@@ -2540,7 +2547,7 @@ c
          idtend = dtidx(ntke+100,index_of_process_pbl)
          if(idtend>0) then
             dtend(1:im,1:km,idtend) = dtend(1:im,1:km,idtend) +
-     &                                real((f1(1:im,1:km) -
+     &                                real((f1_loc(1:im,1:km) -
      &                                q1_loc(1:im,1:km,ntke)) *
      &                                real(rdt, kind=pbl_wp),
      &                                kind=kind_phys)
@@ -2574,8 +2581,8 @@ c
           dsdzt   = tem1 * gocp
           if (use_lpt > 0) then
             dsdzt = dsdzt-tem1*elocp*(qliq(i,k+1)-qliq(i,k))*rdz
-     &            -(1.0_pbl_wp+0.33_pbl_wp/2.5_pbl_wp)*tem1*elocp
-     &            *(qice(i,k+1)-qice(i,k))*rdz
+     &            -(1.0_pbl_wp+0.33_pbl_wp/2.5_pbl_wp)*tem1
+     &            *elocp*(qice(i,k+1)-qice(i,k))*rdz
           endif
           dsdz2   = tem1 * rdz
           au(i,k) = -dtodsd*dsdz2
@@ -2702,10 +2709,10 @@ c
           endif
           if((pcnvflg(i) .or. scuflg(i)) .and.
      &       (k >= kbx .and. k <= kmx)) then
-            tem = f2(i,k) * real(del(i,k), kind=pbl_wp) * real(gravi,
-     &            kind=pbl_wp)
-            if(f2(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
-            if(f2(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
+            tem = f2_loc(i,k) * real(del(i,k), kind=pbl_wp)
+     &          * real(gravi, kind=pbl_wp)
+            if(f2_loc(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+            if(f2_loc(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
           endif
         enddo
       enddo
@@ -2736,13 +2743,13 @@ c
      &       (k >= kbx .and. k <= kmx)) then
             if(rtnp(i) < 0.0_pbl_wp) then
               if(tsump(i) > abs(tsumn(i))) then
-                if(f2(i,k) < 0.0_pbl_wp) f2(i,k) = 0.0_pbl_wp
-                if(f2(i,k) > 0.0_pbl_wp) f2(i,k) = (1.0_pbl_wp+rtnp(i))
-     &                                            *f2(i,k)
+                if(f2_loc(i,k) < 0.0_pbl_wp) f2_loc(i,k) = 0.0_pbl_wp
+                if(f2_loc(i,k) > 0.0_pbl_wp) f2_loc(i,k) = (1.0_pbl_wp
+     &             + rtnp(i)) * f2_loc(i,k)
               else
-                if(f2(i,k) < 0.0_pbl_wp) f2(i,k) = (1.0_pbl_wp+rtnp(i))
-     &                                            *f2(i,k)
-                if(f2(i,k) > 0.0_pbl_wp) f2(i,k) = 0.0_pbl_wp
+                if(f2_loc(i,k) < 0.0_pbl_wp) f2_loc(i,k) = (1.0_pbl_wp
+     &             + rtnp(i)) * f2_loc(i,k)
+                if(f2_loc(i,k) > 0.0_pbl_wp) f2_loc(i,k) = 0.0_pbl_wp
               endif
             endif
           endif
@@ -2761,9 +2768,9 @@ c
       enddo
       do k = 1,km
         do i = 1,im
-          tem = f2(i,k) * real(del(i,k), kind=pbl_wp) * gravi
-          if(f2(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
-          if(f2(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
+          tem = f2_loc(i,k) * real(del(i,k), kind=pbl_wp) * gravi
+          if(f2_loc(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+          if(f2_loc(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
         enddo
       enddo
       do i = 1,im
@@ -2779,13 +2786,13 @@ c
         do i = 1,im
           if(rtnp(i) < 0.0_pbl_wp) then
             if(tsump(i) > abs(tsumn(i))) then
-              if(f2(i,k) < 0.0_pbl_wp) f2(i,k) = 0.0_pbl_wp
-              if(f2(i,k) > 0.0_pbl_wp) f2(i,k) = (1.0_pbl_wp+rtnp(i))
-     &                                          *f2(i,k)
+              if(f2_loc(i,k) < 0.0_pbl_wp) f2_loc(i,k) = 0.0_pbl_wp
+              if(f2_loc(i,k) > 0.0_pbl_wp) f2_loc(i,k) = (1.0_pbl_wp
+     &           + rtnp(i)) * f2_loc(i,k)
             else
-              if(f2(i,k) < 0.0_pbl_wp) f2(i,k) = (1.0_pbl_wp+rtnp(i))
-     &                                          *f2(i,k)
-              if(f2(i,k) > 0.0_pbl_wp) f2(i,k) = 0.0_pbl_wp
+              if(f2_loc(i,k) < 0.0_pbl_wp) f2_loc(i,k) = (1.0_pbl_wp
+     &           + rtnp(i)) * f2_loc(i,k)
+              if(f2_loc(i,k) > 0.0_pbl_wp) f2_loc(i,k) = 0.0_pbl_wp
             endif
           endif
         enddo
@@ -2815,16 +2822,16 @@ c
             endif
             if((pcnvflg(i) .or. scuflg(i)) .and.
      &         (k >= kbx .and. k <= kmx)) then
-              if(f2(i,k+is) < 0.0_pbl_wp) then
-                tem = f2(i,k) + f2(i,k+is)
+              if(f2_loc(i,k+is) < 0.0_pbl_wp) then
+                tem = f2_loc(i,k) + f2_loc(i,k+is)
                 if(tem >= 0.0_pbl_wp) then
-                  f2(i,k) = tem
-                  f1(i,k) = f1(i,k) - elocp * f2(i,k+is)
-                  f2(i,k+is) = 0.0_pbl_wp
-                elseif (f2(i,k) > 0.0_pbl_wp) then
-                  f2(i,k+is) = tem
-                  f1(i,k) = f1(i,k) + elocp * f2(i,k)
-                  f2(i,k) = 0.0_pbl_wp
+                  f2_loc(i,k) = tem
+                  f1_loc(i,k) = f1_loc(i,k) - elocp * f2_loc(i,k+is)
+                  f2_loc(i,k+is) = 0.0_pbl_wp
+                elseif (f2_loc(i,k) > 0.0_pbl_wp) then
+                  f2_loc(i,k+is) = tem
+                  f1_loc(i,k) = f1_loc(i,k) + elocp * f2_loc(i,k)
+                  f2_loc(i,k) = 0.0_pbl_wp
                 endif
               endif
             endif
@@ -2852,16 +2859,16 @@ c
             endif
             if((pcnvflg(i) .or. scuflg(i)) .and.
      &         (k >= kbx .and. k <= kmx)) then
-              if(f2(i,k+is) < 0.0_pbl_wp) then
-                tem = f2(i,k) + f2(i,k+is)
+              if(f2_loc(i,k+is) < 0.0_pbl_wp) then
+                tem = f2_loc(i,k) + f2_loc(i,k+is)
                 if(tem >= 0.0_pbl_wp) then
-                  f2(i,k) = tem
-                  f1(i,k) = f1(i,k) - elocp * f2(i,k+is)
-                  f2(i,k+is) = 0.0_pbl_wp
-                elseif (f2(i,k) > 0.0_pbl_wp) then
-                  f2(i,k+is) = tem
-                  f1(i,k) = f1(i,k) + elocp * f2(i,k)
-                  f2(i,k) = 0.0_pbl_wp
+                  f2_loc(i,k) = tem
+                  f1_loc(i,k) = f1_loc(i,k) - elocp * f2_loc(i,k+is)
+                  f2_loc(i,k+is) = 0.0_pbl_wp
+                elseif (f2_loc(i,k) > 0.0_pbl_wp) then
+                  f2_loc(i,k+is) = tem
+                  f1_loc(i,k) = f1_loc(i,k) + elocp * f2_loc(i,k)
+                  f2_loc(i,k) = 0.0_pbl_wp
                 endif
               endif
             endif
@@ -2892,9 +2899,12 @@ c
               endif
               if((pcnvflg(i) .or. scuflg(i)) .and.
      &           (k >= kbx .and. k <= kmx)) then
-                tem = f2(i,k+is) * real(del(i,k), kind=pbl_wp) * gravi 
-                if(f2(i,k+is) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
-                if(f2(i,k+is) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
+                tem = f2_loc(i,k+is) * real(del(i,k), kind=pbl_wp)
+     &              * gravi 
+                if(f2_loc(i,k+is) < 0.0_pbl_wp) tsumn(i) = tsumn(i)
+     &             + tem
+                if(f2_loc(i,k+is) > 0.0_pbl_wp) tsump(i) = tsump(i)
+     &             + tem
               endif
             enddo
           enddo
@@ -2925,13 +2935,15 @@ c
      &           (k >= kbx .and. k <= kmx)) then
                 if(rtnp(i) < 0.0_pbl_wp) then
                   if(tsump(i) > abs(tsumn(i))) then
-                    if(f2(i,k+is)<0.0_pbl_wp) f2(i,k+is)=0.0_pbl_wp
-                    if(f2(i,k+is)>0.0_pbl_wp) f2(i,k+is)=(1.0_pbl_wp
-     &                                              +rtnp(i))*f2(i,k+is)
+                    if(f2_loc(i,k+is)<0.0_pbl_wp) f2_loc(i,k+is)
+     &                 =0.0_pbl_wp
+                    if(f2_loc(i,k+is)>0.0_pbl_wp) f2_loc(i,k+is)
+     &                 =(1.0_pbl_wp+rtnp(i))*f2_loc(i,k+is)
                   else
-                    if(f2(i,k+is)<0.0_pbl_wp) f2(i,k+is)=(1.0_pbl_wp
-     &                                              +rtnp(i))*f2(i,k+is)
-                    if(f2(i,k+is)>0.0_pbl_wp) f2(i,k+is)=0.0_pbl_wp
+                    if(f2_loc(i,k+is)<0.0_pbl_wp) f2_loc(i,k+is)
+     &                 =(1.0_pbl_wp+rtnp(i))*f2_loc(i,k+is)
+                    if(f2_loc(i,k+is)>0.0_pbl_wp) f2_loc(i,k+is)
+     &                 =0.0_pbl_wp
                   endif
                 endif
               endif
@@ -2950,9 +2962,10 @@ c
           enddo
           do k = 1,km
             do i = 1,im
-              tem = f2(i,k+is) * real(del(i,k), kind=pbl_wp) * gravi
-              if(f2(i,k+is) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
-              if(f2(i,k+is) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
+              tem = f2_loc(i,k+is) * real(del(i,k), kind=pbl_wp)
+     &            * gravi
+              if(f2_loc(i,k+is) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
+              if(f2_loc(i,k+is) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
             enddo
           enddo
           do i = 1,im
@@ -2968,13 +2981,15 @@ c
             do i = 1,im
               if(rtnp(i) < 0.0_pbl_wp) then
                 if(tsump(i) > abs(tsumn(i))) then
-                  if(f2(i,k+is)<0.0_pbl_wp) f2(i,k+is)=0.0_pbl_wp
-                  if(f2(i,k+is)>0.0_pbl_wp) f2(i,k+is)=(1.0_pbl_wp
-     &               +rtnp(i))*f2(i,k+is)
+                  if(f2_loc(i,k+is)<0.0_pbl_wp) f2_loc(i,k+is)
+     &               =0.0_pbl_wp
+                  if(f2_loc(i,k+is)>0.0_pbl_wp) f2_loc(i,k+is)
+     &               =(1.0_pbl_wp+rtnp(i))*f2_loc(i,k+is)
                 else
-                  if(f2(i,k+is)<0.0_pbl_wp) f2(i,k+is)=(1.0_pbl_wp
-     &               +rtnp(i))*f2(i,k+is)
-                  if(f2(i,k+is)>0.0_pbl_wp) f2(i,k+is)=0.0_pbl_wp
+                  if(f2_loc(i,k+is)<0.0_pbl_wp) f2_loc(i,k+is)
+     &               =(1.0_pbl_wp+rtnp(i))*f2_loc(i,k+is)
+                  if(f2_loc(i,k+is)>0.0_pbl_wp) f2_loc(i,k+is)
+     &               =0.0_pbl_wp
                 endif
               endif
             enddo
@@ -3015,7 +3030,7 @@ c
         if(idtend>=1) then
           do  k = 1,km
             do i = 1,im
-              qtend      = (f2(i,k)-q1_loc(i,k,1))*rdt
+              qtend      = (f2_loc(i,k)-q1_loc(i,k,1))*rdt
               dtend(i,k,idtend) = dtend(i,k,idtend) + real(qtend,
      &                            kind=kind_phys) * delt
             enddo
@@ -3028,7 +3043,7 @@ c
           is = (n-1) * km
           do k = 1, km
             do i = 1, im
-              qtend = (f2(i,k+is)-q1_loc(i,k,n))*rdt
+              qtend = (f2_loc(i,k+is)-q1_loc(i,k,n))*rdt
               rtg(i,k,n) = rtg(i,k,n)+real(qtend, kind=kind_phys)
             enddo
           enddo
@@ -3042,7 +3057,7 @@ c
               if(n/=ntke) then
                 do k = 1, km
                   do i = 1, im
-                    qtend = (f2(i,k+is)-q1_loc(i,k,n))*rdt
+                    qtend = (f2_loc(i,k+is)-q1_loc(i,k,n))*rdt
                     dtend(i,k,idtend) = dtend(i,k,idtend)+real(qtend,
      &                                  kind=kind_phys)*delt
                   enddo
