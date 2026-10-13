@@ -670,8 +670,8 @@
         do i = 1, im
           plyr(i,k) = 0.01_pbl_wp * real(prsl(i,k), kind=pbl_wp)   ! pa to mb (hpa)
 !  --- ...  compute relative humidity
-          es = 0.01_pbl_wp * real(fpvs(real(t1(i,k), kind=kind_phys)),
-     &         kind=pbl_wp)       ! fpvs in pa
+          es = real(0.01_kind_phys * fpvs(real(t1(i,k), kind=kind_phys))
+     &       , kind=pbl_wp)       ! fpvs in pa
           qs  = max(qmin, real(eps, kind=pbl_wp) * es / (plyr(i,k)
      &        + real(epsm1, kind=pbl_wp) * es))
           rhly(i,k) = max(0.0_pbl_wp, min(1.0_pbl_wp, max(qmin,

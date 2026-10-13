@@ -263,7 +263,7 @@ c  physical parameters
      &                     (qtx(i,k)+qtx(i,k+1)))/factor
 !
             tld = thld(i,k) / pix(i,k)
-            es = 0.01_pbl_wp * real(fpvs(real(tld, kind=kind_phys)),
+            es = real(0.01_kind_phys * fpvs(real(tld, kind=kind_phys)),
      &           kind=pbl_wp)      ! fpvs in pa
             qs = max(qmin, real(eps, kind=pbl_wp) * es
      &         / (plyr(i,k)+real(epsm1, kind=pbl_wp)*es))
@@ -507,7 +507,7 @@ c
      &                     (qtx(i,k)+qtx(i,k+1)))/factor
 !
             tld = thld(i,k) / pix(i,k)
-            es = 0.01_pbl_wp * real(fpvs(real(tld, kind=kind_phys)),
+            es = real(0.01_kind_phys * fpvs(real(tld, kind=kind_phys)),
      &           kind=pbl_wp)      ! fpvs in pa
             qs = max(qmin, eps * es / (plyr(i,k) + real(epsm1,
      &           kind=pbl_wp)*es))

@@ -181,8 +181,8 @@ c  local variables and arrays
      &                  (qtx(i,k-1)+qtx(i,k)))/factor
 !
             tlu = thlu(i,k) / pix(i,k)
-            es = 0.01_pbl_wp * real(fpvs(real(tlu, kind=kind_phys)),
-     &           kind=pbl_wp)     ! fpvs in pa
+            es = real(0.01_kind_phys * fpvs(real(tlu, kind=kind_phys)),
+     &           kind=pbl_wp)      ! fpvs in pa
             qs = max(qmin, eps * es / (plyr(i,k)+epsm1*es))
             dq = qtu(i,k) - qs
 !
@@ -427,7 +427,7 @@ c  local variables and arrays
      &                  (qtx(i,k-1)+qtx(i,k)))/factor
 !
             tlu = thlu(i,k) / pix(i,k)
-            es = 0.01_pbl_wp * real(fpvs(real(tlu, kind=kind_phys)),
+            es = real(0.01_kind_phys * fpvs(real(tlu, kind=kind_phys)),
      &           kind=pbl_wp)      ! fpvs in pa
             qs = max(qmin, eps * es / (plyr(i,k)+epsm1*es))
             dq = qtu(i,k) - qs
