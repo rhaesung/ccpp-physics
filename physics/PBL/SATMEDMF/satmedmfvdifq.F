@@ -2439,8 +2439,7 @@ c
           endif
           if((pcnvflg(i) .or. scuflg(i)) .and.
      &       (k >= kbx .and. k <= kmx)) then
-            tem = f1_loc(i,k) * real(del(i,k), kind=pbl_wp)
-     &          * real(gravi, kind=pbl_wp) 
+            tem = f1_loc(i,k) * real(del(i,k), kind=pbl_wp) * gravi
             if(f1_loc(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
             if(f1_loc(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
           endif
@@ -2497,8 +2496,7 @@ c
       enddo
       do k = 1,km
         do i = 1,im
-          tem = f1_loc(i,k) * real(del(i,k), kind=pbl_wp) * real(gravi,
-     &          kind=pbl_wp)
+          tem = f1_loc(i,k) * real(del(i,k), kind=pbl_wp) * gravi
           if(f1_loc(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
           if(f1_loc(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
         enddo
@@ -2704,8 +2702,7 @@ c
           endif
           if((pcnvflg(i) .or. scuflg(i)) .and.
      &       (k >= kbx .and. k <= kmx)) then
-            tem = f2_loc(i,k) * real(del(i,k), kind=pbl_wp)
-     &          * real(gravi, kind=pbl_wp)
+            tem = f2_loc(i,k) * real(del(i,k), kind=pbl_wp) * gravi
             if(f2_loc(i,k) < 0.0_pbl_wp) tsumn(i) = tsumn(i) + tem
             if(f2_loc(i,k) > 0.0_pbl_wp) tsump(i) = tsump(i) + tem
           endif
