@@ -87,7 +87,7 @@
 !! (mfscuq.f).
 !! \section detail_satmedmfvidfq GFS satmedmfvdifq Detailed Algorithm
       subroutine satmedmfvdifq_run(im,km,ntrac,ntcw,ntrw,               &
-     &     ntiw,ntke,grav,pi,rd,cp,rv,hvap,hfus,fv,eps,epsm1,              &
+     &     ntiw,ntke,grav,pi,rd,cp,rv,hvap,hfus,fv,eps,epsm1,           &
 !The following three variables are for SA-3D-TKE
      &     def_1,def_2,def_3,sa3dtke,dku3d_h,dku3d_e,                   &
      &     rtg,u1,v1,t1,q1,usfco,vsfco,use_oceanuv,                     &
@@ -121,7 +121,7 @@
       integer, intent(out) :: kpbl(:)
       logical, intent(in)  :: gen_tend,ldiag3d
 !
-      real(kind=kind_phys), intent(in) :: grav,pi,rd,cp,rv,hvap,hfus,fv,   &
+      real(kind=kind_phys), intent(in) :: grav,pi,rd,cp,rv,hvap,hfus,fv,&
      &                                    eps,epsm1
       real(kind=kind_phys), intent(in) :: delt, xkzm_m, xkzm_h, xkzm_s
       real(kind=kind_phys), intent(in) :: dspfac, bl_upfr, bl_dnfr
@@ -2594,7 +2594,10 @@ c
              f1(i,k+1) = t1_loc(i,k+1)-dtodsu*dsdzt+(ptem-tem)*ptem2
              ptem      = qcko(i,k,1) + qcko(i,k+1,1)
              f2(i,k)   = f2(i,k) - ptem * ptem1
-             f2(i,k+1) = q1_loc(i,k+1,1) + ptem * ptem2
+! 64-bit B4B fix: Cast host dummy q1 directly to prevent LSB drift in
+! updraft water vapor RHS vector assembly.
+             f2(i,k+1) = real(q1(i,k+1,1), kind=pbl_wp)
+     &                 + ptem * ptem2
           else
              f1(i,k)   = f1(i,k)+dtodsd*dsdzt
              f1(i,k+1) = t1_loc(i,k+1)-dtodsu*dsdzt
