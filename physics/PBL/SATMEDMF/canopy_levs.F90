@@ -23,27 +23,27 @@
               errmsg, errflg )                       !out
 
    use machine , only : kind_phys
-   use mo_pbl_kind, only : pbl_wp
+   use mo_pbl_kind, only : wp
 
    IMPLICIT NONE
 
 !...Arguments:
    integer, intent(in)  :: im, km, nkc, nkt, ntrac, ntqv, ntke !, ndtend
 
-   real(kind=pbl_wp), intent(in) ::    zi(im, km+1),   zl(im, km), &
+   real(kind=wp), intent(in) ::    zi(im, km+1),   zl(im, km), &
                                                           zm(im, km), &
                                         prsi(im, km+1), prsl(im, km)
-   real(kind=pbl_wp), intent(in) ::    dv(im, km),     du(im, km), &
+   real(kind=wp), intent(in) ::    dv(im, km),     du(im, km), &
                                          tdt(im, km),    rtg(im, km,ntrac)
-   real(kind=pbl_wp), intent(in) ::    u1(im, km),     v1(im, km),  t1(im,km)
-   real(kind=pbl_wp), intent(in) ::  dens(im, km)
-   real(kind=pbl_wp), intent(in) ::   dkt(im, km), dku(im,km)
+   real(kind=wp), intent(in) ::    u1(im, km),     v1(im, km),  t1(im,km)
+   real(kind=wp), intent(in) ::  dens(im, km)
+   real(kind=wp), intent(in) ::   dkt(im, km), dku(im,km)
 !   real(kind=kind_phys), intent(in) :: dtend(im, km , ndtend)
 
 ! ** Q1 is concentration field (including gas and aerosol variables) mass mixing ratio kg kg-1
-   real(kind=pbl_wp), intent(in) ::    Q1(im, km, ntrac)
+   real(kind=wp), intent(in) ::    Q1(im, km, ntrac)
 
-   real(kind=pbl_wp), intent(out) ::  &
+   real(kind=wp), intent(out) ::  &
 ! tendencies
 !             DTEND_CAN (im, km , ndtend), &
              dv_can    (im, km)        , &
@@ -86,10 +86,10 @@
 ! Initialize with values before in-canopy diffusion
 
 ! Layers height
-   zmom_can3 (:,:) = 0.0_pbl_wp
-   zmid_can3 (:,:) = 0.0_pbl_wp
-   sigmom_can(:,:) = 0.0_pbl_wp
-   sigmid_can(:,:) = 0.0_pbl_wp
+   zmom_can3 (:,:) = 0.0_wp
+   zmid_can3 (:,:) = 0.0_wp
+   sigmom_can(:,:) = 0.0_wp
+   sigmid_can(:,:) = 0.0_wp
 
 ! Zero in-canopy tendencies
 !   dtend_can(:, :, : ) = 0.0
@@ -219,7 +219,7 @@
               errmsg,errflg)
 
    use machine , only : kind_phys
-   use mo_pbl_kind, only : pbl_wp
+   use mo_pbl_kind, only : wp
 
    IMPLICIT NONE
 
@@ -228,32 +228,32 @@
 !...Arguments:
 
    integer, intent(in)  :: im, km, nkc, nkt, ntrac, ntqv, ntke
-   real(kind=pbl_wp), intent(in) :: RDGAS, PI
+   real(kind=wp), intent(in) :: RDGAS, PI
 
-   real(kind=pbl_wp), intent(in) ::    zi(im,km+1),   zl(im,km), &
+   real(kind=wp), intent(in) ::    zi(im,km+1),   zl(im,km), &
                                                          zm(im,km)
-   real(kind=pbl_wp), intent(in) :: prsi(im,km+1), prsl(im,km)
-   real(kind=pbl_wp), intent(in) ::    dv(im,km),     du(im,km),         &
+   real(kind=wp), intent(in) :: prsi(im,km+1), prsl(im,km)
+   real(kind=wp), intent(in) ::    dv(im,km),     du(im,km),         &
                                          tdt(im,km),    rtg(im,km,ntrac)
 
-   real(kind=pbl_wp), intent(in) :: u1(im,km),     v1(im,km),  t1(im,km)
-   real(kind=pbl_wp), intent(in) ::    dens(im,km)
-   real(kind=pbl_wp), intent(in) :: dkt(im,km), dku(im,km)
+   real(kind=wp), intent(in) :: u1(im,km),     v1(im,km),  t1(im,km)
+   real(kind=wp), intent(in) ::    dens(im,km)
+   real(kind=wp), intent(in) :: dkt(im,km), dku(im,km)
 
-   real(kind=pbl_wp), intent(in) :: psfc(im)   ! Pa
-   real(kind=pbl_wp), intent(in) :: cfch(im), garea(im), u10m(im), v10m(im),  &
+   real(kind=wp), intent(in) :: psfc(im)   ! Pa
+   real(kind=wp), intent(in) :: cfch(im), garea(im), u10m(im), v10m(im),  &
                                     spd1(im),stress(im),                      &
                                      t2m(im),   q2m(im),   fm(im),   fh(im),  &
                                      rbsoil(im)
 
 !     ** Q1 is concentration field (including gas and aerosol variables) kg kg-1
-   real(kind=pbl_wp), intent(in) :: q1(im, km, ntrac)
+   real(kind=wp), intent(in) :: q1(im, km, ntrac)
 
-   real(kind=pbl_wp), intent(in) :: FRT_mask(im)
+   real(kind=wp), intent(in) :: FRT_mask(im)
 
    integer, intent(out) ::  kmod  (im, km) , kcan3 (im, nkc)
 
-   real(kind=pbl_wp), intent(out) ::  &
+   real(kind=wp), intent(out) ::  &
 ! tendencies
              dv_can    (im, km)         , &
              du_can    (im, km)         , &
@@ -286,13 +286,13 @@
 !...Local arrays:
 
    integer :: kcan_top
-   real(kind=pbl_wp) :: hcan
+   real(kind=wp) :: hcan
 
    logical         :: sfcflg(im)
 
    integer :: ka(im), kl(im)
 
-   real(kind=pbl_wp) ::      zmid3    (km)  , &
+   real(kind=wp) ::      zmid3    (km)  , &
                                 zmom3    (km)  , & ! Paul's zfull
                                 sigmom3  (km+1), &
                                 z2       (km+1), & ! Paul's    z2(:,chm_nk+1)
@@ -309,7 +309,7 @@
                                 mol3     (km)  , &
              klower_can(nkc)
 
-   real(kind=pbl_wp) ::                  &
+   real(kind=wp) ::                  &
              dxdy      (im),  ustar   (im), &
              ws10m     (im),                &
              zol       (im),  ilmo    (im), &
@@ -322,25 +322,25 @@
    logical :: flag_error
    integer :: k, kk, kc, k2, II, npass
 
-   real(kind=pbl_wp) :: tmp
-   real(kind=pbl_wp) :: hol, a1, b1, c1, rat
+   real(kind=wp) :: tmp
+   real(kind=wp) :: hol, a1, b1, c1, rat
 
 ! del:  Minimum allowable distance between a resolved model layer and a canopy layer
 !       (fraction of canopy layer height)
-   real(kind=pbl_wp),    parameter :: del = 0.2_pbl_wp
-   real(kind=pbl_wp),    parameter :: min_kt = 0.1_pbl_wp
-   real(kind=pbl_wp),    parameter :: zfmin=1.0e-8_pbl_wp
-   real(kind=pbl_wp),    parameter :: rimin=-100.0_pbl_wp
-   real(kind=pbl_wp),    parameter :: karman=0.4_pbl_wp            ! von karman constant
-   real(kind=pbl_wp),    parameter :: THRESHOLD = 1.0e6_pbl_wp ! MOL threshold, similar to mach_plumerise
-   real(kind=pbl_wp),    parameter :: epsilon = 1.0e-10_pbl_wp
+   real(kind=wp),    parameter :: del = 0.2_wp
+   real(kind=wp),    parameter :: min_kt = 0.1_wp
+   real(kind=wp),    parameter :: zfmin=1.0e-8_wp
+   real(kind=wp),    parameter :: rimin=-100.0_wp
+   real(kind=wp),    parameter :: karman=0.4_wp            ! von karman constant
+   real(kind=wp),    parameter :: THRESHOLD = 1.0e6_wp ! MOL threshold, similar to mach_plumerise
+   real(kind=wp),    parameter :: epsilon = 1.0e-10_wp
 
-   real(kind=pbl_wp)    :: zm2, zr, td, hd, ddel
-   real(kind=pbl_wp)    :: uh, uspr, wndr, sigw, tl, ktr, kur
+   real(kind=wp)    :: zm2, zr, td, hd, ddel
+   real(kind=wp)    :: uh, uspr, wndr, sigw, tl, ktr, kur
 
 !  Assign the fractional heights of the canopy layers (fraction of canopy height)
-   real(kind=pbl_wp), dimension(3), parameter   ::    & 
-                      can_frac = (/1.0_pbl_wp, 0.5_pbl_wp, 0.2_pbl_wp/)
+   real(kind=wp), dimension(3), parameter   ::    & 
+                      can_frac = (/1.0_wp, 0.5_wp, 0.2_wp/)
 
    logical                        :: local_dbg
 
@@ -439,7 +439,7 @@
    DO i = 1, im
 
       sfcflg(i)= .true.
-      if(rbsoil(i) > 0.0_pbl_wp) sfcflg(i) = .false.
+      if(rbsoil(i) > 0.0_wp) sfcflg(i) = .false.
 
       dxdy(i) = garea(i) !  dx*dy ~1.6E+8 m2
 
@@ -462,10 +462,10 @@
          zol(i) = max(zol(i),zfmin)
       endif
 ! Inverse of Monin-Obukhov length
-      ilmo(i) = 1.0_pbl_wp/zol(i)
+      ilmo(i) = 1.0_wp/zol(i)
 
 !!!! Non-Canopy columns
-   IF (FRT_mask(i) <= 0.0_pbl_wp) THEN
+   IF (FRT_mask(i) <= 0.0_wp) THEN
 
       do k = 1, km     ! from bottom to top
          II = km + 1 - k  ! from top to bottom of resolved model layers
@@ -532,12 +532,12 @@
       end do
 ! Lower interface at surface
       prsi_can3 (   nkt+1) = prsi3(km+1)
-      sigmom_can(i, nkt+1) = 1.0_pbl_wp
+      sigmom_can(i, nkt+1) = 1.0_wp
 
 !!!!! End non-canopy columns!!!!!
 
    ! Continuous forest canopy
-   ELSE IF (FRT_mask(i) > 0.0_pbl_wp) THEN
+   ELSE IF (FRT_mask(i) > 0.0_wp) THEN
 
       hcan = cfch( i )
 !!! Extract the canopy height (FCH)
@@ -573,7 +573,7 @@
         sigmid2(II) = prsl(i,k) / psfc(i)
 
       end do
-      sigmid2(km+1) = 1.0_pbl_wp
+      sigmid2(km+1) = 1.0_wp
 
       do k = 1, km     ! from bottom to top
          II = km + 1 - k  ! from top to bottom of resolved model layers
@@ -640,7 +640,7 @@
       do k = kcan_top, km! from model layer above the canopy to bottom of model layer
          do kc = 1, nkc   ! from top to bottom of canopy
             if (abs(zmid3(k) - zcan3(kc)) < del) then
-               ddel = max(0.0_pbl_wp, del - abs(zcan3(kc) - zmid3(k)))
+               ddel = max(0.0_wp, del - abs(zcan3(kc) - zmid3(k)))
                zcan3(kc) = zcan3(kc) + sign(ddel, zcan3(kc) - zmid3(k))
 
 !!! The reason why this section is necessary:  while it would be preferable for
@@ -818,7 +818,7 @@
       ! Paul's zmomcan is our zmom_can
       zmom_can3(i,ka(i)) = zmom3(ka(i))
       do k = ka(i)+1, nkt! from ka to bottom combined canopy and resolved layers
-         zmom_can3(i,k) = (zmid_can3(i,k-1) + zmid_can3(i,k)) * 0.5_pbl_wp
+         zmom_can3(i,k) = (zmid_can3(i,k-1) + zmid_can3(i,k)) * 0.5_wp
 
       end do
 
@@ -827,7 +827,7 @@
 ! create original model arrays of z and sigma-t which include the surface, to
 !  allow interpolation:
       !Paul's sigtcan is our sigmid_can
-      sigmid_can(:,:) = 0.0_pbl_wp
+      sigmid_can(:,:) = 0.0_wp
       do k = 1, km! from top to bottom of resolved model layers
 
 ! zmid3(1)  is top    model  layer height
@@ -842,7 +842,7 @@
 
       end do
       klower_can(:) = -999
-      z2(km+1) = 0.0_pbl_wp
+      z2(km+1) = 0.0_wp
 
 !  fill in the remaining sigma levels by interpolating in z:
       do kc = 1, nkc   ! from top to bottom canopy layers
@@ -924,9 +924,9 @@
 ! ka  is the last layer for which sigmom_can= sigmom3(k)
       sigmom_can(i, ka(i)) = sigmom3(ka(i))
       do k = ka(i)+1,nkt
-         sigmom_can(i, k) = (sigmid_can(i, k-1) + sigmid_can(i, k)) * 0.5_pbl_wp
+         sigmom_can(i, k) = (sigmid_can(i, k-1) + sigmid_can(i, k)) * 0.5_wp
       end do
-      sigmom_can(i, nkt+1) = 1.0_pbl_wp
+      sigmom_can(i, nkt+1) = 1.0_wp
 
 !  Next, do a sort of all of the variables in the original METV3D array into canopy.  Note that
 !  the declaration of the met arrays for the new canopy subdomain has occurred earlier in the code.
@@ -979,11 +979,11 @@
          else
 !  Level is below first resolved model level
 
-            if (zcan3(kc) - z2(km+1) >= 2.0_pbl_wp) then
+            if (zcan3(kc) - z2(km+1) >= 2.0_wp) then
             !  Level is below first resolved model level but above screen height
 
-               zm2 = (zcan3(kc) - z2(km+1) - 2.0_pbl_wp) / &
-                     (z2(km) - z2(km+1) - 2.0_pbl_wp) 
+               zm2 = (zcan3(kc) - z2(km+1) - 2.0_wp) / &
+                     (z2(km) - z2(km+1) - 2.0_wp) 
 !              zm2 = (zcan3(kc) - z2(km+1) - 2.0) / max(z2(km) - z2(km+1) - 2.0, epsilon)
 
                td = (ta3(km)  - T2M( i ))  * zm2
@@ -1046,7 +1046,7 @@
    if (local_dbg) then
 ! Several checks for suspicious values:
       do kk = 1,nkt
-         if ( ta_can3(kk) < 150.0_pbl_wp) then
+         if ( ta_can3(kk) < 150.0_wp) then
             write(errmsg,*) 'canopy_levs:  suspicious temperature detected in canopy_levs after creation (kk value): ',&
                         i, kk, ta_can3(kk)
             errflg = 1
@@ -1099,17 +1099,17 @@
 ! The next few lines calculate the average value of u(z), v(z), Raupach's eqn 51,
 ! at the first resolved level model height
 ! Paul's UE is our ustar,  surface friction velocity
-         uh = ustar(i) * 3.0_pbl_wp
-         if (zr >= 1.0_pbl_wp) then
+         uh = ustar(i) * 3.0_wp
+         if (zr >= 1.0_wp) then
          ! Paul's zt is our zmid (i.e. zmid(km) is zt(i,chm_nk))
          ! Paul's hc is our hcan
             uspr = ustar(i) / karman * &
-                   log((zmid3(km) - z2(km+1) - 0.75_pbl_wp * hcan) / &
-                   (0.07530_pbl_wp * hcan))
+                   log((zmid3(km) - z2(km+1) - 0.75_wp * hcan) / &
+                   (0.07530_wp * hcan))
 !                  log(max((zmid3(km) - z2(km+1) - 0.75 * hcan) / &
 !                  (0.07530 * hcan), epsilon))
          else
-            uspr = uh * exp(- 2.0_pbl_wp * ( 1.0_pbl_wp - zr))
+            uspr = uh * exp(- 2.0_wp * ( 1.0_wp - zr))
          end if
 !  wndr is the ratio of the wind to Raupach's average us(), eqn 51.
 !  This is used to scale the wind speed with height values from eqn 51 to the current grid square
@@ -1119,11 +1119,11 @@
 !  Using Raupach's formulae for wind speed, multiplied by the above ratio, for the canopy layers:
 !
          zr = (zcan3(kc) - z2(km+1)) / hcan
-         if (zr >= 1.0_pbl_wp) then
-            uspr = log((zcan3(kc) - z2(km+1) - 0.75_pbl_wp * hcan) / &
-                   (0.07530_pbl_wp * hcan)) * ustar(i)
+         if (zr >= 1.0_wp) then
+            uspr = log((zcan3(kc) - z2(km+1) - 0.75_wp * hcan) / &
+                   (0.07530_wp * hcan)) * ustar(i)
          else
-            uspr = uh * exp(- 2.0_pbl_wp * (1.0_pbl_wp - (zcan3(kc) - z2(km+1)) / &
+            uspr = uh * exp(- 2.0_wp * (1.0_wp - (zcan3(kc) - z2(km+1)) / &
                    hcan))
          end if
 
@@ -1137,31 +1137,31 @@
          ! Paul's zl is our hol (as in satmedmfvdifq.F)
          hol = hcan * safe_inv_mo_length(i)
 ! Unstable:
-         if(hol < -0.1_pbl_wp) then
-             a1 = 0.75_pbl_wp
-             b1 = 0.5_pbl_wp
-             c1 = 1.25_pbl_wp
+         if(hol < -0.1_wp) then
+             a1 = 0.75_wp
+             b1 = 0.5_wp
+             c1 = 1.25_wp
          end if
 ! Neutral:
-         if(hol >= -0.1_pbl_wp .and. hol < 0.1_pbl_wp) then
-             a1 = 0.625_pbl_wp
-             b1 = 0.375_pbl_wp
-             c1 = 1.0_pbl_wp
+         if(hol >= -0.1_wp .and. hol < 0.1_wp) then
+             a1 = 0.625_wp
+             b1 = 0.375_wp
+             c1 = 1.0_wp
          end if
 ! Stable:
-         if(hol >= 0.1_pbl_wp .and. hol < 0.9_pbl_wp) then
-             rat = 4.375_pbl_wp - 3.75_pbl_wp * hol
-             a1 = 0.125_pbl_wp * rat + 0.125_pbl_wp
-             b1 = 0.125_pbl_wp * rat - 0.125_pbl_wp
-             c1 = 0.25_pbl_wp * rat
+         if(hol >= 0.1_wp .and. hol < 0.9_wp) then
+             rat = 4.375_wp - 3.75_wp * hol
+             a1 = 0.125_wp * rat + 0.125_wp
+             b1 = 0.125_wp * rat - 0.125_wp
+             c1 = 0.25_wp * rat
          end if
 ! Very stable (from extrapolation of Shaw et al's values at 0.1 and 0.5:
          ! Paul's MV3D_KT(nk) is our dkt3(km) m2 s-1 atmospheric heat diffusivity (thermal vertical diffusion coefficient)
          !  1st (bottom) model layer
-         if(hol >= 0.9_pbl_wp .or. dkt3(km) <= min_kt) then
-             a1 = 0.25_pbl_wp
-             b1 = 0.0_pbl_wp
-             c1 = 0.25_pbl_wp
+         if(hol >= 0.9_wp .or. dkt3(km) <= min_kt) then
+             a1 = 0.25_wp
+             b1 = 0.0_wp
+             c1 = 0.25_wp
          end if
 !  Raupach's originals:
 !         if (zr >= 1.0) then
@@ -1170,12 +1170,12 @@
 !            sigw = ustar(i) * ( 0.75 + 0.5 * cos(pi * (1.0 - (zmid3(km) - z2(km+1))/hcan) ) )
 !         end if
 !  Replace Raupach's originals with fit to Patton et al and Shaw et al 1988
-         if(zr < 0.175_pbl_wp) then
-               sigw = ustar(i) * 0.25_pbl_wp
+         if(zr < 0.175_wp) then
+               sigw = ustar(i) * 0.25_wp
          else
-           if(zr < 1.25_pbl_wp) then
-               sigw = ustar(i) * ( a1 + b1 * cos(pi / 1.06818_pbl_wp * &
-                      (1.25_pbl_wp - (zmid3(km) - z2(km+1)) / hcan)))
+           if(zr < 1.25_wp) then
+               sigw = ustar(i) * ( a1 + b1 * cos(pi / 1.06818_wp * &
+                      (1.25_wp - (zmid3(km) - z2(km+1)) / hcan)))
            else
                sigw = ustar(i) * c1
            end if
@@ -1183,10 +1183,10 @@
 
 !        tl = hcan / max(ustar(i), epsilon)  * &
          tl = hcan / ustar(i) * &
-              (0.256_pbl_wp * ((zmid3(km) - z2(km+1) - 0.75_pbl_wp * hcan) / &
+              (0.256_wp * ((zmid3(km) - z2(km+1) - 0.75_wp * hcan) / &
               hcan) + &
-               0.492_pbl_wp * exp (-(0.256_pbl_wp * ((zmid3(km) - z2(km+1)) / &
-              hcan) / 0.492_pbl_wp)))
+               0.492_wp * exp (-(0.256_wp * ((zmid3(km) - z2(km+1)) / &
+              hcan) / 0.492_wp)))
 ! ktr is the ratio of the resolved model diffusivity at the lowest resolved
 ! model level to that derived by Raupach's formula
 !
@@ -1208,12 +1208,12 @@
 !         else
 !            sigw = ustar(i) * ( 0.75 + 0.5 * cos(pi * (1.0 - (zcan3(kc) - z2(km+1))/hcan) ) )
 !         end if
-         if(zr < 0.175_pbl_wp) then
-               sigw = ustar(i) * 0.25_pbl_wp
+         if(zr < 0.175_wp) then
+               sigw = ustar(i) * 0.25_wp
          else
-           if(zr < 1.25_pbl_wp) then
-               sigw = ustar(i) * ( a1 + b1 * cos(pi / 1.06818_pbl_wp * &
-                      (1.25_pbl_wp - (zcan3(kc) - z2(km+1))/hcan)))
+           if(zr < 1.25_wp) then
+               sigw = ustar(i) * ( a1 + b1 * cos(pi / 1.06818_wp * &
+                      (1.25_wp - (zcan3(kc) - z2(km+1))/hcan)))
            else
                sigw = ustar(i) * c1
            end if
@@ -1221,10 +1221,10 @@
 !
 !        tl = hcan / max(ustar(i), epsilon) *  &
          tl = hcan / ustar(i) * &
-              (0.256_pbl_wp * ( (zcan3(kc) - z2(km+1) - 0.75_pbl_wp * hcan) / &
+              (0.256_wp * ( (zcan3(kc) - z2(km+1) - 0.75_wp * hcan) / &
               hcan) + &
-              (0.492_pbl_wp * exp (-(0.256_pbl_wp * (zcan3(kc) - z2(km+1)) / &
-              hcan) / 0.492_pbl_wp) ) )
+              (0.492_wp * exp (-(0.256_wp * (zcan3(kc) - z2(km+1)) / &
+              hcan) / 0.492_wp) ) )
 
          dkt_can3(kk)  = (sigw * sigw * tl) * ktr
          dku_can3(kk)  = (sigw * sigw * tl) * kur

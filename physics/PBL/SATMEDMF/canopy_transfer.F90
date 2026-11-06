@@ -23,7 +23,7 @@
 !=============================================================================
 
    use machine , only : kind_phys
-   use mo_pbl_kind, only : pbl_wp
+   use mo_pbl_kind, only : wp
 
    IMPLICIT NONE
 
@@ -35,7 +35,7 @@
                 nfrct  (km+nkc,    im)  , &
                 ifrct  (km+nkc, 2, im)
 
-   real(kind=pbl_wp), intent(out) ::  &
+   real(kind=wp), intent(out) ::         &
             massair_can(im, km+nkc)    , &
             massair    (im, km)        , &
             mmr_o3_can (im, km+nkc)    , &
@@ -51,14 +51,14 @@
    errmsg = ''
    errflg = 0
 
-   massair_can(:,:) = 0.0_pbl_wp
-   massair    (:,:) = 0.0_pbl_wp
-   mmr_o3_can (:,:) = 0.0_pbl_wp
+   massair_can(:,:) = 0.0_wp
+   massair    (:,:) = 0.0_wp
+   mmr_o3_can (:,:) = 0.0_wp
 
    nfrct  (:,:)   = 0
    ifrct  (:,:,:) = 0
-   frctr2c(:,:,:) = 1.0_pbl_wp
-   frctc2r(:,:,:) = 1.0_pbl_wp
+   frctr2c(:,:,:) = 1.0_wp
+   frctc2r(:,:,:) = 1.0_wp
 
    return
    end subroutine canopy_transfer_init
@@ -112,7 +112,7 @@
 !=============================================================================
 
    use machine , only : kind_phys
-   use mo_pbl_kind, only : pbl_wp
+   use mo_pbl_kind, only : wp
 
    IMPLICIT NONE
 
@@ -120,54 +120,54 @@
 
    integer, intent(in)  :: im, km, nkc, nkt, ntrac, ntoz
    integer, intent(in)  :: flag
-   real(kind=pbl_wp), intent(in) :: zi(im, km+1),  zl(im, km),   zm(im, km)
-   real(kind=pbl_wp), intent(in) :: GAREA(im)
+   real(kind=wp), intent(in) :: zi(im, km+1), zl(im, km), zm(im, km)
+   real(kind=wp), intent(in) :: GAREA(im)
 
 ! ** Q1 is concentration field (including gas and aerosol variables) mass mixing ratio kg kg-1
-   real(kind=pbl_wp), intent(in) ::   Q1(im, km, ntrac)
+   real(kind=wp), intent(in) :: Q1(im, km, ntrac)
 
-   real(kind=pbl_wp), intent(in) :: DENS(im, km)
+   real(kind=wp), intent(in) :: DENS(im, km)
 
-   integer, intent(in) :: kmod   (im, km), kcan3  (im, nkc)
+   integer, intent(in) :: kmod(im, km), kcan3(im, nkc)
 
-   real(kind=pbl_wp), intent(inout) :: zmom_can  (im, nkt+1) , &
-                                       zmid_can  (im, nkt)
+   real(kind=wp), intent(inout) :: zmom_can(im, nkt+1), &
+                                   zmid_can(im, nkt)
 
-   real(kind=pbl_wp), intent(in) ::  FRT_MASK  (im)        , &
+   real(kind=wp), intent(in) ::  FRT_MASK(im),      &
 ! met3d arrays
-                                     PRES_CAN  (im, nkt)   , &
-                                     DENS_CAN  (im, nkt)
+                                 PRES_CAN(im, nkt), &
+                                 DENS_CAN(im, nkt)
 
 ! all gas-phase species array
-   real(kind=pbl_wp), intent(inout) ::  Q1_MOD (im,  km, ntrac), &
-                                        Q1_CAN (im, nkt, ntrac)
-   real(kind=pbl_wp), intent(inout) ::  Q1_2M  (im,      ntrac)
+   real(kind=wp), intent(inout) ::  Q1_MOD (im,  km, ntrac), &
+                                    Q1_CAN (im, nkt, ntrac)
+   real(kind=wp), intent(inout) ::  Q1_2M  (im,      ntrac)
 
    integer, intent(inout) ::  nfrct  (km+nkc,    im) , &
                               ifrct  (km+nkc, 2, im)
 
-   real(kind=pbl_wp), intent(inout) ::  massair_can(im, km+nkc), &
-                                        massair    (im, km)    , &
-                                        mmr_o3_can (im, km+nkc), &
-                                        frctr2c (km+nkc, 2, im), &
-                                        frctc2r (km+nkc, 2, im)
+   real(kind=wp), intent(inout) ::  massair_can(im, km+nkc), &
+                                    massair    (im, km)    , &
+                                    mmr_o3_can (im, km+nkc), &
+                                    frctr2c (km+nkc, 2, im), &
+                                    frctc2r (km+nkc, 2, im)
 
    character(len=*), intent(out) :: errmsg
    integer,          intent(out) :: errflg
 
 !...Local arrays:
 
-   real(kind=pbl_wp) ::      zmid     (km)  , &
-                             zmom     (km+1), & ! Same as zfull !
-                             z2       (km+1), &
-                             sigmid2  (km+1), &
-                             zcan3    (nkc)  ,&
+   real(kind=wp) ::      zmid     (km)  , &
+                         zmom     (km+1), & ! Same as zfull !
+                         z2       (km+1), &
+                         sigmid2  (km+1), &
+                         zcan3    (nkc)  ,&
              pres_can3 (nkt),   pres3    (km)  , &
              dens_can3 (nkt),   dens3    (km)  , &
              klower_can(nkc)            , &
              dxdy      (im)
 
-   real(kind=pbl_wp) ::         &
+   real(kind=wp) ::         &
               mass_canopy  (nkt), &
               mmr_canopy   (nkt), &
               vmr_canopy   (nkt), &
@@ -186,8 +186,8 @@
    INTEGER          :: KOUNT
 
 ! Diagnostic height is the assumed height above ground of the sampling for observations
-   real(kind=pbl_wp),    parameter           :: diag_hgt = 2.0_pbl_wp
-   real(kind=pbl_wp),    parameter           :: epsilon = 1.e-10_pbl_wp
+   real(kind=wp),    parameter           :: diag_hgt = 2.0_wp
+   real(kind=wp),    parameter           :: epsilon = 1.e-10_wp
 
 !--------------
 !hrinit.F: ...set scale factor for [ppm] -> [kg/kg]
@@ -198,10 +198,10 @@
 !         REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )  ! ppm    to ug kg-1
 !--------------
 ! Conversion factor from units in [kg kg-1] to [ug kg-1]
-   REAL(kind=pbl_wp), PARAMETER :: FORWARD_CONV = 1.E-9_pbl_wp ! ug kg-1 -> kg kg-1
-   REAL(kind=pbl_wp), PARAMETER :: REVERSE_CONV = 1.E+9_pbl_wp ! kg kg-1 -> ug kg-1
+   REAL(kind=wp), PARAMETER :: FORWARD_CONV = 1.E-9_wp ! ug kg-1 -> kg kg-1
+   REAL(kind=wp), PARAMETER :: REVERSE_CONV = 1.E+9_wp ! kg kg-1 -> ug kg-1
 
-   real(kind=pbl_wp) :: mmr_diag
+   real(kind=wp) :: mmr_diag
 
    logical :: chm_error_l = .false.
 
@@ -214,21 +214,21 @@
    errmsg = ''
    errflg = 0
 
-   conc_can3(:)=0.0_pbl_wp
-   conc3    (:)=0.0_pbl_wp
-   mass_canopy(:) = 0.0_pbl_wp
-   mmr_canopy (:) = 0.0_pbl_wp
-   vmr_canopy (:) = 0.0_pbl_wp
-   mmr_resolved(:) = 0.0_pbl_wp
-   vmr_resolved(:) = 0.0_pbl_wp
-   mass_resolved(:) = 0.0_pbl_wp
+   conc_can3(:)=0.0_wp
+   conc3    (:)=0.0_wp
+   mass_canopy(:) = 0.0_wp
+   mmr_canopy (:) = 0.0_wp
+   vmr_canopy (:) = 0.0_wp
+   mmr_resolved(:) = 0.0_wp
+   vmr_resolved(:) = 0.0_wp
+   mass_resolved(:) = 0.0_wp
 
 !      RELWTEM( ICG ) = CONVMW / NR_MOLWT( SP_INDX )
 
    DO i = 1, im !i-index
 
 !!! Non-Canopy columns
-   IF (FRT_mask(i) <= 0.0_pbl_wp) THEN
+   IF (FRT_mask(i) <= 0.0_wp) THEN
 
 !!!!! Start all columns!!!!! canopy & non-canopy (canopy columns are overwritten below)
       do k = 1, km       ! from bottom to top
@@ -244,7 +244,7 @@
 
 !  Calculate mass of air in model levels
       !Paul's zmom is our zmom
-      zmom(km + 1) = 0.0_pbl_wp
+      zmom(km + 1) = 0.0_wp
       do k = km, 1, -1
          ! Paul's massairmod is our massair
          massair(i, k) = dens3(k) * GAREA(i) * &
@@ -262,7 +262,7 @@
 !!!!! Non-Canopy columns !!!!!
 
 !!!! Continuous forest canopy
-   ELSE IF (FRT_mask(i) > 0.0_pbl_wp) THEN
+   ELSE IF (FRT_mask(i) > 0.0_wp) THEN
 
 ! Put vars on combined layers in layer order as in Paul's code (GEM-MACH)
 ! 1      <=  nkt is top model layer
@@ -284,7 +284,7 @@
       ! zmom_can(:,:,1)    is top resolved layer
       ! zmom_can(:,:,km)   is 1hy resolved layer
       ! zmom_can(:,:,nkt)  is 1st canopy layer
-      zmom_can(i, nkt+ 1) = 0.0_pbl_wp
+      zmom_can(i, nkt+ 1) = 0.0_wp
       do k = nkt, 1, -1
          ! Paul's massaircan is our massair_can
          massair_can(i, k) = dens_can3(k) * GAREA(i) * &
@@ -303,7 +303,7 @@
 
 !  Calculate mass of air in model levels
       !Paul's zmom is our zmom
-      zmom(km + 1) = 0.0_pbl_wp
+      zmom(km + 1) = 0.0_wp
       do k = km, 1, -1
          ! Paul's massairmod is our massair
          massair(i, k) = dens3(k) * GAREA(i) * &
@@ -327,8 +327,8 @@
          if (zmom_can(i, k) == zmom(k) .and. zmom_can(i, k+1) == zmom(k+1)) then
             nfrct(k,    i) = 1
             ifrct(k, 1, i) = k
-            frctr2c(k, 1, i) = 1.0_pbl_wp
-            frctc2r(k, 1, i) = 1.0_pbl_wp
+            frctr2c(k, 1, i) = 1.0_wp
+            frctc2r(k, 1, i) = 1.0_wp
          else
             exit inner
          end if
@@ -357,7 +357,7 @@
 !              frctr2c(k, 1, i) = (zmom_can(i, k) - zmom_can(i, k+1)) / max(zmom(kk) - zmom(kk+1), epsilon)
                frctr2c(k, 1, i) = (zmom_can(i, k) - zmom_can(i, k+1)) / &
      &                            (zmom(kk) - zmom(kk+1))
-               frctc2r(k, 1, i) = 1.0_pbl_wp  ! canopy layer resides within resolved model layer
+               frctc2r(k, 1, i) = 1.0_wp  ! canopy layer resides within resolved model layer
             end if
 !  Resolved layer boundary splits a combined canopy layer:
 !  This case arises if, due to the use of the momentum levels in the canopy column
@@ -410,7 +410,7 @@
    KOUNT = 0
 
    !  loop over canopy columns
-   IF (FRT_mask(i) > 0.0_pbl_wp) THEN
+   IF (FRT_mask(i) > 0.0_wp) THEN
 
 ! Q1_MOD/Q1_CAN:
 !   Assigned/Initilized in canopy_levs FIRSTIME
@@ -471,7 +471,7 @@
 ! This mass must be added back to the resolved levels:
          ! Paul's masscan is our mass_canopy
          ! Paul's mass_resolved is our mass_resolved
-         mass_resolved(:) = 0.0_pbl_wp
+         mass_resolved(:) = 0.0_wp
          do k = 1, nkt
 
 ! Output diag
@@ -584,7 +584,7 @@
 
    KOUNT = 0
 
-   IF (FRT_mask(i) > 0.0_pbl_wp) THEN
+   IF (FRT_mask(i) > 0.0_wp) THEN
 
 !...fetch all species and convert to kg kg-1 mass mixing ratio
       DO S = 1, NTRAC-1  ! ntrac1= 197 (ntrac=ntke=198)
@@ -624,8 +624,8 @@
 !  mmr_canopy = sum of masses contributed / (density * volume of canopy model layeri)
             ! Paul's mmr_canopy is our mmr_canopy in ug kg-1
             ! Paul's masscan is our mass_canopy
-            mmr_canopy(:) = 0.0_pbl_wp
-            mass_canopy(:) = 0.0_pbl_wp
+            mmr_canopy(:) = 0.0_wp
+            mass_canopy(:) = 0.0_wp
             do k = 1, nkt
                do kk = 1, nfrct(k, i)
                   kc = ifrct(k, kk, i)
@@ -719,21 +719,21 @@
    contains
 
    subroutine canopy_mass_check(mass_canopy, mass_model, i, flag, nkc, nkt, errmsg, errflg)
-      use mo_pbl_kind, only : pbl_wp
+      use mo_pbl_kind, only : wp
       implicit none
       integer, intent(in) :: flag, i, nkc, nkt
-      real(kind=pbl_wp),      intent(in) :: mass_canopy(nkt), mass_model(km)
+      real(kind=wp),      intent(in) :: mass_canopy(nkt), mass_model(km)
       character(len=*), intent(out) :: errmsg
       integer, intent(out) :: errflg
 
       integer :: k, kk, kc
 
       character(len=18) :: mode_transfer
-      real(kind=pbl_wp) :: masstotcan, masstotres, massrat
-      real(kind=pbl_wp) :: sum2can(nkt), sum2res(nkt)
+      real(kind=wp) :: masstotcan, masstotres, massrat
+      real(kind=wp) :: sum2can(nkt), sum2res(nkt)
 
-      masstotcan = 0.0_pbl_wp
-      masstotres = 0.0_pbl_wp
+      masstotcan = 0.0_wp
+      masstotres = 0.0_wp
       do k = 1, nkt
          masstotcan = masstotcan + mass_canopy(k)
       end do
@@ -748,9 +748,9 @@
       end if
 
 !     if (masstotres > epsilon) then
-      if (masstotres > 0.0_pbl_wp) then
+      if (masstotres > 0.0_wp) then
          massrat = masstotcan / masstotres
-         if (massrat > 1.001_pbl_wp .or. massrat < 0.999_pbl_wp) then
+         if (massrat > 1.001_wp .or. massrat < 0.999_wp) then
             write(errmsg,fmt='(*(a,f10.4,a,f10.4))') 'Conversion of mass in ccpp_canopy_transfer not conserved ' // &
                               'during ' // mode_transfer // ' evaluation. masstotcan = ', masstotcan, &
                               ' and masstotres = ', masstotres
@@ -761,8 +761,8 @@
 !
 !  Check on the values of the fractions:  they should sum to unity across the number
 !  of original model levels!
-      sum2can = 0.0_pbl_wp
-      sum2res = 0.0_pbl_wp
+      sum2can = 0.0_wp
+      sum2res = 0.0_wp
       do k = nkt, 1, -1
          do kk = 1, nfrct(k, i)
             kc = ifrct(k, kk, i)
@@ -772,7 +772,7 @@
       end do
 
       do k = km , 1, -1
-         if (sum2can(k) < 0.999_pbl_wp .or. sum2can(k) > 1.001_pbl_wp) then
+         if (sum2can(k) < 0.999_wp .or. sum2can(k) > 1.001_wp) then
             write(errmsg,fmt='(*(a,i0,a,i0,a,f10.4))') 'layer mismatch in canopy level setup in resolved to canopy indexing: ' // &
                'column ', i, ' layer ', k, ' sum=', sum2can(k)
             errflg = 1
@@ -780,7 +780,7 @@
          end if
       end do
       do k = nkt, 1, -1
-         if (sum2res(k) < 0.999_pbl_wp .or. sum2res(k) > 1.001_pbl_wp) then
+         if (sum2res(k) < 0.999_wp .or. sum2res(k) > 1.001_wp) then
             write(errmsg,fmt='(*(a,i0,a,i0,a,f10.4))') 'layer mismatch in canopy level setup in canopy to resolved indexing: ' // &
                'column ', i, ' layer ', k, ' sum=', sum2res(k)
             errflg = 1

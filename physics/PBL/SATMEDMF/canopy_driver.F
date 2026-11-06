@@ -79,7 +79,7 @@
 
 !
       use machine  , only : kind_phys
-      use mo_pbl_kind, only : pbl_wp
+      use mo_pbl_kind, only : wp
       use funcphys , only : fpvs
 !
       implicit none
@@ -174,75 +174,75 @@
       integer i,is,k,n,ndt,km1,kmpbl,kmscu,ntrac1,
      &                     idtend
 
-      real(kind=pbl_wp) dtdz1(im), gdx(im),
-     &                  phih(im),  phim(im),
-     &                  phims(im), prn(im,km-1),
-     &                  rbdn(im),  rbup(im),    thermal(im),
-     &                  ustar(im), wstar(im),   
-     &                  ust3(im),  wst3(im), 
-     &                  z0(im),    crb(im),     tkemean(im),
-     &                  hgamt(im), hgamq(im),
-     &                  wscale(im),vpert(im),
-     &                  zol(im),   sflux(im),
-     &                  sumx(im),  tx1(im),     tx2(im)
+      real(kind=wp) dtdz1(im), gdx(im),
+     &              phih(im),  phim(im),
+     &              phims(im), prn(im,km-1),
+     &              rbdn(im),  rbup(im),    thermal(im),
+     &              ustar(im), wstar(im),   
+     &              ust3(im),  wst3(im), 
+     &              z0(im),    crb(im),     tkemean(im),
+     &              hgamt(im), hgamq(im),
+     &              wscale(im),vpert(im),
+     &              zol(im),   sflux(im),
+     &              sumx(im),  tx1(im),     tx2(im)
 !
-      real(kind=pbl_wp) zi(im,km+1),  zl(im,km),   zm(im,km),
-     &                  xkzo(im,km-1),xkzmo(im,km-1),
-     &                  xkzm_hx(im),  xkzm_mx(im), tkmnz(im,km-1),
-     &                  rdzt(im,km-1),rlmnz(im,km),
-     &                  al(im,km-1),  ad(im,km),   au(im,km-1),
-     &                  f1(im,km),    f2(im,km*(ntrac-1))
+      real(kind=wp) zi(im,km+1),  zl(im,km),   zm(im,km),
+     &              xkzo(im,km-1),xkzmo(im,km-1),
+     &              xkzm_hx(im),  xkzm_mx(im), tkmnz(im,km-1),
+     &              rdzt(im,km-1),rlmnz(im,km),
+     &              al(im,km-1),  ad(im,km),   au(im,km-1),
+     &              f1(im,km),    f2(im,km*(ntrac-1))
 !
-      real(kind=pbl_wp) elm(im,km),   ele(im,km),
-     &                  ckz(im,km),   chz(im,km),
-     &                  diss(im,km-1),prod(im,km-1), 
-     &                  bf(im,km-1),  shr2(im,km-1), 
-     &                  xlamue(im,km-1), xlamde(im,km-1),
-     &                  gotvx(im,km), rlam(im,km-1)
+      real(kind=wp) elm(im,km),   ele(im,km),
+     &              ckz(im,km),   chz(im,km),
+     &              diss(im,km-1),prod(im,km-1), 
+     &              bf(im,km-1),  shr2(im,km-1), 
+     &              xlamue(im,km-1), xlamde(im,km-1),
+     &              gotvx(im,km), rlam(im,km-1)
 !
-      real(kind=pbl_wp) aphi16,  aphi5,
-     &                  wfac,    cfac,
-     &                  gamcrt,  gamcrq, sfcfrac,
-!    &                  conq,    cont,   conw,
-     &                  dsdz2,   dsdzt,  dkmax,
-     &                  dsig,    dt2,    dtodsd,
-     &                  dtodsu,  g,      factor, dz,
-     &                  gocp,    gravi,  zol1,   zolcru,
-     &                  concmin,
-     &                  buop,    shrp,   dtn,
-     &                  prnum,   prmax,  prmin,  prtke,
-     &                  prscu,   pr0,    ri,
-     &                  dw2,     dw2min, zk,
-     &                  elmfac,  elefac, dspmax,
-     &                  alp,     clwt,   cql,
-     &                  f0,      robn,   crbmin, crbmax,
-     &                  es,      qs,     value,  onemrh,
-     &                  cfh,     gamma,  elocp,  el2orc,
-     &                  epsi,    beta,   chx,    cqx,
-     &                  rdt,     rdz,    qmin,   qlmin,
-     &                  rimin,   rbcr,   rbint,  tdzmin,
-     &                  rlmn,    rlmn0,  rlmn1,  rlmn2,
-     &                  ttend,   utend,  vtend,  qtend,
-     &                  zfac,    zfmin,  vk,     spdk2,
-     &                  tkmin,   tkbmx,  xkgdx,
-     &                  xkinv1,  xkinv2,
-     &                  zlup,    zldn,   cs0,    csmf,
-     &                  tem,     tem1,   tem2,   tem3,
-     &                  ptem,    ptem0,  ptem1,  ptem2
+      real(kind=wp) aphi16,  aphi5,
+     &              wfac,    cfac,
+     &              gamcrt,  gamcrq, sfcfrac,
+!    &              conq,    cont,   conw,
+     &              dsdz2,   dsdzt,  dkmax,
+     &              dsig,    dt2,    dtodsd,
+     &              dtodsu,  g,      factor, dz,
+     &              gocp,    gravi,  zol1,   zolcru,
+     &              concmin,
+     &              buop,    shrp,   dtn,
+     &              prnum,   prmax,  prmin,  prtke,
+     &              prscu,   pr0,    ri,
+     &              dw2,     dw2min, zk,
+     &              elmfac,  elefac, dspmax,
+     &              alp,     clwt,   cql,
+     &              f0,      robn,   crbmin, crbmax,
+     &              es,      qs,     value,  onemrh,
+     &              cfh,     gamma,  elocp,  el2orc,
+     &              epsi,    beta,   chx,    cqx,
+     &              rdt,     rdz,    qmin,   qlmin,
+     &              rimin,   rbcr,   rbint,  tdzmin,
+     &              rlmn,    rlmn0,  rlmn1,  rlmn2,
+     &              ttend,   utend,  vtend,  qtend,
+     &              zfac,    zfmin,  vk,     spdk2,
+     &              tkmin,   tkbmx,  xkgdx,
+     &              xkinv1,  xkinv2,
+     &              zlup,    zldn,   cs0,    csmf,
+     &              tem,     tem1,   tem2,   tem3,
+     &              ptem,    ptem0,  ptem1,  ptem2
 !
-      real(kind=pbl_wp) slfac
+      real(kind=wp) slfac
 !
-      real(kind=pbl_wp) vegflo, vegfup, z0lo, z0up, vc0, zc0
+      real(kind=wp) vegflo, vegfup, z0lo, z0up, vc0, zc0
 !
-      real(kind=pbl_wp) ck0, ck1, ch0, ch1, ce0, rchck
+      real(kind=wp) ck0, ck1, ch0, ch1, ce0, rchck
 !
-      real(kind=pbl_wp) qlcr, zstblmax, hcrinv
+      real(kind=wp) qlcr, zstblmax, hcrinv
 !
-      real(kind=pbl_wp) h1
+      real(kind=wp) h1
 
-      real(kind=pbl_wp) bfac, mffac
+      real(kind=wp) bfac, mffac
 
-      real(kind=pbl_wp) q1_new(im,km,ntrac-1)
+      real(kind=wp) q1_new(im,km,ntrac-1)
 
       integer kount 
 
@@ -251,41 +251,38 @@
       ! Declare local maximum canopy layers
       integer, parameter :: MAXCAN = 1000
 
-      real(kind=pbl_wp) :: FCH,
-     &                     ZI05, ZFL, DZFL, BOTCAN, FZI05, TTCORR,
-     &               UUCAN, VVCAN, TTCAN, TKECAN, TKEHCAN,
-     &               UU1, VV1, TT1, TKE1, TKEH1,
-     &               UU_INT,VV_INT,TT_INT,TKE_INT, TKEH_INT,
-     &               TT_SUM, ZZ_INT
+      real(kind=wp) :: FCH,
+     &                 ZI05, ZFL, DZFL, BOTCAN, FZI05, TTCORR,
+     &                 UUCAN, VVCAN, TTCAN, TKECAN, TKEHCAN,
+     &                 UU1, VV1, TT1, TKE1, TKEH1,
+     &                 UU_INT,VV_INT,TT_INT,TKE_INT, TKEH_INT,
+     &                 TT_SUM, ZZ_INT
 
-      real(kind=pbl_wp) :: ZCANX (MAXCAN), ZOOOX(MAXCAN),
-     &                     UUX(MAXCAN),   VVX(MAXCAN), TTX(MAXCAN),
-     &                     TKEX(MAXCAN), TKEHX(MAXCAN)
+      real(kind=wp) :: ZCANX (MAXCAN), ZOOOX(MAXCAN),
+     &                 UUX(MAXCAN),   VVX(MAXCAN), TTX(MAXCAN),
+     &                 TKEX(MAXCAN), TKEHX(MAXCAN)
 !PCC_CANOPY------------------------------------
 
-      real(kind=pbl_wp) ::
-     &                      dv_can(im,km),  du_can(im,km),
-     &                     duv_can(im,km),
-     &                     tdt_can(im,km), rtg_can(im,km,ntrac)
+      real(kind=wp) :: dv_can(im,km),  du_can(im,km),
+     &                 duv_can(im,km),
+     &                 tdt_can(im,km), rtg_can(im,km,ntrac)
 
-      real(kind=pbl_wp) :: 
-     &                        dum3d_h (im, km)  , dum3d_e(im, km), 
-     &                       tkeh_mod (im, km)
+      real(kind=wp) :: dum3d_h (im, km)  , dum3d_e(im, km), 
+     &                 tkeh_mod (im, km)
  
-      real(kind=pbl_wp) ::  dtend_can(im, km , ndtend)
+      real(kind=wp) :: dtend_can(im, km , ndtend)
 
 ! Out: list sat_canopy call
-      real(kind=pbl_wp) :: dusfc_can(im),  dvsfc_can(im),
-     &                        dtsfc_can(im),  dqsfc_can(im),
-     &                         hpbl_can(im)
+      real(kind=wp) :: dusfc_can(im),  dvsfc_can(im),
+     &                 dtsfc_can(im),  dqsfc_can(im),
+     &                 hpbl_can(im)
 
-      integer              ::  kpbl_can(im)
+      integer       :: kpbl_can(im)
 
-      real(kind=pbl_wp) :: 
-     &                   rho1(im,km), 
-     &                   t2  (im,km), 
-     &                   u2  (im,km), v2(im,km), ws2(im,km),
-     &                   rho2(im,km), duv(im,km)
+      real(kind=wp) :: rho1(im,km), 
+     &                 t2  (im,km), 
+     &                 u2  (im,km), v2(im,km), ws2(im,km),
+     &                 rho2(im,km), duv(im,km)
 
 ! Number of canopy layers
       integer, parameter :: nkc = 3
@@ -299,7 +296,7 @@
      &         nfrct  (km+nkc,    im)     , !nkt
      &         ifrct  (km+nkc, 2, im)       !nkt
 
-      real(kind=pbl_wp) ::
+      real(kind=wp) ::
 ! 2D arrays
      &       FRT_MASK  (im)            ,
 ! met2d arrays
@@ -389,41 +386,41 @@
      &       frctc2r   (km+nkc, 2, im)
 
 !  local 32-bit arrays for external calls ---
-      real(kind=pbl_wp) :: claie_loc(im), cfch_loc(im), cfrt_loc(im),
-     &                     cclu_loc(im), cpopu_loc(im)
-      real(kind=pbl_wp) :: du_loc(im,km), dv_loc(im,km), tdt_loc(im,km),
-     &                     rtg_loc(im,km,ntrac), dkt_loc(im,km),
-     &                     dku_loc(im,km)
+      real(kind=wp) :: claie_loc(im), cfch_loc(im), cfrt_loc(im),
+     &                 cclu_loc(im), cpopu_loc(im)
+      real(kind=wp) :: du_loc(im,km), dv_loc(im,km), tdt_loc(im,km),
+     &                 rtg_loc(im,km,ntrac), dkt_loc(im,km),
+     &                 dku_loc(im,km)
 !!
-      parameter(bfac=100.0_pbl_wp)
-      parameter(wfac=7.0_pbl_wp,cfac=4.5_pbl_wp)
-      parameter(gamcrt=3.0_pbl_wp,gamcrq=0.0_pbl_wp,sfcfrac=0.1_pbl_wp)
-      parameter(vk=0.4_pbl_wp,rimin=-100.0_pbl_wp,slfac=0.1_pbl_wp)
-      parameter(rbcr=0.25_pbl_wp,zolcru=-0.02_pbl_wp,
-     &          tdzmin=1.e-3_pbl_wp)
-      parameter(rlmn=30.0_pbl_wp,rlmn0=5.0_pbl_wp,rlmn1=5.0_pbl_wp,
-     &          rlmn2=10.0_pbl_wp)
-      parameter(prmin=0.25_pbl_wp,prmax=4.0_pbl_wp)
-      parameter(pr0=1.0_pbl_wp,prtke=1.0_pbl_wp,prscu=0.67_pbl_wp)
-      parameter(f0=1.e-4_pbl_wp,crbmin=0.15_pbl_wp,crbmax=0.35_pbl_wp)
-      parameter(tkmin=1.e-9_pbl_wp,tkbmx=0.2_pbl_wp,dspmax=10.0_pbl_wp)
-      parameter(qmin=1.e-8_pbl_wp,qlmin=1.e-12_pbl_wp,
-     &          zfmin=1.e-8_pbl_wp)
-      parameter(concmin = 1.0E-30_pbl_wp)        ! Minimum conc "rbdriver"
-      parameter(aphi5=5.0_pbl_wp,aphi16=16.0_pbl_wp)
-      parameter(elmfac=1.0_pbl_wp,elefac=1.0_pbl_wp,cql=100.0_pbl_wp)
-      parameter(dw2min=1.e-4_pbl_wp,dkmax=1000.0_pbl_wp,
-     &          xkgdx=1000.0_pbl_wp)
-      parameter(qlcr=3.5e-5_pbl_wp,zstblmax=2500.0_pbl_wp)
-      parameter(xkinv1=0.15_pbl_wp,xkinv2=0.3_pbl_wp)
-      parameter(h1=0.33333333_pbl_wp,hcrinv=250.0_pbl_wp)
-      parameter(vegflo=0.1_pbl_wp,vegfup=1.0_pbl_wp,z0lo=0.1_pbl_wp,
-     &          z0up=1.0_pbl_wp)
-      parameter(vc0=1.0_pbl_wp,zc0=1.0_pbl_wp)
-      parameter(ck1=0.15_pbl_wp,ch1=0.15_pbl_wp)
-      parameter(cs0=0.4_pbl_wp,csmf=0.5_pbl_wp)
-      parameter(rchck=1.5_pbl_wp,ndt=20)
-      real(kind=pbl_wp), parameter :: epsilon = 1.e-10_pbl_wp
+      parameter(bfac=100.0_wp)
+      parameter(wfac=7.0_wp,cfac=4.5_wp)
+      parameter(gamcrt=3.0_wp,gamcrq=0.0_wp,sfcfrac=0.1_wp)
+      parameter(vk=0.4_wp,rimin=-100.0_wp,slfac=0.1_wp)
+      parameter(rbcr=0.25_wp,zolcru=-0.02_wp,
+     &          tdzmin=1.e-3_wp)
+      parameter(rlmn=30.0_wp,rlmn0=5.0_wp,rlmn1=5.0_wp,
+     &          rlmn2=10.0_wp)
+      parameter(prmin=0.25_wp,prmax=4.0_wp)
+      parameter(pr0=1.0_wp,prtke=1.0_wp,prscu=0.67_wp)
+      parameter(f0=1.e-4_wp,crbmin=0.15_wp,crbmax=0.35_wp)
+      parameter(tkmin=1.e-9_wp,tkbmx=0.2_wp,dspmax=10.0_wp)
+      parameter(qmin=1.e-8_wp,qlmin=1.e-12_wp,
+     &          zfmin=1.e-8_wp)
+      parameter(concmin = 1.0E-30_wp)        ! Minimum conc "rbdriver"
+      parameter(aphi5=5.0_wp,aphi16=16.0_wp)
+      parameter(elmfac=1.0_wp,elefac=1.0_wp,cql=100.0_wp)
+      parameter(dw2min=1.e-4_wp,dkmax=1000.0_wp,
+     &          xkgdx=1000.0_wp)
+      parameter(qlcr=3.5e-5_wp,zstblmax=2500.0_wp)
+      parameter(xkinv1=0.15_wp,xkinv2=0.3_wp)
+      parameter(h1=0.33333333_wp,hcrinv=250.0_wp)
+      parameter(vegflo=0.1_wp,vegfup=1.0_wp,z0lo=0.1_wp,
+     &          z0up=1.0_wp)
+      parameter(vc0=1.0_wp,zc0=1.0_wp)
+      parameter(ck1=0.15_wp,ch1=0.15_wp)
+      parameter(cs0=0.4_wp,csmf=0.5_wp)
+      parameter(rchck=1.5_wp,ndt=20)
+      real(kind=wp), parameter :: epsilon = 1.e-10_wp
 
 ! Consistency checks
       if (.not. (do_canopy .and. cplaqm ) ) then
@@ -436,24 +433,24 @@
       nkt1 = nkt - 1
 
       if (tc_pbl == 0) then
-        ck0 = 0.4_pbl_wp
-        ch0 = 0.4_pbl_wp
-        ce0 = 0.4_pbl_wp
+        ck0 = 0.4_wp
+        ch0 = 0.4_wp
+        ce0 = 0.4_wp
       else if (tc_pbl == 1) then
-        ck0 = 0.55_pbl_wp
-        ch0 = 0.55_pbl_wp
-        ce0 = 0.12_pbl_wp
+        ck0 = 0.55_wp
+        ch0 = 0.55_wp
+        ce0 = 0.12_wp
       endif
-      gravi = 1.0_pbl_wp / real(grav, kind=pbl_wp)
-      g = real(grav, kind=pbl_wp)
-      gocp = g / real(cp, kind=pbl_wp)
+      gravi = 1.0_wp / real(grav, kind=wp)
+      g = real(grav, kind=wp)
+      gocp = g / real(cp, kind=wp)
 !     cont=cp/g
 !     conq=hvap/g
 !     conw=1.0/g  ! for del in pa
 !!    parameter(cont=1000.*cp/g,conq=1000.*hvap/g,conw=1000./g) !kpa
-      elocp  = real(hvap, kind=pbl_wp) / real(cp, kind=pbl_wp)
-      el2orc = (real(hvap, kind=pbl_wp) * real(hvap, kind=pbl_wp))
-     &       / (real(rv, kind=pbl_wp) * real(cp, kind=pbl_wp))
+      elocp  = real(hvap, kind=wp) / real(cp, kind=wp)
+      el2orc = (real(hvap, kind=wp) * real(hvap, kind=wp))
+     &       / (real(rv, kind=wp) * real(cp, kind=wp))
 
 !
 !************************************************************************
@@ -462,8 +459,8 @@
       errflg = 0
 
 !> ## Compute preliminary variables from input arguments
-      dt2  = real(delt, kind=pbl_wp)
-      rdt = 1.0_pbl_wp / dt2
+      dt2  = real(delt, kind=wp)
+      rdt = 1.0_wp / dt2
 !
 ! the code is written assuming ntke=ntrac
 ! if ntrac > ntke, the code needs to be modified
@@ -476,15 +473,15 @@
 !! the geopotential height (\p zi and \p zl)
       do k=1,km
         do i=1,im
-          zi(i,k) = real(phii(i,k), kind=pbl_wp) * gravi
-          zl(i,k) = real(phil(i,k), kind=pbl_wp) * gravi
+          zi(i,k) = real(phii(i,k), kind=wp) * gravi
+          zl(i,k) = real(phil(i,k), kind=wp) * gravi
           ckz(i,k) = ck1
           chz(i,k) = ch1
           rlmnz(i,k) = rlmn0
         enddo
       enddo
       do i=1,im
-        zi(i,km+1) = real(phii(i,km+1), kind=pbl_wp) * gravi
+        zi(i,km+1) = real(phii(i,km+1), kind=wp) * gravi
       enddo
       do k=1,km
         do i=1,im
@@ -493,7 +490,7 @@
       enddo
 !>  - Compute horizontal grid size (\p gdx)
       do i=1,im
-        gdx(i) = sqrt(real(garea(i), kind=pbl_wp))
+        gdx(i) = sqrt(real(garea(i), kind=wp))
       enddo
 
 !>  - Some output variables and logical flags are initialized
@@ -520,42 +517,42 @@
 
         do k = 1,km
           do i = 1,im
-            rho1(i,k) = real(prsl(i,k), kind=pbl_wp) / (real(rd,
-     &                  kind=pbl_wp)*real(t1(i,k), kind=pbl_wp)
-     &                * (1.0_pbl_wp+real(fv, kind=pbl_wp)
-     &                * max(real(q1(i,k, 1), kind=pbl_wp),qmin)))
+            rho1(i,k) = real(prsl(i,k), kind=wp) / (real(rd,
+     &                  kind=wp)*real(t1(i,k), kind=wp)
+     &                * (1.0_wp+real(fv, kind=wp)
+     &                * max(real(q1(i,k, 1), kind=wp),qmin)))
 
           enddo
         enddo
 
         if (present(claie)) then
-          claie_loc(:) = real(claie(:), kind=pbl_wp)
+          claie_loc(:) = real(claie(:), kind=wp)
         else
-          claie_loc(:) = 0.0_pbl_wp
+          claie_loc(:) = 0.0_wp
         endif
 
         if (present(cfch)) then
-          cfch_loc(:) = real(cfch(:), kind=pbl_wp)
+          cfch_loc(:) = real(cfch(:), kind=wp)
         else
-          cfch_loc(:) = 0.0_pbl_wp
+          cfch_loc(:) = 0.0_wp
         endif
 
         if (present(cfrt)) then
-          cfrt_loc(:) = real(cfrt(:), kind=pbl_wp)
+          cfrt_loc(:) = real(cfrt(:), kind=wp)
         else
-          cfrt_loc(:) = 0.0_pbl_wp
+          cfrt_loc(:) = 0.0_wp
         endif
 
         if (present(cclu)) then
-          cclu_loc(:) = real(cclu(:), kind=pbl_wp)
+          cclu_loc(:) = real(cclu(:), kind=wp)
         else
-          cclu_loc(:) = 0.0_pbl_wp
+          cclu_loc(:) = 0.0_wp
         endif
 
         if (present(cpopu)) then
-          cpopu_loc(:) = real(cpopu(:), kind=pbl_wp)
+          cpopu_loc(:) = real(cpopu(:), kind=wp)
         else
-          cpopu_loc(:) = 0.0_pbl_wp
+          cpopu_loc(:) = 0.0_wp
         endif
 
         CALL canopy_mask_init( im, km, nkc, nkt,
@@ -565,20 +562,20 @@
 
         if (errflg /= 0) return
 
-        du_loc(:,:)    = real(du(:,:),    kind=pbl_wp)
-        dv_loc(:,:)    = real(dv(:,:),    kind=pbl_wp)
-        tdt_loc(:,:)   = real(tdt(:,:),   kind=pbl_wp)
-        rtg_loc(:,:,:) = real(rtg(:,:,:), kind=pbl_wp)
-        dkt_loc(:,:)    = real(dkt(:,:),    kind=pbl_wp)
-        dku_loc(:,:)    = real(dku(:,:),    kind=pbl_wp)
+        du_loc(:,:)    = real(du(:,:),    kind=wp)
+        dv_loc(:,:)    = real(dv(:,:),    kind=wp)
+        tdt_loc(:,:)   = real(tdt(:,:),   kind=wp)
+        rtg_loc(:,:,:) = real(rtg(:,:,:), kind=wp)
+        dkt_loc(:,:)    = real(dkt(:,:),    kind=wp)
+        dku_loc(:,:)    = real(dku(:,:),    kind=wp)
 
         CALL canopy_levs_init( im, km, nkc, nkt,
      &       ntrac, ntqv, ntke, ! ndtend,         ! in
      &       zi, zl, zm,                          ! in 3D
-     &       real(prsl, kind=pbl_wp), real(prsi, kind=pbl_wp),  ! in 3D
+     &       real(prsl, kind=wp), real(prsi, kind=wp),  ! in 3D
      &       dv_loc, du_loc, tdt_loc, rtg_loc,    ! in 3D
-     &       real(u1, kind=pbl_wp), real(v1, kind=pbl_wp),      ! in 3D / 4D
-     &       real(t1, kind=pbl_wp), real(q1, kind=pbl_wp),      ! in 3D / 4D
+     &       real(u1, kind=wp), real(v1, kind=wp),! in 3D / 4D
+     &       real(t1, kind=wp), real(q1, kind=wp),! in 3D / 4D
      &       rho1, dkt_loc, dku_loc,              ! in 3D
 !     &       dtend, 
      &     zmom_can3,   zmid_can3,                !out 3D
@@ -600,7 +597,7 @@
         dku(:,:)   = real(dku_loc(:,:),   kind=kind_phys)
 
 ! Zero in-canopy tendencies
-        dtend_can(:, :, : ) = 0.0_pbl_wp
+        dtend_can(:, :, : ) = 0.0_wp
 
         if (errflg /= 0) return
 
@@ -629,33 +626,33 @@
 ! NB. Call canopy routines after eddy diffusivities are calculated!!!
 
         if (present(claie)) then
-           claie_loc(:) = real(claie(:), kind=pbl_wp)
+           claie_loc(:) = real(claie(:), kind=wp)
         else
-           claie_loc(:) = 0.0_pbl_wp
+           claie_loc(:) = 0.0_wp
         endif
 
         if (present(cfch)) then
-           cfch_loc(:) = real(cfch(:), kind=pbl_wp)
+           cfch_loc(:) = real(cfch(:), kind=wp)
         else
-           cfch_loc(:) = 0.0_pbl_wp
+           cfch_loc(:) = 0.0_wp
         endif
 
         if (present(cfrt)) then
-           cfrt_loc(:) = real(cfrt(:), kind=pbl_wp)
+           cfrt_loc(:) = real(cfrt(:), kind=wp)
         else
-           cfrt_loc(:) = 0.0_pbl_wp
+           cfrt_loc(:) = 0.0_wp
         endif
 
         if (present(cclu)) then
-           cclu_loc(:) = real(cclu(:), kind=pbl_wp)
+           cclu_loc(:) = real(cclu(:), kind=wp)
         else
-           cclu_loc(:) = 0.0_pbl_wp
+           cclu_loc(:) = 0.0_wp
         endif
 
         if (present(cpopu)) then
-           cpopu_loc(:) = real(cpopu(:), kind=pbl_wp)
+           cpopu_loc(:) = real(cpopu(:), kind=wp)
         else
-           cpopu_loc(:) = 0.0_pbl_wp
+           cpopu_loc(:) = 0.0_wp
         endif
 
         CALL canopy_mask_run( im, km, nkc, nkt,     !in
@@ -672,11 +669,11 @@
          do k=1,km
            do i=1,im
 
-             ws1(i,k) = sqrt(real(u1(i,k), kind=pbl_wp)**2
-     &                + real(v1(i,k), kind=pbl_wp)**2)
+             ws1(i,k) = sqrt(real(u1(i,k), kind=wp)**2
+     &                + real(v1(i,k), kind=wp)**2)
 
-             wind_dir_to_rad(i,k) = atan2(real(u1(i,k), kind=pbl_wp),
-     &                              real(v1(i,k), kind=pbl_wp))   ! to radians
+             wind_dir_to_rad(i,k) = atan2(real(u1(i,k), kind=wp),
+     &                              real(v1(i,k), kind=wp))   ! to radians
 !    &                       atan2(u1(i,k)/ws1(i,k),v1(i,k)/ws1(i,k))   ! to radians
            enddo
          enddo
@@ -694,34 +691,34 @@
 ! NLAYS+3= bottom canopy layer at 0.2*CH
 ! =================
          if (present(cfch)) then
-           cfch_loc(:) = real(cfch(:), kind=pbl_wp)
+           cfch_loc(:) = real(cfch(:), kind=wp)
          else
-           cfch_loc(:) = 0.0_pbl_wp
+           cfch_loc(:) = 0.0_wp
          endif
 
-         du_loc(:,:)    = real(du(:,:),    kind=pbl_wp)
-         dv_loc(:,:)    = real(dv(:,:),    kind=pbl_wp)
-         tdt_loc(:,:)   = real(tdt(:,:),   kind=pbl_wp)
-         rtg_loc(:,:,:) = real(rtg(:,:,:), kind=pbl_wp)
-         dkt_loc(:,:)   = real(dkt(:,:),   kind=pbl_wp)
-         dku_loc(:,:)   = real(dku(:,:),   kind=pbl_wp)
+         du_loc(:,:)    = real(du(:,:),    kind=wp)
+         dv_loc(:,:)    = real(dv(:,:),    kind=wp)
+         tdt_loc(:,:)   = real(tdt(:,:),   kind=wp)
+         rtg_loc(:,:,:) = real(rtg(:,:,:), kind=wp)
+         dkt_loc(:,:)   = real(dkt(:,:),   kind=wp)
+         dku_loc(:,:)   = real(dku(:,:),   kind=wp)
 
          CALL canopy_levs_run(im, km, nkc, nkt,    ! in
      &       ntrac, ntqv, ntke,                    ! in
-     &       real(rd, kind=pbl_wp), real(pi, kind=pbl_wp), ! in gry gas constant
+     &       real(rd, kind=wp), real(pi, kind=wp), ! in gry gas constant
      &       zi, zl, zm,                           ! in
-     &       real(prsl, kind=pbl_wp), real(prsi, kind=pbl_wp), ! in  (Pa)
-     &       real(pgr, kind=pbl_wp),               ! in  (Pa)
+     &       real(prsl, kind=wp), real(prsi, kind=wp), ! in  (Pa)
+     &       real(pgr, kind=wp),                   ! in  (Pa)
      &       cfch_loc,                             ! in: canopy data input
-     &       real(garea, kind=pbl_wp), real(u10m, kind=pbl_wp),! in: 2D
-     &       real(v10m, kind=pbl_wp),  real(fm,   kind=pbl_wp),! in: 2D
-     &       real(fh,   kind=pbl_wp),              ! in: 2D    
-     &       real(rbsoil, kind=pbl_wp),            ! in: 2D
-     &       real(t2m, kind=pbl_wp),  real(q2m, kind=pbl_wp),  ! in 2D
-     &       real(stress, kind=pbl_wp), real(spd1, kind=pbl_wp), ! in: 2D
+     &       real(garea, kind=wp), real(u10m, kind=wp),! in: 2D
+     &       real(v10m, kind=wp),  real(fm,   kind=wp),! in: 2D
+     &       real(fh,   kind=wp),                  ! in: 2D    
+     &       real(rbsoil, kind=wp),                ! in: 2D
+     &       real(t2m, kind=wp),  real(q2m, kind=wp),  ! in 2D
+     &       real(stress, kind=wp), real(spd1, kind=wp), ! in: 2D
      &       dv_loc, du_loc, tdt_loc, rtg_loc,     ! in: 3D
-     &       real(u1, kind=pbl_wp), real(v1, kind=pbl_wp), ! in: 3D " 4D
-     &       real(t1, kind=pbl_wp), real(q1, kind=pbl_wp), ! in: 3D " 4D
+     &       real(u1, kind=wp), real(v1, kind=wp), ! in: 3D " 4D
+     &       real(t1, kind=wp), real(q1, kind=wp), ! in: 3D " 4D
      &       rho1, dkt_loc, dku_loc,               ! in 3D
      &       FRT_MASK,                             ! in 2D canopy_mask
      &       kmod, kcan3,                          ! out
@@ -778,9 +775,9 @@
 
             q1_can3(i,k, ntqv) = qv_can3(i,k) ! 2-m interpolated humidity
 
-            rho1_can3(i,k) = prsl_can3(i,k) / (real(rd, kind=pbl_wp)
-     &                     * t1_can3(i,k) * (1.0_pbl_wp+real(fv,
-     &                       kind=pbl_wp)*max(q1_can3(i,k, ntqv),qmin))) ! ntqv=1 2-m interpolated
+            rho1_can3(i,k) = prsl_can3(i,k) / (real(rd, kind=wp)
+     &                     * t1_can3(i,k) * (1.0_wp+real(fv,
+     &                       kind=wp)*max(q1_can3(i,k, ntqv),qmin))) ! ntqv=1 2-m interpolated
 
           enddo
         enddo
@@ -799,8 +796,7 @@
 ! Exner function canopy layers
 ! !< exner function = (p/p0)**rocp
              prslk_can3(i,kc) = (prsl_can3(i,kc) / real(pgr(i),
-     &                          kind=pbl_wp))
-     &                        ** real(con_rocp, kind=pbl_wp)
+     &                          kind=wp)) ** real(con_rocp, kind=wp)
            enddo
          enddo
 
@@ -809,20 +805,19 @@
            do i = 1,im
 
 ! Canopy columns
-             IF (FRT_MASK(i) >  0.0_pbl_wp) THEN
+             IF (FRT_MASK(i) >  0.0_wp) THEN
                del_can3(i,kc) = prsi_can3(i, kc) - prsi_can3(i, kc+1)
 
 ! Non-canopy columns set to del(1)
-            ELSE IF (FRT_MASK(i) <=  0.0_pbl_wp) THEN
-               del_can3(i,kc) = real(del(i,1), kind=pbl_wp)     
+            ELSE IF (FRT_MASK(i) <=  0.0_wp) THEN
+               del_can3(i,kc) = real(del(i,1), kind=wp)     
 
             ENDIF
 
 ! Exner function canopy layers
 ! !< exner function = (p/p0)**rocp
              prslk_can3(i,kc) = (prsl_can3(i,kc) / real(pgr(i),
-     &                         kind=pbl_wp))
-     &                        ** real(con_rocp, kind=pbl_wp)
+     &                           kind=wp)) ** real(con_rocp, kind=wp)
            end do
          end do
 
@@ -837,7 +832,7 @@
 !      zm (:,k) = zi(:,k+1), so zm_can (i, k) = zi_can3(i,k+1)  (k=1,km) 
 
 ! In-Canopy layers: kc = 1, 2, 3
-         zi_can3(:, 1) = 0.0_pbl_wp
+         zi_can3(:, 1) = 0.0_wp
          do kc = 1, nkc
            do i = 1,im
              ! kc+1 = 2, 3, 4
@@ -869,13 +864,13 @@
 !! the physical height (\p zi and \p zl)
          do k=1,nkt
            do i=1,im
-             phil_can3(i,k) = zl_can3(i,k) * real(grav, kind=pbl_wp)
-             phii_can3(i,k) = zi_can3(i,k) * real(grav, kind=pbl_wp)
+             phil_can3(i,k) = zl_can3(i,k) * real(grav, kind=wp)
+             phii_can3(i,k) = zi_can3(i,k) * real(grav, kind=wp)
            enddo
          enddo
          do i=1,im
            phii_can3(i,nkt+1) = zi_can3(i,nkt+1) * real(grav,
-     &                          kind=pbl_wp)
+     &                          kind=wp)
          enddo
 
          do k = 1,km
@@ -886,8 +881,8 @@
 
             do i=1,im
 
-              u1_can3(i,kc) = ws1_can3(i,kc) * sin(wind_dir_to_rad(i,k))      ! m/s
-              v1_can3(i,kc) = ws1_can3(i,kc) * cos(wind_dir_to_rad(i,k))      ! m/s
+              u1_can3(i,kc) = ws1_can3(i,kc) * sin(wind_dir_to_rad(i,k))   ! m/s
+              v1_can3(i,kc) = ws1_can3(i,kc) * cos(wind_dir_to_rad(i,k))   ! m/s
 
             end do
          end do
@@ -903,7 +898,7 @@
          end do
 
 ! All columns & all layers
-         q1_mod (:,1:km, :) = real(q1 (:,1:km, :), kind=pbl_wp)         ! before "resolved_to_canopy"
+         q1_mod (:,1:km, :) = real(q1 (:,1:km, :), kind=wp)         ! before "resolved_to_canopy"
 !        Q1_2M  ... move out of "canopy_levs"
 
 !===============================================================================
@@ -913,9 +908,9 @@
 
          CALL canopy_transfer_run(im, km, nkc, nkt,  !in
      &        ntrac, ntoz,                           !in
-     &        real(garea, kind=pbl_wp),              !in
+     &        real(garea, kind=wp),                  !in
      &        zi, zl, zm,                            !in
-     &        real(q1, kind=pbl_wp), rho1,           !in kg kg-1
+     &        real(q1, kind=wp), rho1,               !in kg kg-1
      &        0,                                     !in 0 = "resolved_to_canopy"
      &        FRT_MASK,                              !in
      &        kmod, kcan3,                           !in
@@ -950,15 +945,15 @@
          prslk_can (:,1:km)   = prslk_can3 (:,1:km) 
 
       do i = 1,im
-      IF (FRT_MASK(i) >  0.0_pbl_wp) THEN
+      IF (FRT_MASK(i) >  0.0_wp) THEN
          del_can   (i,1:km)   =  del_can3(i,1:km)
          phii_can  (i,1:km+1) = phii_can3(i,1:km+1)
          phil_can  (i,1:km)   = phil_can3(i,1:km)
 ! Set Non-Canopy columns to resolved layer thickness
-      ELSE IF (FRT_MASK(i) <=  0.0_pbl_wp) THEN
-         del_can   (i,1:km)   = real(del (i,1:km), kind=pbl_wp)
-         phii_can  (i,1:km+1) = real(phii(i,1:km+1), kind=pbl_wp)
-         phil_can  (i,1:km)   = real(phil(i,1:km), kind=pbl_wp)
+      ELSE IF (FRT_MASK(i) <=  0.0_wp) THEN
+         del_can   (i,1:km)   = real(del (i,1:km), kind=wp)
+         phii_can  (i,1:km+1) = real(phii(i,1:km+1), kind=wp)
+         phil_can  (i,1:km)   = real(phil(i,1:km), kind=wp)
       ENDIF
       enddo
 
@@ -989,15 +984,15 @@
 ! This should be nkt layers...       dv_can(:,nkc+1:nkt) = dv(:,1:km) ! nkt combined canopy plus resolved layers
 
 ! Sub-Canopy
-         swh_can (:, nkc+1:km ) = real(swh(:,1:km-nkc), kind=pbl_wp)
-         swh_can (:, 3 )        = real(swh(:,1   ), kind=pbl_wp)
-         swh_can (:, 2 )        = real(swh(:,1   ), kind=pbl_wp)
-         swh_can (:, 1 )        = real(swh(:,1   ), kind=pbl_wp)
+         swh_can (:, nkc+1:km ) = real(swh(:,1:km-nkc), kind=wp)
+         swh_can (:, 3 )        = real(swh(:,1   ), kind=wp)
+         swh_can (:, 2 )        = real(swh(:,1   ), kind=wp)
+         swh_can (:, 1 )        = real(swh(:,1   ), kind=wp)
 
-         hlw_can (:, nkc+1:km ) = real(hlw(:,1:km-nkc), kind=pbl_wp)
-         hlw_can (:, 3 )        = real(hlw(:,1   ), kind=pbl_wp)
-         hlw_can (:, 2 )        = real(hlw(:,1   ), kind=pbl_wp)
-         hlw_can (:, 1 )        = real(hlw(:,1   ), kind=pbl_wp)
+         hlw_can (:, nkc+1:km ) = real(hlw(:,1:km-nkc), kind=wp)
+         hlw_can (:, 3 )        = real(hlw(:,1   ), kind=wp)
+         hlw_can (:, 2 )        = real(hlw(:,1   ), kind=wp)
+         hlw_can (:, 1 )        = real(hlw(:,1   ), kind=wp)
 
 ! Subset combined layers (minus top nkc layers)
          do k = km-nkc, 1, -1 ! top to 1hy model layer
@@ -1006,7 +1001,7 @@
            kc= nkc+k     ! 4th from top (nkt) to nkc+1 combined canopy plus resolved model layer
 
 ! Above-canopy TKE tracer set to hybrid model layers ("resolved_to_canopy" only does mass tranfer of mass tracers)
-           q1_can (:,kc, ntke) = real(q1(:,k, ntke), kind=pbl_wp) ! ntke always on
+           q1_can (:,kc, ntke) = real(q1(:,k, ntke), kind=wp) ! ntke always on
 
 ! Above-canopy wind components set to hybrid model layers
 !          u1_can (:,kc) =  u1 (:,k)
@@ -1020,7 +1015,7 @@
 
 ! Sub-canopy values of TKE  set to 1hy model layer
 ! ("canopy_transfer" only does mass transfer to mass conc. tracers)
-            q1_can (:,kc, ntke    ) = real(q1(:,1, ntke), kind=pbl_wp) ! ntke always on
+            q1_can (:,kc, ntke    ) = real(q1(:,1, ntke), kind=wp) ! ntke always on
 
 !Sub-canopy values of wind components  set to 1hy model layer
 !           u1_can (:,kc) =  u1 (:,1)
@@ -1033,40 +1028,40 @@
 !>  - Call satmedmfvdifq_can(), which is ...
 !!    to take into account ...
          CALL satmedmfvdifq_can(im,km,ntrac,ntcw,ntrw,
-     &     ntiw,ntke,real(grav,kind=pbl_wp),real(pi,kind=pbl_wp),
-     &     real(rd,kind=pbl_wp),real(cp,kind=pbl_wp),
-     &     real(rv,kind=pbl_wp),real(hvap,kind=pbl_wp), 
-     &     real(hfus,kind=pbl_wp),real(fv,kind=pbl_wp),       
-     &     real(eps,kind=pbl_wp),real(epsm1,kind=pbl_wp),
+     &     ntiw,ntke,real(grav,kind=wp),real(pi,kind=wp),
+     &     real(rd,kind=wp),real(cp,kind=wp),
+     &     real(rv,kind=wp),real(hvap,kind=wp), 
+     &     real(hfus,kind=wp),real(fv,kind=wp),       
+     &     real(eps,kind=wp),real(epsm1,kind=wp),
 !The following three variables are for SA-3D-TKE
-     &     real(def_1,kind=pbl_wp),real(def_2,kind=pbl_wp),
-     &     real(def_3,kind=pbl_wp),sa3dtke,
+     &     real(def_1,kind=wp),real(def_2,kind=wp),
+     &     real(def_3,kind=wp),sa3dtke,
      &     dum3d_h,dum3d_e,
      &     dv_can,du_can,tdt_can,rtg_can,                                 ! InOut
      &     u1_can,v1_can,t1_can, q1_can,                                  ! In: canopy inputs
-     &     real(usfco, kind=pbl_wp), real(vsfco, kind=pbl_wp),
+     &     real(usfco, kind=wp), real(vsfco, kind=wp),
      &     use_oceanuv,
      &     swh_can,hlw_can,                                               ! In: canopy inputs
-     &     real(xmu,kind=pbl_wp),real(garea,kind=pbl_wp),
-     &     real(zvfun,kind=pbl_wp),real(sigmaf, kind=pbl_wp),
-     &     real(psk,kind=pbl_wp),real(rbsoil,kind=pbl_wp),
-     &     real(zorl,kind=pbl_wp),real(u10m,kind=pbl_wp),
-     &     real(v10m,kind=pbl_wp),real(fm,kind=pbl_wp),
-     &     real(fh,kind=pbl_wp),real(tsea,kind=pbl_wp),
-     &     real(heat,kind=pbl_wp),real(evap,kind=pbl_wp),
-     &     real(stress, kind=pbl_wp),real(spd1,kind=pbl_wp),   
+     &     real(xmu,kind=wp),real(garea,kind=wp),
+     &     real(zvfun,kind=wp),real(sigmaf, kind=wp),
+     &     real(psk,kind=wp),real(rbsoil,kind=wp),
+     &     real(zorl,kind=wp),real(u10m,kind=wp),
+     &     real(v10m,kind=wp),real(fm,kind=wp),
+     &     real(fh,kind=wp),real(tsea,kind=wp),
+     &     real(heat,kind=wp),real(evap,kind=wp),
+     &     real(stress, kind=wp),real(spd1,kind=wp),   
      &     kpbl_can,                                                      ! Out
      &     prsi_can,del_can,prsl_can,prslk_can,phii_can,phil_can,         ! In: canopy inputs
-     &     real(delt, kind=pbl_wp), tte_edmf,
+     &     real(delt, kind=wp), tte_edmf,
      &     dspheat,
      &     dusfc_can,dvsfc_can,dtsfc_can,dqsfc_can,hpbl_can,              ! Out
      &     dkt,     dku,     tkeh_can,                                    ! Out/Out:tkeh_can
      &     dkt_can,dku_can,                                               ! In: canopy inputs
      &     kinver,
-     &     real(xkzm_m,kind=pbl_wp),real(xkzm_h, kind=pbl_wp),
-     &     real(xkzm_s,kind=pbl_wp),real(dspfac, kind=pbl_wp),
-     &     real(bl_upfr,kind=pbl_wp),real(bl_dnfr,kind=pbl_wp),
-     &     real(rlmx,kind=pbl_wp),real(elmx,kind=pbl_wp),
+     &     real(xkzm_m,kind=wp),real(xkzm_h, kind=wp),
+     &     real(xkzm_s,kind=wp),real(dspfac, kind=wp),
+     &     real(bl_upfr,kind=wp),real(bl_dnfr,kind=wp),
+     &     real(rlmx,kind=wp),real(elmx,kind=wp),
      &     sfc_rlm,
      &     tc_pbl,use_lpt,
      &     do_canopy, cplaqm,           
@@ -1077,7 +1072,7 @@
 ! Set non-canopy columns to resolved values
 ! NB. Only vars not ALREADY defined in non-canopy columns
          do i = 1,im
-         IF (FRT_MASK(i) <=  0.0_pbl_wp) THEN
+         IF (FRT_MASK(i) <=  0.0_wp) THEN
 
 ! Non-canopy columns 
             kpbl_can(i) = kpbl(i) ! kpbl zero before original sat call 
@@ -1141,9 +1136,9 @@ c
           duv_mod(:,1:km)    = duv(:,1:km)              ! before "canopy_to_resolved" (km)
 
 ! Air Density after diffusion model layers
-          rho2 (:,1:km) = real(prsl (:,1:km), kind=pbl_wp) /
-     &                  (real(rd, kind=pbl_wp) * t2 (:,1:km) *
-     &                  (1.0_pbl_wp + real(fv, kind=pbl_wp) *
+          rho2 (:,1:km) = real(prsl (:,1:km), kind=wp) /
+     &                  (real(rd, kind=wp) * t2 (:,1:km) *
+     &                  (1.0_wp + real(fv, kind=wp) *
      &                  max(q2 (:,1:km, ntqv), qmin))) ! ntqv=1 before "canopy_to_resolved"
 
 ! Set non-canopy columns to resolved values
@@ -1156,7 +1151,7 @@ c
            kc= nkc+k     ! 4th from top (nkt) to nkc+1 combined canopy plus resolved model layer
 
            do i = 1,im
-           IF (FRT_MASK(i) <=  0.0_pbl_wp) THEN
+           IF (FRT_MASK(i) <=  0.0_wp) THEN
 
 ! Above-canopy U-Wind/V-Wind/Temp     non-canopy columns
             u2_can3 (i,kc) = u2 (i,k)
@@ -1184,7 +1179,7 @@ c
 ! Canopy layers non-canopy columns
          do kc = 1, nkc ! 3-nkc canopy layers
            do i = 1,im
-           IF (FRT_MASK(i) <=  0.0_pbl_wp) THEN
+           IF (FRT_MASK(i) <=  0.0_wp) THEN
 
 ! Canopy layers U-wind/V-wind/Temp non-canopy columns
             u2_can3 (i,kc) = u2 (i,1)
@@ -1286,24 +1281,24 @@ c
 ! Top 3 combined layers set to resolved
 !    NB. Q2_can3 tracers array & t2_can3  after diffusion only updated 1:km
           rho2_can3 (:,km+nkc) = prsl (:,km  )/          ! after diffusion
-     &                           (real(rd, kind=pbl_wp) * t2(:,km) *
-     &                           (1.0_pbl_wp + real(fv, kind=pbl_wp) *
+     &                           (real(rd, kind=wp) * t2(:,km) *
+     &                           (1.0_wp + real(fv, kind=wp) *
      &                           max(q2 (:,km  , ntqv), qmin))) 
           rho2_can3 (:,km+2) = prsl (:,km-1)/          ! after diffusion
-     &                         (real(rd, kind=pbl_wp) * t2(:,km-1) *
-     &                         (1.0_pbl_wp + real(fv, kind=pbl_wp) *
+     &                         (real(rd, kind=wp) * t2(:,km-1) *
+     &                         (1.0_wp + real(fv, kind=wp) *
      &                         max(q2 (:,km-1, ntqv), qmin))) ! ntqv=1
 
           rho2_can3 (:,km+1) = prsl (:,km-2)/          ! after diffusion
-     &                         (real(rd, kind=pbl_wp) * t2(:,km-2) *
-     &                         (1.0_pbl_wp + real(fv, kind=pbl_wp) *
+     &                         (real(rd, kind=wp) * t2(:,km-2) *
+     &                         (1.0_wp + real(fv, kind=wp) *
      &                         max(q2 (:,km-2, ntqv), qmin))) ! ntqv=1
 
 ! Air density after diffusion on canopy layers
           rho2_can3 (:,1:km) = prsl_can3 (:,1:km)/           ! after diffusion
-     &                         (real(rd, kind=pbl_wp) * t2_can3(:,
-     &                         1:km) * (1.0_pbl_wp + real(fv,
-     &                         kind=pbl_wp) * max(q2_can3(:,1:km, ntqv),
+     &                         (real(rd, kind=wp) * t2_can3(:,
+     &                         1:km) * (1.0_wp + real(fv,
+     &                         kind=wp) * max(q2_can3(:,1:km, ntqv),
      &                         qmin))) ! ntqv=1
 
       endif !do_canopy .and. cplaqm
@@ -1316,9 +1311,9 @@ c
 
         CALL canopy_transfer_run(im, km, nkc, nkt,   !in
      &        ntrac1, ntoz,                          !in
-     &        real(garea, kind=pbl_wp),              !in
+     &        real(garea, kind=wp),                  !in
      &        zi, zl, zm,                            !in
-     &        real(q2, kind=pbl_wp), rho2,           !in kg kg-1
+     &        real(q2, kind=wp), rho2,               !in kg kg-1
      &        1,                                     !in 1 = "canopy_to_resolved"
      &        FRT_MASK,                              !in
      &        kmod, kcan3,                           !in
@@ -1353,7 +1348,7 @@ c
           do i = 1,im
 
 ! Non-canopy columns set to resolved values
-          IF (FRT_MASK(i) <=  0.0_pbl_wp) THEN
+          IF (FRT_MASK(i) <=  0.0_wp) THEN
 
 ! Non-canopy columns after "canopy_to_resolved"  Line 1843: forrtl: error (78): process killed (SIGTERM)
             q2_mod (i,k, 1:ntrac1) = q2(i,k, 1:ntrac1)       ! after diffusion & after "canopy_to_resolved"
@@ -1380,12 +1375,12 @@ c
         do k = 1, km1-1     ! from bottom to top resolved model levels
 
           kount=0 
-          ZOOOX(:) = 1.0_pbl_wp
+          ZOOOX(:) = 1.0_wp
           do i = 1, im
 
 ! Canopy columns/grid cells
 ! There is a contiguous forest canopy, calculated integrated canopy correction over model layers
-          IF ( FRT_MASK(i) >  0.0_pbl_wp ) THEN
+          IF ( FRT_MASK(i) >  0.0_wp ) THEN
 
             FCH  = cfch_loc(i)
 
@@ -1409,7 +1404,7 @@ c
               COUNTCAN = 0   ! Initialize canopy layers
 
               IF (k .EQ. 1) THEN  !Find bottom in each model layer
-                  BOTCAN = 0.0_pbl_wp
+                  BOTCAN = 0.0_wp
               ELSE
                   BOTCAN = zi(i,k)
               END IF
@@ -1431,7 +1426,7 @@ c
      &                ZI05 <= zi_can3(i,kc+1) ) THEN
 
                    kc_can   = kc
-                    FZI05    = 1.0_pbl_wp/
+                    FZI05    = 1.0_wp/
 !                             max(zi_can3 (i,kc+1) - 
 !     &                           zi_can3 (i,kc), epsilon) *
      &                         (zi_can3 (i,kc+1) - zi_can3 (i,kc))*
@@ -1516,7 +1511,7 @@ c
 
                  END IF  ! ( ZI05 .LE. ZFL )
 
-                 ZI05 = ZI05-0.5_pbl_wp  !step down in-canopy resolution of 0.5m
+                 ZI05 = ZI05-0.5_wp  !step down in-canopy resolution of 0.5m
 
               END DO ! DO WHILE (ZI05.GE.BOTCAN)
 
@@ -1561,8 +1556,7 @@ c
      &                     ZZ_INT
 
 ! Sum
-              TT_SUM = sum(TTX(COUNTCAN:1:-1))/real(COUNTCAN,
-     &                 kind=pbl_wp)
+              TT_SUM = sum(TTX(COUNTCAN:1:-1))/real(COUNTCAN,kind=wp)
 
 ! U-wind/V-wind Canopy Columns
               u2_mod (i,k)   = UU_INT     ! after "canopy-to-resolved"
@@ -1603,24 +1597,24 @@ c
           do i = 1,im
 
           ! Update Canopy columns only
-          IF (FRT_MASK(i) >  0.0_pbl_wp) THEN
+          IF (FRT_MASK(i) >  0.0_wp) THEN
 
 ! Canopy Columns
 ! U-Wind/V-Wind after sub-canopy diffusion
-            du_mod(i,k) = (u2_mod(i,k) - real(u1(i,k), kind=pbl_wp))*rdt  ! after "canopy_to_resolved" dim(km)
-            dv_mod(i,k) = (v2_mod(i,k) - real(v1(i,k), kind=pbl_wp))*rdt  ! after "canopy_to_resolved" dim(km)
+            du_mod(i,k) = (u2_mod(i,k) - real(u1(i,k), kind=wp))*rdt  ! after "canopy_to_resolved" dim(km)
+            dv_mod(i,k) = (v2_mod(i,k) - real(v1(i,k), kind=wp))*rdt  ! after "canopy_to_resolved" dim(km)
 
             duv_mod(i,k)  = (ws2_mod(i,k) - ws1(i,k) )*rdt  ! after "canopy_to_resolved" dim(km)
 
 ! Temperature after sub-canopy diffusion
-            tdt_mod(i,k)= (t2_mod(i,k) - real(t1(i,k), kind=pbl_wp))*rdt  ! after "canopy_to_resolved" dim(km)
+            tdt_mod(i,k)= (t2_mod(i,k) - real(t1(i,k), kind=wp))*rdt  ! after "canopy_to_resolved" dim(km)
 
 ! Tendency mass tracers after sub-canopy diffusion
             rtg_mod(i,k, 1:ntrac1) = (q2_mod(i,k, 1:ntrac1) -
-     &                         real(q1(i,k, 1:ntrac1), kind=pbl_wp))*rdt  ! after "canopy_to_resolved"
+     &                         real(q1(i,k, 1:ntrac1), kind=wp))*rdt  ! after "canopy_to_resolved"
 ! Tendency TKE  tracer  after sub-canopy diffusion
             rtg_mod(i,k, ntke)     = (q2_mod(i,k,ntke) -
-     &                              real(q1(i,k,ntke), kind=pbl_wp))*rdt  ! after "canopy_to_resolved"
+     &                              real(q1(i,k,ntke), kind=wp))*rdt  ! after "canopy_to_resolved"
 
 !!!!!!!!!!!!!!!!!!!!!
 
@@ -1635,7 +1629,7 @@ c
         do k = 1,km
           do i = 1,im
 
-          IF (FRT_MASK(i) >  0.0_pbl_wp) THEN
+          IF (FRT_MASK(i) >  0.0_wp) THEN
 ! Tendency Wind components
 !             du (i,k) = du_mod (i,k)            ! <<<<<<<========== UPDATE UU  TEND =========>>>>>>>
 !             dv (i,k) = dv_mod (i,k)            ! <<<<<<<========== UPDATE VV  TEND =========>>>>>>>
@@ -1704,7 +1698,7 @@ c
         do k = 1,km
 
           do i = 1,im
-          IF (FRT_MASK(i) >  0.0_pbl_wp) THEN
+          IF (FRT_MASK(i) >  0.0_wp) THEN
 
 !!!!!!!!!!!!!!!!!!!!!!!!!
 ! Select all chemical tracers (selected tracers above)

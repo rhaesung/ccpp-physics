@@ -12,14 +12,14 @@
 !!process to calculate time tendencies due to vertical diffusion.
       subroutine tridi1_satmedmf(l,n,cl,cm,cu,r1,au,a1)
       !
-      use mo_pbl_kind     , only : pbl_wp
+      use mo_pbl_kind     , only : wp
       implicit none
-      real(kind=pbl_wp), parameter :: one = 1.0_pbl_wp
+      real(kind=wp), parameter :: one = 1.0_wp
       integer             k,n,l,i
-      real(kind=pbl_wp) fk
+      real(kind=wp) fk
       !
-      real(kind=pbl_wp) cl(l,2:n),cm(l,n),cu(l,n-1),r1(l,n),
-     &                     au(l,n-1),a1(l,n)
+      real(kind=wp) cl(l,2:n),cm(l,n),cu(l,n-1),r1(l,n),
+     &              au(l,n-1),a1(l,n)
       !
       do i=1,l
         fk      = one / cm(i,1)
@@ -51,14 +51,14 @@
 !> This subroutine ..
       subroutine tridi2_satmedmf(l,n,cl,cm,cu,r1,r2,au,a1,a2)
 !
-      use mo_pbl_kind     , only : pbl_wp        
+      use mo_pbl_kind     , only : wp        
       implicit none
-      real(kind=pbl_wp), parameter :: one = 1.0_pbl_wp
+      real(kind=wp), parameter :: one = 1.0_wp
       integer             k,n,l,i
-      real(kind=pbl_wp) fk
+      real(kind=wp) fk
 !
-      real(kind=pbl_wp) cl(l,2:n),cm(l,n),cu(l,n-1),r1(l,n),r2(l,n),
-     &          au(l,n-1),a1(l,n),a2(l,n)
+      real(kind=wp) cl(l,2:n),cm(l,n),cu(l,n-1),r1(l,n),r2(l,n),
+     &              au(l,n-1),a1(l,n),a2(l,n)
 !----------------------------------------------------------------------
       do i=1,l
         fk      = one / cm(i,1)
@@ -96,16 +96,14 @@
 !!  calculate time tendencies due to vertical diffusion.
       subroutine tridin_satmedmf(l,n,nt,cl,cm,cu,r1,r2,au,a1,a2)
 !
-      use mo_pbl_kind     , only : pbl_wp        
+      use mo_pbl_kind     , only : wp        
       implicit none
-      real(kind=pbl_wp), parameter :: one = 1.0_pbl_wp
+      real(kind=wp), parameter :: one = 1.0_wp
       integer             is,k,kk,n,nt,l,i
-      real(kind=pbl_wp) fk(l)
+      real(kind=wp) fk(l)
 !
-      real(kind=pbl_wp) cl(l,2:n), cm(l,n), cu(l,n-1),
-     &                  r1(l,n),   r2(l,n*nt),
-     &                  au(l,n-1), a1(l,n), a2(l,n*nt),
-     &                  fkk(l,2:n-1)
+      real(kind=wp) cl(l,2:n), cm(l,n), cu(l,n-1), r1(l,n), r2(l,n*nt),
+     &              au(l,n-1), a1(l,n), a2(l,n*nt), fkk(l,2:n-1)
 !-----------------------------------------------------------------------
       do i=1,l
         fk(i)   = one / cm(i,1)
@@ -166,16 +164,14 @@
       subroutine tridit_satmedmf(l,n,nt,cl,cm,cu,rt,au,at)
 !-----------------------------------------------------------------------
 !!
-      use mo_pbl_kind     , only : pbl_wp
+      use mo_pbl_kind     , only : wp
       implicit none
-      real(kind=pbl_wp), parameter :: one = 1.0_pbl_wp
+      real(kind=wp), parameter :: one = 1.0_wp
       integer             is,k,kk,n,nt,l,i
-      real(kind=pbl_wp) fk(l)
+      real(kind=wp) fk(l)
 !!
-      real(kind=pbl_wp) cl(l,2:n), cm(l,n), cu(l,n-1),
-     &                  rt(l,n*nt),
-     &                  au(l,n-1), at(l,n*nt),
-     &                  fkk(l,2:n-1)
+      real(kind=wp) cl(l,2:n), cm(l,n), cu(l,n-1), rt(l,n*nt),
+     &              au(l,n-1), at(l,n*nt), fkk(l,2:n-1)
 !-----------------------------------------------------------------------
       do i=1,l
         fk(i)   = one / cm(i,1)
