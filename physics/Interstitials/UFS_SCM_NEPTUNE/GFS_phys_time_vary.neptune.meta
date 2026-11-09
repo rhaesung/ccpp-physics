@@ -4,8 +4,8 @@
   dependencies_path = ../../
   dependencies = hooks/machine.F
   dependencies = Interstitials/UFS_SCM_NEPTUNE/gcycle.F90,Interstitials/UFS_SCM_NEPTUNE/iccn_def.F
-  dependencies = Interstitials/UFS_SCM_NEPTUNE/iccninterp.F90,Interstitials/UFS_SCM_NEPTUNE/sfcsub.F
-  dependencies = Radiation/mersenne_twister.f
+  dependencies = Interstitials/UFS_SCM_NEPTUNE/iccninterp.F90,Interstitials/UFS_SCM_NEPTUNE/sfcsub.F90
+  dependencies = Radiation/mersenne_twister.F90
   dependencies = MP/Morrison_Gettelman/aerclm_def.F,MP/Morrison_Gettelman/aerinterp.F90
   dependencies = SFC_Models/Land/Noah/namelist_soilveg.f,SFC_Models/Land/Noah/set_soilveg.f,SFC_Models/Land/Noahmp/noahmp_tables.f90
   dependencies = photochem/module_ozphys.F90,photochem/module_h2ophys.F90
@@ -1154,7 +1154,7 @@
   intent = in
 [nrcm]
   standard_name = number_of_random_numbers
-  long_name = second dimension of random number stream for RAS
+  long_name = second dimension of random number stream
   units = count
   dimensions = ()
   type = integer
@@ -1239,8 +1239,8 @@
   type = logical
   intent = in
 [random_clds]
-  standard_name = flag_for_random_clouds_for_RAS
-  long_name = flag for using random clouds with the RAS scheme
+  standard_name = flag_for_random_clouds
+  long_name = flag for using random clouds
   units = flag
   dimensions = ()
   type = logical
@@ -1523,8 +1523,8 @@
   kind = kind_phys
   intent = in
 [seed0]
-  standard_name = seed_random_numbers_RAS
-  long_name = random number seed for the RAS scheme
+  standard_name = seed_random_numbers
+  long_name = random number seed
   units = none
   dimensions = ()
   type = integer
