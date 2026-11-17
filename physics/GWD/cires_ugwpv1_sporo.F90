@@ -11,8 +11,8 @@
         del, sigma, hprime, gamma, theta,                                  &
         sinlat, xlatd, taup, taud, pkdis)
 ! 
-      use machine ,      only : kind_phys
-      use ugwp_common,   only : grav, omega2, rd
+      use mo_ugwpv1_kind, only : wp
+      use ugwp_common,    only : grav, omega2, rd
 !      
       implicit none
 
@@ -21,81 +21,81 @@
       integer, intent(in) :: kdt, me, master
       integer, intent(in) :: kref(im), ipt(im)
       
-      real(kind=kind_phys), intent(in) :: dtp, dxres
-      real(kind=kind_phys), intent(in) :: taub(im)
+      real(kind=wp), intent(in) :: dtp, dxres
+      real(kind=wp), intent(in) :: taub(im)
 
-      real(kind=kind_phys), intent(in) :: sinlat(im), xlatd(im)
-      real(kind=kind_phys), intent(in), dimension(im) :: sigma,  &
+      real(kind=wp), intent(in) :: sinlat(im), xlatd(im)
+      real(kind=wp), intent(in), dimension(im) :: sigma,  &
                             hprime, gamma, theta
 
-      real(kind=kind_phys), intent(in), dimension(im) :: xn, yn
+      real(kind=wp), intent(in), dimension(im) :: xn, yn
 
-      real(kind=kind_phys), intent(in), dimension(im, levs) ::   &
+      real(kind=wp), intent(in), dimension(im, levs) ::   &
                               u1, v1, t1,  bn2,  rho,   prsl, del
  
-      real(kind=kind_phys), intent(in), dimension(im, levs+1) :: prsi
+      real(kind=wp), intent(in), dimension(im, levs+1) :: prsi
 !
 ! out : taup,  taud, pkdis
 !
-      real(kind=kind_phys), intent(inout), dimension(im, levs+1) :: taup
-      real(kind=kind_phys), intent(inout), dimension(im, levs)   :: taud
-      real(kind=kind_phys), intent(inout), dimension(im, levs)   :: pkdis      
+      real(kind=wp), intent(inout), dimension(im, levs+1) :: taup
+      real(kind=wp), intent(inout), dimension(im, levs)   :: taud
+      real(kind=wp), intent(inout), dimension(im, levs)   :: pkdis      
 !
 ! multiwave oro-spectra
 ! locals
 !
       
-      integer, parameter               :: nworo = 30
-      real(kind=kind_phys), parameter  :: fc_flag = 0.0
-      real(kind=kind_phys), parameter  :: mkzmin = 6.28e-3/50.0
-      real(kind=kind_phys), parameter  :: mkz2min = mkzmin* mkzmin
-      real(kind=kind_phys), parameter  :: kedmin = 1.e-3
-      real(kind=kind_phys), parameter  :: kedmax = 350.,axmax=250.e-5
-      real(kind=kind_phys), parameter  :: rtau   = 0.01                  ! nonlin-OGW scale 1/10sec
-      real(kind=kind_phys), parameter  :: Linsat2 =0.5
-      real(kind=kind_phys), parameter  :: kxmin = 6.28e-3/100.
-      real(kind=kind_phys), parameter  :: kxmax = 6.28e-3/5.0
-      real(kind=kind_phys), parameter  :: dkx = (kxmax -kxmin)/(nworo-1)
-      real(kind=kind_phys), parameter  :: kx_slope= -5./3.
-      real(kind=kind_phys), parameter  :: hps =7000., rhp2 = .5/hps
-      real(kind=kind_phys), parameter  :: cxmin=0.5, cxmin2=cxmin*cxmin
+      integer, parameter          :: nworo = 30
+      real(kind=wp), parameter    :: fc_flag = 0.0_wp
+      real(kind=wp), parameter    :: mkzmin = 6.28e-3_wp/50.0_wp
+      real(kind=wp), parameter    :: mkz2min = mkzmin* mkzmin
+      real(kind=wp), parameter    :: kedmin = 1.0e-3_wp
+      real(kind=wp), parameter    :: kedmax = 350.0_wp, axmax=250.0e-5_wp
+      real(kind=wp), parameter    :: rtau   = 0.01_wp                  ! nonlin-OGW scale 1/10sec
+      real(kind=wp), parameter    :: Linsat2 =0.5_wp
+      real(kind=wp), parameter    :: kxmin = 6.28e-3_wp/100.0_wp
+      real(kind=wp), parameter    :: kxmax = 6.28e-3_wp/5.0_wp
+      real(kind=wp), parameter    :: dkx = (kxmax -kxmin)/real(nworo-1, kind=wp)
+      real(kind=wp), parameter    :: kx_slope= -5.0_wp/3.0_wp
+      real(kind=wp), parameter    :: hps =7000.0_wp, rhp2 = 0.5_wp/hps
+      real(kind=wp), parameter    :: cxmin=0.5_wp, cxmin2=cxmin*cxmin
 
-      real(kind=kind_phys)  :: akx(nworo),  cxoro(nworo),  akx2(nworo)
-      real(kind=kind_phys)  :: aspkx(nworo), c2f2(nworo),  cdf2(nworo)
-      real(kind=kind_phys)  :: tau_sp(nworo,levs+1), wkdis(nworo, levs+1)
-      real(kind=kind_phys)  :: tau_kx(nworo),taub_kx(nworo)
+      real(kind=wp)  :: akx(nworo),  cxoro(nworo),  akx2(nworo)
+      real(kind=wp)  :: aspkx(nworo), c2f2(nworo),  cdf2(nworo)
+      real(kind=wp)  :: tau_sp(nworo,levs+1), wkdis(nworo, levs+1)
+      real(kind=wp)  :: tau_kx(nworo),taub_kx(nworo)
       
-      real(kind=kind_phys), dimension(nworo, levs+1)  :: wrms, akzw
+      real(kind=wp), dimension(nworo, levs+1)  :: wrms, akzw
 
-      real(kind=kind_phys)  :: tauz(levs+1), rms_wind(levs+1)
-      real(kind=kind_phys)  :: wave_act(nworo,levs+1)
+      real(kind=wp)  :: tauz(levs+1), rms_wind(levs+1)
+      real(kind=wp)  :: wave_act(nworo,levs+1)
 
-      real(kind=kind_phys)  :: kxw, kzw, kzw2, kzw3, kzi, dzmet, rhoint
-      real(kind=kind_phys)  ::  rayf, kturb
-      real(kind=kind_phys)  ::  uz, bv, bv2,kxsp, fcor2, cf2
+      real(kind=wp)  :: kxw, kzw, kzw2, kzw3, kzi, dzmet, rhoint
+      real(kind=wp)  ::  rayf, kturb
+      real(kind=wp)  ::  uz, bv, bv2,kxsp, fcor2, cf2
 
-      real(kind=kind_phys)  ::  fdis
-      real(kind=kind_phys)  ::  wfdm, wfdt, wfim, wfit
-      real(kind=kind_phys)  ::  betadis, betam, betat, kds, cx, rhofac
-      real(kind=kind_phys)  ::  etwk, etws, tauk, cx2sat
-      real(kind=kind_phys)  ::  cdf1, tau_norm
+      real(kind=wp)  ::  fdis
+      real(kind=wp)  ::  wfdm, wfdt, wfim, wfit
+      real(kind=wp)  ::  betadis, betam, betat, kds, cx, rhofac
+      real(kind=wp)  ::  etwk, etws, tauk, cx2sat
+      real(kind=wp)  ::  cdf1, tau_norm
 !
 ! mean flow
 !
-      real(kind=kind_phys), dimension(levs+1) :: uzi,rhoi,ktur, kalp, dzi
-      real(kind=kind_phys)    :: belps, aelps, nhills, selps      
+      real(kind=wp), dimension(levs+1) :: uzi,rhoi,ktur, kalp, dzi
+      real(kind=wp)    :: belps, aelps, nhills, selps      
       integer :: i, j, k, isp, iw
       integer :: nw, nzi, ksrc
       
       
-      taud  (:, :) = 0.0 ; pkdis(:,:) = 0.0 ; taup (:,:) = 0.0
-      tau_sp (:,:) = 0.0 ; wrms(:,:) = 0.0
+      taud  (:, :) = 0.0_wp ; pkdis(:,:) = 0.0_wp ; taup (:,:) = 0.0_wp
+      tau_sp (:,:) = 0.0_wp ; wrms(:,:) = 0.0_wp
       nw  =  nworo
       nzi = levs+1
 
       do iw = 1, nw
-!	                                          !kxw =  0.25/(dxres)*iw
-        kxw        = kxmin+(iw-1)*dkx
+!                                                 !kxw =  0.25/(dxres)*iw
+        kxw        = kxmin+real(iw-1, kind=wp)*dkx
         akx(iw)    = kxw
         akx2(iw)   = kxw*kxw
         aspkx(iw)  = kxw ** (kx_slope)
@@ -106,7 +106,7 @@
       tau_kx(:) =  tau_kx(:)/tau_norm
 
       if (kdt == 1) then
-        write(6,771)  maxval(tau_kx)*maxval(taub)*1.e3, minval(tau_kx), maxval(tau_kx)                    
+        write(6,771)  maxval(tau_kx)*maxval(taub)*1.0e3_wp, minval(tau_kx), maxval(tau_kx)                    
       endif
 771     format( ' oro_spectral_solver  ', 3(2x,F8.3))      
 !
@@ -118,13 +118,13 @@
 !
 ! estimate "nhills" => stochastic choices for OGWs
 !
-         if (taub(i) > 0.) then
+         if (taub(i) > 0.0_wp) then
 !
 ! max_kxridge =min( .5*sigma(j)/hprime(j), kmax)
 ! ridge-dependent dkx = (max_kxridge -kxmin)/(nw-1)
 ! option to make grid-box variable kx-spectra kxw = kxmin+(iw-1)*dkx
 !
-           wave_act(1:nw, 1:levs+1) = 1.0
+           wave_act(1:nw, 1:levs+1) = 1.0_wp
            ksrc = kref(i)
            tauz(1:ksrc)  = taub(i)
            taub_kx(1:nw) = tau_kx(1:nw) * taub(i)
@@ -152,18 +152,18 @@
 !
            do iw = 1, nw
              kxw =  akx(iw)
-             cxoro(iw) = 0.0 - uz
+             cxoro(iw) = 0.0_wp - uz
              c2f2(iw) = fcor2/akx2(iw)
              wrms(iw,k)= taub_kx(iw)/rhoint*kzw/kxw
              tau_sp(iw, k) = taub_kx(iw)
 !
 !
              if (cxoro(iw) > cxmin) then
-               wave_act(iw,k:levs+1) = 0.                      ! crit-level
+               wave_act(iw,k:levs+1) = 0.0_wp                  ! crit-level
              else
                cdf2(iw) =  cxoro(iw)*cxoro(iw) -c2f2(iw)
                if ( cdf2(iw) < cxmin2)  then
-                 wave_act(iw,k:levs+1) = 0.                    ! coriolis cut-off
+                 wave_act(iw,k:levs+1) = 0.0_wp                ! coriolis cut-off
                else
                  kzw2 = max(Bv2/Cdf2(iw) - akx2(iw), mkz2min)
                  kzw = sqrt(kzw2)
@@ -188,22 +188,22 @@
 
              do iw = 1, nworo
 !
-               if (wave_act(iw, k-1) <= 0.0) cycle
-               cxoro(iw)= 0.0 - uz
+               if (wave_act(iw, k-1) <= 0.0_wp) cycle
+               cxoro(iw)= 0.0_wp - uz
                if ( cxoro(iw) > cxmin) then
-                 wave_act(iw,k:levs+1) = 0.0     ! crit-level
+                 wave_act(iw,k:levs+1) = 0.0_wp     ! crit-level
                else
                  cdf2(iw) =  cxoro(iw)*cxoro(iw) -c2f2(iw)
-                 if ( cdf2(iw) < cxmin2)  wave_act(iw,k:levs+1) = 0.0
+                 if ( cdf2(iw) < cxmin2)  wave_act(iw,k:levs+1) = 0.0_wp
                endif       
-               if ( wave_act(iw,k) <= 0.0) cycle 
+               if ( wave_act(iw,k) <= 0.0_wp) cycle 
 !
 ! upward propagation
 !          
                kzw2 = Bv2/Cdf2(iw) - akx2(iw) 
 
                if (kzw2 < mkz2min) then 
-                 wave_act(iw,k:levs+1) = 0.0
+                 wave_act(iw,k:levs+1) = 0.0_wp
                else  
 !
 ! upward propagation w/o reflection effects
@@ -215,8 +215,8 @@
 
                   cx = cxoro(iw)
                   betadis = cdf2(iw) / (Cx*Cx+c2f2(iw))
-                  betaM   = 1.0 / (1.0+betadis)
-                  betaT   = 1.0 - BetaM
+                  betaM   = 1.0_wp / (1.0_wp+betadis)
+                  betaT   = 1.0_wp - BetaM
                   kds     = wkdis(iw,k-1)
 
                   etws  =  wrms(iw,k-1)*rhofac * kzw/akzw(iw,k-1)
@@ -227,7 +227,7 @@
                   cdf1  = sqrt(Cdf2(iw))
                   wfdM  = wfiM/(kxw*Cdf1)*BetaM
                   wfdT  = wfiT/(kxw*Cdf1)*BetaT
-                  kzi   = 2.*kzw*(wfdM+wfdT)*dzmet
+                  kzi   = 2.0_wp*kzw*(wfdM+wfdT)*dzmet
                   Fdis  = exp(-kzi)
 
                   etwk   = etws*Fdis
@@ -238,10 +238,10 @@
                     etwk = cx2sat
                     wfiM = kds*kzw2
                     wfdM = wfiM/(kxw*Cdf1)
-                    kzi  = 2.*kzw*(wfdm + wfdm)*dzmet
+                    kzi  = 2.0_wp*kzw*(wfdm + wfdm)*dzmet
                     etwk = cx2sat*exp(-kzi)
                   endif
-!	   	                         if( lat(j) eq 40.5 ) then stop
+!                                        if( lat(j) eq 40.5 ) then stop
                   wkdis(iw,k) = kds
                   wrms(iw,k) =  etwk
                   tauk = etwk*kxw/kzw
@@ -271,14 +271,14 @@
           rms_wind(k)  = sum(wrms(:,k)*wave_act(:,k))
           tauz(levs+1) = tauz(levs)
           taup(i, 1:levs+1) = tauz(1:levs+1)
-	  
+          
           do  k=ksrc, levs
             taud(i,k) = ( tauz(k+1) - tauz(k))*grav/del(j,k)
 !
 ! limiters can be applied to avoid "large" wave accelerations
-!	    
-!	    if (taud(i,k) .gt. 0)taud(i,k)=taud(i,k)*.01
-!	    if (abs(taud(i,k)).ge.axmax)taud(i,k)=sign(taud(i,k),axmax)
+!           
+!           if (taud(i,k) .gt. 0)taud(i,k)=taud(i,k)*.01
+!           if (abs(taud(i,k)).ge.axmax)taud(i,k)=sign(taud(i,k),axmax)
           enddo
         endif                  ! taub > 0
       enddo                    ! oro-points (i, j, ipt)
@@ -289,54 +289,54 @@
 !> Define mean flow  and dissipation for OGW-kx spectrum
       subroutine oro_meanflow(nz, nzi, u1, v1, t1, pint, pmid,       &
      &      delp, rho, bn2, uzi, rhoi, ktur, kalp, dzi, xn, yn)
-      use machine ,      only : kind_phys
-      use ugwp_common ,  only : velmin, dw2min, rdi, grav, rgrav, hpscale, rhp, rh4 
+      use mo_ugwpv1_kind, only : wp
+      use ugwp_common,    only : velmin, dw2min, rdi, grav, rgrav, hpscale, rhp, rh4 
       implicit none
       
       integer :: nz, nzi
-      real(kind=kind_phys), dimension(nz  ) ::  u1,  v1, t1, delp, rho, pmid
-      real(kind=kind_phys), dimension(nz  ) ::  bn2  ! define at the interfaces
-      real(kind=kind_phys), dimension(nz+1) ::  pint
-      real(kind=kind_phys)                  ::  xn, yn
+      real(kind=wp), dimension(nz  ) ::  u1,  v1, t1, delp, rho, pmid
+      real(kind=wp), dimension(nz  ) ::  bn2  ! define at the interfaces
+      real(kind=wp), dimension(nz+1) ::  pint
+      real(kind=wp)                  ::  xn, yn
       
 ! output
  
-      real(kind=kind_phys), dimension(nz+1) ::  dzi,  uzi, rhoi, ktur, kalp
+      real(kind=wp), dimension(nz+1) ::  dzi,  uzi, rhoi, ktur, kalp
 
 ! locals
       integer :: i, j, k
-      real(kind=kind_phys) :: ui, vi, ti, uz, vz, shr2, rdz, kamp
-      real(kind=kind_phys) :: zgrow, zmet, rdpm, ritur, kmol, w1
+      real(kind=wp) :: ui, vi, ti, uz, vz, shr2, rdz, kamp
+      real(kind=wp) :: zgrow, zmet, rdpm, ritur, kmol, w1
      
 ! paremeters
-!      real(kind=kind_phys), parameter :: hps = 7000., rpspa = 1.e-5
-!      real(kind=kind_phys), parameter :: rhps=1.0/hps
-!      real(kind=kind_phys), parameter :: h4= 0.25/hps
+!      real(kind=wp), parameter :: hps = 7000., rpspa = 1.e-5
+!      real(kind=wp), parameter :: rhps=1.0/hps
+!      real(kind=wp), parameter :: h4= 0.25/hps
       
-      real(kind=kind_phys), parameter :: rimin = 0.125, kedmin = 0.01
-      real(kind=kind_phys), parameter :: lturb = 30. ,  uturb = 150.0
-      real(kind=kind_phys), parameter :: lsc2 = lturb*lturb,usc2 = uturb*uturb
+      real(kind=wp), parameter :: rimin = 0.125_wp, kedmin = 0.01_wp
+      real(kind=wp), parameter :: lturb = 30.0_wp,  uturb = 150.0_wp
+      real(kind=wp), parameter :: lsc2 = lturb*lturb,usc2 = uturb*uturb
       
-      kalp(1:nzi) = 2.e-7                     ! radiative damping scale
+      kalp(1:nzi) = 2.0e-7_wp                 ! radiative damping scale
 
       do k=2, nz
         rdpm    = grav/(pmid(k-1)-pmid(k))
-        ui      = .5*(u1(k-1)+u1(k))
-        vi      = .5*(v1(k-1)+v1(k))
+        ui      = 0.5_wp*(u1(k-1)+u1(k))
+        vi      = 0.5_wp*(v1(k-1)+v1(k))
         uzi(k)  = ui*xn + vi*yn
-        ti      = .5*(t1(k-1)+t1(k))
+        ti      = 0.5_wp*(t1(k-1)+t1(k))
         rhoi(k) = rdi*pint(k)/ti
         rdz     = rdpm *rhoi(k)
-        dzi(k)  = 1./rdz
+        dzi(k)  = 1.0_wp/rdz
         uz      = u1(k)-u1(k-1)
         vz      = v1(k)-v1(k-1)
         shr2    = rdz*rdz*(max(uz*uz+vz*vz, dw2min))
-        zmet    = -hpscale*alog(pint(k)*1.e-5)
+        zmet    = -hpscale*log(pint(k)*1.0e-5_wp)
         zgrow   = exp(zmet*rh4)
-        kmol    =  2.e-5*exp(zmet*rhp) + kedmin
+        kmol    =  2.0e-5_wp*exp(zmet*rhp) + kedmin
         ritur   = max(bn2(k)/shr2, rimin)
         kamp    = sqrt(shr2)*lsc2 *zgrow
-        w1      = 1./(1. + 5*ritur)
+        w1      = 1.0_wp/(1.0_wp + 5.0_wp*ritur)
         ktur(k) = kamp * w1 * w1 + kmol
       enddo
 
@@ -349,7 +349,7 @@
       k = nzi
       uzi(k)  = uzi(k-1)
       ktur(k) = ktur(k-1)
-      rhoi(k) = rhoi(k-1)*.5
+      rhoi(k) = rhoi(k-1)*0.5_wp
       dzi(k)  =  dzi(k-1)
 
       end subroutine oro_meanflow
