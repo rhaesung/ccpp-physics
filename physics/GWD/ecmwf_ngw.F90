@@ -58,7 +58,7 @@ contains
 
 
 !
-      use machine,          only : kind_phys
+      use mo_ugwpv1_kind,   only : wp
 
 
       use cires_ugwpv1_module,only :  psrc => knob_ugwp_palaunch
@@ -113,26 +113,26 @@ contains
       integer, intent(in)  :: KLON                              ! horiz tiles
       integer, intent(in)  :: mpi_id, master, kdt
 
-      real(kind=kind_phys) ,intent(in)   :: PTSTEP               ! model time step
-      real(kind=kind_phys) ,intent(in)   :: DX(KLON)             ! model grid size
+      real(kind=wp) ,intent(in)   :: PTSTEP               ! model time step
+      real(kind=wp) ,intent(in)   :: DX(KLON)             ! model grid size
 
-      real(kind=kind_phys) ,intent(in)   :: tau_ngw(KLON)
+      real(kind=wp) ,intent(in)   :: tau_ngw(KLON)
 
-      real(kind=kind_phys) ,intent(in)   :: PVM11(KLON,KLEV)       ! meridional wind
-      real(kind=kind_phys) ,intent(in)   :: PUM11(KLON,KLEV)       ! zonal wind
-      real(kind=kind_phys) ,intent(in)   :: qm1(KLON,KLEV)       ! spec. humidity
-      real(kind=kind_phys) ,intent(in)   :: PTM11(KLON,KLEV)       ! kinetic temperature
-      real(kind=kind_phys) ,intent(in)   :: PAPM11(KLON,KLEV)     ! mid-layer pressure
-      real(kind=kind_phys) ,intent(in)   :: PAPHM11(KLON,KLEV+1)   !  interface pressure
-      real(kind=kind_phys) ,intent(in)   :: PGEO11(KLON,KLEV)   !  full model level geopotential in meters
+      real(kind=wp) ,intent(in)   :: PVM11(KLON,KLEV)       ! meridional wind
+      real(kind=wp) ,intent(in)   :: PUM11(KLON,KLEV)       ! zonal wind
+      real(kind=wp) ,intent(in)   :: qm1(KLON,KLEV)       ! spec. humidity
+      real(kind=wp) ,intent(in)   :: PTM11(KLON,KLEV)       ! kinetic temperature
+      real(kind=wp) ,intent(in)   :: PAPM11(KLON,KLEV)     ! mid-layer pressure
+      real(kind=wp) ,intent(in)   :: PAPHM11(KLON,KLEV+1)   !  interface pressure
+      real(kind=wp) ,intent(in)   :: PGEO11(KLON,KLEV)   !  full model level geopotential in meters
 
-      real(kind=kind_phys) :: PVM1(KLON,KLEV)       ! meridional wind
-      real(kind=kind_phys) :: PUM1(KLON,KLEV)       ! zonal wind
-      real(kind=kind_phys) :: qm(KLON,KLEV)       ! spec. humidity
-      real(kind=kind_phys) :: PTM1(KLON,KLEV)       ! kinetic temperature
-      real(kind=kind_phys) :: PAPM1(KLON,KLEV)     ! mid-layer pressure
-      real(kind=kind_phys) :: PAPHM1(KLON,KLEV+1)   !  interface pressure
-      real(kind=kind_phys) :: PGEO1(KLON,KLEV)   !  full model level geopotential in meters
+      real(kind=wp) :: PVM1(KLON,KLEV)       ! meridional wind
+      real(kind=wp) :: PUM1(KLON,KLEV)       ! zonal wind
+      real(kind=wp) :: qm(KLON,KLEV)       ! spec. humidity
+      real(kind=wp) :: PTM1(KLON,KLEV)       ! kinetic temperature
+      real(kind=wp) :: PAPM1(KLON,KLEV)     ! mid-layer pressure
+      real(kind=wp) :: PAPHM1(KLON,KLEV+1)   !  interface pressure
+      real(kind=wp) :: PGEO1(KLON,KLEV)   !  full model level geopotential in meters
 
 !      real(kind=kind_phys)  :: PGAW(KLON) !normalised gaussian quadrature weight/nb of longitude pts 
                                                        ! local sub-area == 4*RPI*RA**2 * PGAW
@@ -141,92 +141,92 @@ contains
 
 
 
-      real(kind=kind_phys) ,intent(in)   :: prslk1(KLON,KLEV)    ! mid-layer exner function
-       real(kind=kind_phys) :: prslk(KLON,KLEV)    ! mid-layer exner function
+      real(kind=wp) ,intent(in)   :: prslk1(KLON,KLEV)    ! mid-layer exner function
+       real(kind=wp) :: prslk(KLON,KLEV)    ! mid-layer exner function
 !      real(kind=kind_phys) ,intent(in)   :: zmet(KLON,KLEV)     ! meters phil =philg/grav ! use PGEO1 instead
 
-      real(kind=kind_phys) ,intent(in)   :: zmeti1(KLON,KLEV+1)  !  interface geopi/meters
-      real(kind=kind_phys)  :: zmeti(KLON,KLEV+1)  !  interface geopi/meters
-      real(kind=kind_phys) ,intent(in)   :: xlatd(KLON)         ! xlat_d in degrees
-      real(kind=kind_phys) ,intent(in)   :: sinlat(KLON)
-      real(kind=kind_phys) ,intent(in)   :: coslat(KLON)
+      real(kind=wp) ,intent(in)   :: zmeti1(KLON,KLEV+1)  !  interface geopi/meters
+      real(kind=wp)  :: zmeti(KLON,KLEV+1)  !  interface geopi/meters
+      real(kind=wp) ,intent(in)   :: xlatd(KLON)         ! xlat_d in degrees
+      real(kind=wp) ,intent(in)   :: sinlat(KLON)
+      real(kind=wp) ,intent(in)   :: coslat(KLON)
 !
 ! out-gw effects
 !
-      real(kind=kind_phys) ,intent(out) :: PTENU(KLON,KLEV)     ! zonal momentum tendency
-      real(kind=kind_phys) ,intent(out) :: PTENV(KLON,KLEV)     ! meridional momentum tendency
-      real(kind=kind_phys) ,intent(out) :: pdtdt(KLON,KLEV)     ! gw-heating (u*ax+v*ay)/cp and cooling
+      real(kind=wp) ,intent(out) :: PTENU(KLON,KLEV)     ! zonal momentum tendency
+      real(kind=wp) ,intent(out) :: PTENV(KLON,KLEV)     ! meridional momentum tendency
+      real(kind=wp) ,intent(out) :: pdtdt(KLON,KLEV)     ! gw-heating (u*ax+v*ay)/cp and cooling
 
 
-      real(kind=kind_phys) :: PFLUXU(KLON,KLEV+1)     ! zonal momentum tendency
-      real(kind=kind_phys) :: PFLUXV(KLON,KLEV+1)     ! meridional momentum tendency
+      real(kind=wp) :: PFLUXU(KLON,KLEV+1)     ! zonal momentum tendency
+      real(kind=wp) :: PFLUXV(KLON,KLEV+1)     ! meridional momentum tendency
 
-      real(kind=kind_phys) ,intent(out) :: dked(KLON,KLEV)      ! gw-eddy diffusion
+      real(kind=wp) ,intent(out) :: dked(KLON,KLEV)      ! gw-eddy diffusion
 
-      real(kind=kind_phys) ,intent(out) :: zngw(KLON)           ! launch height
+      real(kind=wp) ,intent(out) :: zngw(KLON)           ! launch height
 !
 !work
       INTEGER,      PARAMETER   :: IAZIDIM=4     !number of azimuths
       INTEGER,      PARAMETER   :: INCDIM=20     !number of discretized c spectral elements in launch spectrum
 
-      REAL(kind=kind_phys),  PARAMETER    :: RA=6370.e3             !half-model level zonal velocity
-      REAL(kind=kind_phys),  PARAMETER    :: GPTWO=2.0              ! 2p in equation 
+      REAL(kind=wp),  PARAMETER    :: RA=6370.0e3_wp             !half-model level zonal velocity
+      REAL(kind=wp),  PARAMETER    :: GPTWO=2.0_wp              ! 2p in equation 
 
-      REAL(kind=kind_phys) :: ZUHM1(KLON,KLEV)             !half-model level zonal velocity
-      REAL(kind=kind_phys) :: ZVHM1(KLON,KLEV)             !half-model level meridional velocity
+      REAL(kind=wp) :: ZUHM1(KLON,KLEV)             !half-model level zonal velocity
+      REAL(kind=wp) :: ZVHM1(KLON,KLEV)             !half-model level meridional velocity
 
-      REAL(kind=kind_phys) :: ZBVFHM1(KLON,KLEV)           !half-model level Brunt-Vaisalla frequency
-      REAL(kind=kind_phys) :: ZRHOHM1(KLON,KLEV)           !half-model level density
-      REAL(kind=kind_phys) :: ZX(INCDIM)                   !coordinate transformation
-      REAL(kind=kind_phys) :: ZCI(INCDIM)                  !phase speed element
-      REAL(kind=kind_phys) :: ZDCI(INCDIM)
-      REAL(kind=kind_phys) :: ZUI(KLON,KLEV,IAZIDIM)       !intrinsic velocity
-      REAL(kind=kind_phys) :: ZUL(KLON,IAZIDIM)            !velocity in azimuthal direction at launch level
-      REAL(kind=kind_phys) :: ZBVFL(KLON)                  !buoyancy at launch level
-      REAL(kind=kind_phys) :: ZCOSANG(IAZIDIM)             !cos of azimuth angle
-      REAL(kind=kind_phys) :: ZSINANG(IAZIDIM)             !sin of azimuth angle
-      REAL(kind=kind_phys) :: ZFCT(KLON,KLEV)
-      REAL(kind=kind_phys) :: ZFNORM(KLON)                 !normalisation factor (A)
-      REAL(kind=kind_phys) :: ZCI_MIN(KLON,IAZIDIM)
-      REAL(kind=kind_phys) :: ZTHM1(KLON,KLEV)             !temperature on half-model levels
-      REAL(kind=kind_phys) :: ZFLUX(KLON,INCDIM,IAZIDIM)   !momentum flux at each vertical level and azimuth
-      REAL(kind=kind_phys) :: ZPU(KLON,KLEV,IAZIDIM)       !momentum flux
-      REAL(kind=kind_phys) :: ZDFL(KLON,KLEV,IAZIDIM)
-      REAL(kind=kind_phys) :: ZACT(KLON,INCDIM,IAZIDIM)    !if =1 then critical level encountered
-      REAL(kind=kind_phys) :: ZACC(KLON,INCDIM,IAZIDIM)
-      REAL(kind=kind_phys) :: ZCRT(KLON,KLEV,IAZIDIM)
+      REAL(kind=wp) :: ZBVFHM1(KLON,KLEV)           !half-model level Brunt-Vaisalla frequency
+      REAL(kind=wp) :: ZRHOHM1(KLON,KLEV)           !half-model level density
+      REAL(kind=wp) :: ZX(INCDIM)                   !coordinate transformation
+      REAL(kind=wp) :: ZCI(INCDIM)                  !phase speed element
+      REAL(kind=wp) :: ZDCI(INCDIM)
+      REAL(kind=wp) :: ZUI(KLON,KLEV,IAZIDIM)       !intrinsic velocity
+      REAL(kind=wp) :: ZUL(KLON,IAZIDIM)            !velocity in azimuthal direction at launch level
+      REAL(kind=wp) :: ZBVFL(KLON)                  !buoyancy at launch level
+      REAL(kind=wp) :: ZCOSANG(IAZIDIM)             !cos of azimuth angle
+      REAL(kind=wp) :: ZSINANG(IAZIDIM)             !sin of azimuth angle
+      REAL(kind=wp) :: ZFCT(KLON,KLEV)
+      REAL(kind=wp) :: ZFNORM(KLON)                 !normalisation factor (A)
+      REAL(kind=wp) :: ZCI_MIN(KLON,IAZIDIM)
+      REAL(kind=wp) :: ZTHM1(KLON,KLEV)             !temperature on half-model levels
+      REAL(kind=wp) :: ZFLUX(KLON,INCDIM,IAZIDIM)   !momentum flux at each vertical level and azimuth
+      REAL(kind=wp) :: ZPU(KLON,KLEV,IAZIDIM)       !momentum flux
+      REAL(kind=wp) :: ZDFL(KLON,KLEV,IAZIDIM)
+      REAL(kind=wp) :: ZACT(KLON,INCDIM,IAZIDIM)    !if =1 then critical level encountered
+      REAL(kind=wp) :: ZACC(KLON,INCDIM,IAZIDIM)
+      REAL(kind=wp) :: ZCRT(KLON,KLEV,IAZIDIM)
 
       INTEGER :: ILAUNCH                   !model level from which GW spectrum is launched
       INTEGER :: INC, JK, JL, IAZI
 
 
-      REAL(KIND=kind_phys) :: ZRADTODEG, ZGELATDEG
-      REAL(KIND=kind_phys) :: ZCIMIN, ZCIMAX
-      REAL(KIND=kind_phys) :: ZGAM, ZPEXP, ZXMAX, ZXMIN, ZXRAN
-      REAL(KIND=kind_phys) :: ZDX
+      REAL(KIND=wp) :: ZRADTODEG, ZGELATDEG
+      REAL(KIND=wp) :: ZCIMIN, ZCIMAX
+      REAL(KIND=wp) :: ZGAM, ZPEXP, ZXMAX, ZXMIN, ZXRAN
+      REAL(KIND=wp) :: ZDX
 
-      REAL(KIND=kind_phys) :: ZX1, ZX2, ZDXA, ZDXB, ZDXS
-      REAL(KIND=kind_phys) :: ZANG, ZAZ_FCT, ZNORM, ZANG1, ZTX
-      REAL(KIND=kind_phys) :: ZU, ZCIN, ZCPEAK
-      REAL(KIND=kind_phys) :: ZCIN4, ZBVFL4, ZCIN2, ZBVFL2, ZCIN3, ZBVFL3, ZCINC
-      REAL(KIND=kind_phys) :: ZATMP, ZFLUXS, ZDEP, ZFLUXSQ, ZULM, ZDFT, ZE1, ZE2
-      REAL(KIND=kind_phys) :: ZMS_L,ZMS, Z0P5, Z0P0, Z50S
-      REAL(KIND=kind_phys) :: ZGAUSS(KLON), ZFLUXLAUN(KLON), ZCNGL(KLON)
-      REAL(KIND=kind_phys) :: ZCONS1,ZCONS2,ZDELP,ZRGPTS
+      REAL(KIND=wp) :: ZX1, ZX2, ZDXA, ZDXB, ZDXS
+      REAL(KIND=wp) :: ZANG, ZAZ_FCT, ZNORM, ZANG1, ZTX
+      REAL(KIND=wp) :: ZU, ZCIN, ZCPEAK
+      REAL(KIND=wp) :: ZCIN4, ZBVFL4, ZCIN2, ZBVFL2, ZCIN3, ZBVFL3, ZCINC
+      REAL(KIND=wp) :: ZATMP, ZFLUXS, ZDEP, ZFLUXSQ, ZULM, ZDFT, ZE1, ZE2
+      REAL(KIND=wp) :: ZMS_L,ZMS, Z0P5, Z0P0, Z50S
+      REAL(KIND=wp) :: ZGAUSS(KLON), ZFLUXLAUN(KLON), ZCNGL(KLON)
+      REAL(KIND=wp) :: ZCONS1,ZCONS2,ZDELP,ZRGPTS
 
 !!!  try to assign values for the following 
 
-      REAL(KIND=kind_phys) :: GSSEC
-      REAL(KIND=kind_phys) :: ZGAUSSB,ZFLUXGLOB
+      REAL(KIND=wp) :: GSSEC
+      REAL(KIND=wp) :: ZGAUSSB,ZFLUXGLOB
 
 !      REAL(KIND=kind_phys) :: PGAW(KLON)  don't need this value, set ZDX directly
 
 
 !      REAL(KIND=kind_phys) ::  PGELAT(KLON) !!! use xlatd from gfs instead 
-      REAL(KIND=kind_phys) ::  GCOEFF, GGAUSSA           !!! GCOEFF link to precip
+      REAL(KIND=wp) ::  GCOEFF, GGAUSSA           !!! GCOEFF link to precip
 !      REAL(KIND=kind_phys) ::   GGAUSSB                  !!! GGAUSSB->ZGAUSS
                                                          !!!! GGAUSSA
-      REAL(KIND=kind_phys) ::  GCSTAR
+      REAL(KIND=wp) ::  GCSTAR
 
 
       LOGICAL :: LGACALC, LGSATL, LOZPR
@@ -242,22 +242,22 @@ contains
        NGAUSS=1
 !      GGAUSSA=20._kind_phys
 !       GGAUSSA=10._kind_phys
-        GGAUSSA=5._kind_phys
+        GGAUSSA=5.0_wp
 !      GGAUSSB=1.0_kind_phys
 !        ZGAUSSB=0.25_kind_phys
 !         ZGAUSSB=0.3_kind_phys
 !          ZGAUSSB=0.35_kind_phys
 !         ZGAUSSB=0.38_kind_phys
 !        ZGAUSSB=-0.25_kind_phys
-         ZGAUSSB=0.5_kind_phys
+         ZGAUSSB=0.5_wp
 !        ZGAUSSB=0.3_kind_phys
-      GCSTAR=1.0_kind_phys
+      GCSTAR=1.0_wp
 
        
 
 !      GSSEC=(pi2/1800.)*(pi2/1800.)
-       GSSEC=1.e-24
-       GCOEFF=1.0_kind_phys   !!do not know the value, but never use it when NGAUSS is not equal 1
+       GSSEC=1.0e-24_wp
+       GCOEFF=1.0_wp   !!do not know the value, but never use it when NGAUSS is not equal 1
       
 
 
@@ -274,14 +274,14 @@ contains
 
 !*INPUT PARAMETERS
 !*       ----------------
-      ZRADTODEG=57.29577951_kind_phys
-      ZMS_L=2.e3_kind_phys
+      ZRADTODEG=57.29577951_wp
+      ZMS_L=2.0e3_wp
 !       ZFLUXGLOB=3.75e-3_kind_phys
 !        ZFLUXGLOB=3.7e-3_kind_phys
 !         ZFLUXGLOB=3.55e-3_kind_phys
 !           ZFLUXGLOB=3.65e-3_kind_phys  !standard value
 !           ZFLUXGLOB=3.62e-3_kind_phys  !standard value
-           ZFLUXGLOB=3.60e-3_kind_phys 
+           ZFLUXGLOB=3.60e-3_wp 
 
 !       ZFLUXGLOB=3.2e-3_kind_phys
 !        ZFLUXGLOB=3.0e-3_kind_phys
@@ -289,20 +289,20 @@ contains
 !        ZFLUXGLOB=4.0e-3_kind_phys
 !       ZFLUXGLOB=0.0_kind_phys
 
-      ZMS=2*pi/ZMS_L
+      ZMS=2.0_wp*pi/ZMS_L
 
 !*       INITIALIZE FIELDS TO ZERO
 !*       -------------------------
 
-      PTENU(:,:)=0.0_kind_phys
-      PTENV(:,:)=0.0_kind_phys
-      pdtdt(:,:)=0.0_kind_phys
-      dked(:,:)=0.0_kind_phys
+      PTENU(:,:)=0.0_wp
+      PTENV(:,:)=0.0_wp
+      pdtdt(:,:)=0.0_wp
+      dked(:,:)=0.0_wp
 
        DO JK=1,KLEV+1
        DO JL=1,KLON
-        PFLUXU(JL,JK)=0.0_kind_phys
-        PFLUXV(JL,JK)=0.0_kind_phys
+        PFLUXU(JL,JK)=0.0_wp
+        PFLUXV(JL,JK)=0.0_wp
        ENDDO
        ENDDO
 
@@ -310,9 +310,9 @@ contains
       DO IAZI=1,IAZIDIM
         DO JK=1,KLEV
           DO JL=1,KLON
-           ZPU(JL,JK,IAZI)=0.0_kind_phys
-           ZCRT(JL,JK,IAZI)=0.0_kind_phys
-           ZDFL(JL,JK,IAZI)=0.0_kind_phys
+           ZPU(JL,JK,IAZI)=0.0_wp
+           ZCRT(JL,JK,IAZI)=0.0_wp
+           ZDFL(JL,JK,IAZI)=0.0_wp
           ENDDO
         ENDDO
       ENDDO
@@ -364,11 +364,11 @@ contains
 ! ZCIMIN,ZCIMAX - min,max intrinsic launch-level phase speed (c-U_o) (m/s)
 ! ZGAM - half=width of coordinate stretch
 
-      ZCIMIN=0.50_kind_phys
-      ZCIMAX=100.0_kind_phys
-      ZGAM=0.25_kind_phys
+      ZCIMIN=0.50_wp
+      ZCIMAX=100.0_wp
+      ZGAM=0.25_wp
 
-      ZPEXP=GPTWO/2.0_kind_phys
+      ZPEXP=GPTWO/2.0_wp
 
 ! set initial min ci in each column and azimuth (used for critical levels)
 
@@ -384,9 +384,9 @@ contains
 
        DO JK=2,KLEV
        DO JL=1,KLON
-       ZTHM1(JL,JK) =0.5_kind_phys*(PTM1(JL,JK-1)+PTM1(JL,JK))
-       ZUHM1(JL,JK) =0.5_kind_phys*(PUM1(JL,JK-1)+PUM1(JL,JK))
-       ZVHM1(JL,JK) =0.5_kind_phys*(PVM1(JL,JK-1)+PVM1(JL,JK))
+       ZTHM1(JL,JK) =0.5_wp*(PTM1(JL,JK-1)+PTM1(JL,JK))
+       ZUHM1(JL,JK) =0.5_wp*(PUM1(JL,JK-1)+PUM1(JL,JK))
+       ZVHM1(JL,JK) =0.5_wp*(PVM1(JL,JK-1)+PVM1(JL,JK))
        ENDDO
        ENDDO
 
@@ -404,7 +404,7 @@ contains
 !       ZCONS1=1.0_kind_phys/RD
 !       ZCONS2=RG**2/RCPD
 
-        ZCONS1=1.0_kind_phys/rd
+        ZCONS1=1.0_wp/rd
         ZCONS2=grav2cpd
 
 
@@ -414,7 +414,7 @@ contains
             ZDELP=(PGEO1(JL,JK)-PGEO1(JL,JK-1))*grav   !! times grav since import from zmet
             ZRHOHM1(JL,JK)=PAPHM1(JL,JK)*ZCONS1/ZTHM1(JL,JK)
             ZBVFHM1(JL,JK)=ZCONS2/ZTHM1(JL,JK)*&
-     &      (1.0_kind_phys+cpd*(PTM1(JL,JK)-PTM1(JL,JK-1))/ZDELP)
+     &      (1.0_wp+cpd*(PTM1(JL,JK)-PTM1(JL,JK-1))/ZDELP)
 !     & (1.0_kind_phys-RCPD*ZRHOHM1(JL,JK)*(PTM1(JL,JK)-PTM1(JL,JK-1))/ZDELP)
            ZBVFHM1(JL,JK)=MAX(ZBVFHM1(JL,JK),GSSEC)
            ZBVFHM1(JL,JK)=SQRT(ZBVFHM1(JL,JK))
@@ -424,8 +424,8 @@ contains
 !*       SET UP AZIMUTH DIRECTIONS AND SOME TRIG FACTORS
 !*       -----------------------------------------------
 
-         ZANG=2*pi/IAZIDIM
-         ZAZ_FCT=1.0_kind_phys
+         ZANG=2.0_wp*pi/real(IAZIDIM, kind=wp)
+         ZAZ_FCT=1.0_wp
 
 
 ! get normalization factor to ensure that the same amount of momentum
@@ -433,14 +433,14 @@ contains
 ! note, however, the code below assumes a symmetric distribution of
 ! of azimuthal directions (ie 4,8,16,32,...)
 
-      ZNORM=0.0_kind_phys
+      ZNORM=0.0_wp
       DO IAZI=1,IAZIDIM
-      ZANG1=(IAZI-1)*ZANG
+      ZANG1=real(IAZI-1, kind=wp)*ZANG
       ZCOSANG(IAZI)=COS(ZANG1)
       ZSINANG(IAZI)=SIN(ZANG1)
       ZNORM=ZNORM+ABS(ZCOSANG(IAZI))
       ENDDO
-      ZAZ_FCT=2._kind_phys*ZAZ_FCT/ZNORM
+      ZAZ_FCT=2.0_wp*ZAZ_FCT/ZNORM
 
 
 !*       DEFINE COORDINATE TRANSFORM
@@ -451,25 +451,25 @@ contains
 ! launch site.
 ! See Eq. 28-30 of Scinocca 2003.
 
-      ZXMAX=1.0_kind_phys/ZCIMIN
-      ZXMIN=1.0_kind_phys/ZCIMAX
+      ZXMAX=1.0_wp/ZCIMIN
+      ZXMIN=1.0_wp/ZCIMAX
 
       ZXRAN=ZXMAX-ZXMIN
-      ZDX=ZXRAN/REAL(INCDIM-1)
+      ZDX=ZXRAN/REAL(INCDIM-1, kind=wp)
       IF(LGACALC) ZGAM=(ZXMAX-ZXMIN)/LOG(ZXMAX/ZXMIN)
 !!  LGACALC=.false. ZGAM =0.25   ZX1=0.0007
 !!  LGACALC=.true. ZGAM =0.37559 ZX1=0.01
 
-      ZX1=ZXRAN/(EXP(ZXRAN/ZGAM)-1.0_kind_phys)
+      ZX1=ZXRAN/(EXP(ZXRAN/ZGAM)-1.0_wp)
       ZX2=ZXMIN-ZX1
 
 
 
 
       DO INC=1,INCDIM 
-      ZTX=REAL(INC-1)*ZDX+ZXMIN
+      ZTX=REAL(INC-1, kind=wp)*ZDX+ZXMIN
       ZX(INC)=ZX1*EXP((ZTX-ZXMIN)/ZGAM)+ZX2                       !Eq. 29 of Scinocca 2003
-      ZCI(INC)=1.0_kind_phys/ZX(INC)                                   !Eq. 28 of Scinocca 2003
+      ZCI(INC)=1.0_wp/ZX(INC)                                   !Eq. 28 of Scinocca 2003
       ZDCI(INC)=ZCI(INC)**2*(ZX1/ZGAM)*EXP((ZTX-ZXMIN)/ZGAM)*ZDX  !Eq. 30 of Scinocca 2003
       ENDDO
 
@@ -542,7 +542,7 @@ contains
          ELSE
          ZFLUX(JL,INC,1)=ZFCT(JL,ILAUNCH)*ZBVFL4*ZCIN/(ZBVFL4+ZCIN4)
          ENDIF
-         ZACT(JL,INC,1)=1.0_kind_phys
+         ZACT(JL,INC,1)=1.0_wp
       ENDDO
       ENDDO
 
@@ -561,7 +561,7 @@ contains
          ZFLUX(JL,INC,1)=ZFCT(JL,ILAUNCH)*ZBVFL4*ZCIN*ZCPEAK/(ZBVFL4&
      &     *ZCPEAK+ZCIN4*ZCIN)
          ENDIF
-         ZACT(JL,INC,1)=1.0_kind_phys
+         ZACT(JL,INC,1)=1.0_wp
       ENDDO
       ENDDO
 
@@ -573,7 +573,7 @@ contains
       DO JL=1,KLON
         ZBVFL2=ZBVFL(JL)**2
         ZFLUX(JL,INC,1)=ZFCT(JL,ILAUNCH)*ZBVFL2*ZCIN/(ZBVFL2+ZCIN2)
-        ZACT(JL,INC,1)=1.0_kind_phys
+        ZACT(JL,INC,1)=1.0_wp
       ENDDO
       ENDDO
 
@@ -585,8 +585,8 @@ contains
       DO JL=1,KLON
         ZBVFL3=ZBVFL(JL)**3
         ZFLUX(JL,INC,1)=ZFCT(JL,ILAUNCH)*ZBVFL3*ZCIN/(ZBVFL3+ZCIN3)
-        ZACT(JL,INC,1)=1.0_kind_phys
-        ZACC(JL,INC,1)=1.0_kind_phys
+        ZACT(JL,INC,1)=1.0_wp
+        ZACC(JL,INC,1)=1.0_wp
       ENDDO
       ENDDO
 
@@ -612,8 +612,8 @@ contains
 ! Also other options to alter tropical values
 
 ! A=ZFNORM in Scinocca 2003.  A is independent of height.
-      ZDXA=1.0_kind_phys/29.E3_kind_phys
-      ZDXB=1.0_kind_phys/3.5E3_kind_phys
+      ZDXA=1.0_wp/29.0E3_wp
+      ZDXB=1.0_wp/3.5E3_wp
       DO JL=1,KLON
 !!    ZDX=MAX(1.E2_kind_phys,2*RA*SQRT(pi*PGAW(JL))) !grid resolution (m)
 !!      ZDX=50.E3    ! c192 for c192 usage
@@ -623,7 +623,7 @@ contains
 
    !Scaling factor for launch flux depending on grid resolution
    ! smooth reduction below 30 km
-      ZDXS=1.0_kind_phys-MIN(1.0_kind_phys,ATAN((MAX(1.0_kind_phys&
+      ZDXS=1.0_wp-MIN(1.0_wp,ATAN((MAX(1.0_wp&
      &   /DX(JL),ZDXA)-ZDXA)/(ZDXB-ZDXA)))
        ZFLUXLAUN(JL)=ZFLUXGLOB*ZDXS
       ZFNORM(JL)=ZFLUXLAUN(JL)/ZPU(JL,ILAUNCH,1)
@@ -632,7 +632,7 @@ contains
 ! If LOZPR=TRUE then vary EPLAUNCH over tropics
       IF (LOZPR) THEN
        IF (NGAUSS==1) THEN
-       Z50S=-50.0_kind_phys
+       Z50S=-50.0_wp
 
        DO JL=1,KLON
 
@@ -643,7 +643,7 @@ contains
        ZGELATDEG=xlatd(JL)-Z50S
        ZGAUSS(JL)=ZGAUSSB*EXP((-ZGELATDEG*ZGELATDEG)&
 !    &  /(2*GGAUSSA*GGAUSSA))
-     &  /(2*20.*20.))
+     &  /(2.0_wp*20.0_wp*20.0_wp))
 
 !       ZGELATDEG=xlatd(JL)
 !       ZGAUSS(JL)=-0.1_kind_phys*EXP((-ZGELATDEG*ZGELATDEG)&
@@ -655,15 +655,15 @@ contains
 !     &  /(2*GGAUSSA*GGAUSSA))+ZGAUSS(JL)
 
        ZGELATDEG=xlatd(JL)
-       ZGAUSS(JL)=0.08_kind_phys*EXP((-ZGELATDEG*ZGELATDEG)&
-     &  /(2*GGAUSSA*GGAUSSA))+ZGAUSS(JL)
+       ZGAUSS(JL)=0.08_wp*EXP((-ZGELATDEG*ZGELATDEG)&
+     &  /(2.0_wp*GGAUSSA*GGAUSSA))+ZGAUSS(JL)
 
-       ZGELATDEG=xlatd(JL)-50.0_kind_phys
-       ZGAUSS(JL)= 0.1_kind_phys*EXP((-ZGELATDEG*ZGELATDEG)&
-     &  /(2*10.*10.))+ZGAUSS(JL)
+       ZGELATDEG=xlatd(JL)-50.0_wp
+       ZGAUSS(JL)= 0.1_wp*EXP((-ZGELATDEG*ZGELATDEG)&
+     &  /(2.0_wp*10.0_wp*10.0_wp))+ZGAUSS(JL)
 
 
-       ZFLUXLAUN(JL)=(1.0_kind_phys+ZGAUSS(JL))*ZFLUXLAUN(JL)
+       ZFLUXLAUN(JL)=(1.0_wp+ZGAUSS(JL))*ZFLUXLAUN(JL)
 
 
 
@@ -677,8 +677,8 @@ contains
 !       ZGELATDEG=PGELAT(JL)*ZRADTODEG
        ZGELATDEG=xlatd(JL)
        ZGAUSS(JL)=ZGAUSSB*EXP((-ZGELATDEG*ZGELATDEG)&
-     &  /(2*GGAUSSA*GGAUSSA))
-       ZFLUXLAUN(JL)=(1.0_kind_phys+ZGAUSS(JL))*ZFLUXLAUN(JL)
+     &  /(2.0_wp*GGAUSSA*GGAUSSA))
+       ZFLUXLAUN(JL)=(1.0_wp+ZGAUSS(JL))*ZFLUXLAUN(JL)
        ZFNORM(JL)=ZFLUXLAUN(JL)/ZPU(JL,ILAUNCH,1)
        ENDDO
 
@@ -687,12 +687,12 @@ contains
       ELSEIF (NGAUSS==4) THEN
 
 ! Set latitudinal dependence to optimize stratospheric winds for 36r1
-      Z50S=-50.0_kind_phys
+      Z50S=-50.0_wp
       DO JL=1,KLON
 !      ZGELATDEG=PGELAT(JL)*ZRADTODEG-Z50S
        ZGELATDEG=xlatd(JL)-Z50S
-      ZGAUSS(JL)=ZGAUSSB*EXP((-ZGELATDEG*ZGELATDEG)/(2*GGAUSSA*GGAUSSA))
-      ZFLUXLAUN(JL)=(1.0_kind_phys+ZGAUSS(JL))*ZFLUXLAUN(JL)
+      ZGAUSS(JL)=ZGAUSSB*EXP((-ZGELATDEG*ZGELATDEG)/(2.0_wp*GGAUSSA*GGAUSSA))
+      ZFLUXLAUN(JL)=(1.0_wp+ZGAUSS(JL))*ZFLUXLAUN(JL)
       ZFNORM(JL)=ZFLUXLAUN(JL)/ZPU(JL,ILAUNCH,1)
       ENDDO
 
@@ -733,8 +733,8 @@ contains
         DO INC=1,INCDIM
          DO JL=1,KLON
          ZFLUX(JL,INC,IAZI)=ZFLUX(JL,INC,1)
-         ZACT(JL,INC,IAZI)=1.0_kind_phys
-         ZACC(JL,INC,IAZI)=1.0_kind_phys
+         ZACT(JL,INC,IAZI)=1.0_wp
+         ZACC(JL,INC,IAZI)=1.0_wp
          ENDDO
        ENDDO
       ENDDO
@@ -764,7 +764,7 @@ contains
 !* set ZACT to zero if critical level encountered
 !* ----------------------------------------------
 
-         Z0P5=0.5_kind_phys
+         Z0P5=0.5_wp
          DO INC=1,INCDIM
             ZCIN=ZCI(INC)
             DO JL=1,KLON
@@ -788,7 +788,7 @@ contains
 !* get weighted average of phase speed in layer
                                                     
         DO JL=1,KLON
-            IF(ZDFL(JL,JK,IAZI)>0.0_kind_phys) THEN
+            IF(ZDFL(JL,JK,IAZI)>0.0_wp) THEN
                ZATMP=ZCRT(JL,JK,IAZI)
                DO INC=1,INCDIM
                   ZATMP=ZATMP+ZCI(INC)*&
@@ -803,31 +803,31 @@ contains
 !* do saturation (Eq. (26) and (27) of Scinocca 2003)
 !* -------------------------------------------------
 
-         IF(GPTWO==3.0_kind_phys) THEN
+         IF(GPTWO==3.0_wp) THEN
              DO INC=1,INCDIM
                 ZCIN=ZCI(INC)
-                ZCINC=1.0_kind_phys/ZCIN
+                ZCINC=1.0_wp/ZCIN
                 DO JL=1,KLON
                    ZE1=ZCIN-ZUI(JL,JK,IAZI)
                    ZE2=GCSTAR*ZFCT(JL,JK)*ZE1
                    ZFLUXSQ=ZE2*ZE2*ZE1*ZCINC
                 !  ZFLUXSQ=ZE2*ZE2*ZE1/ZCIN
                    ZDEP=ZACT(JL,INC,IAZI)*(ZFLUX(JL,INC,IAZI)**2-ZFLUXSQ)
-                   IF(ZDEP>0.0_kind_phys) THEN
+                   IF(ZDEP>0.0_wp) THEN
                       ZFLUX(JL,INC,IAZI)=SQRT(ZFLUXSQ)
                    ENDIF
                 ENDDO
              ENDDO
-         ELSEIF(GPTWO==2.0_kind_phys) THEN
+         ELSEIF(GPTWO==2.0_wp) THEN
              DO INC=1,INCDIM
                 ZCIN=ZCI(INC)
-                ZCINC=1.0_kind_phys/ZCIN
+                ZCINC=1.0_wp/ZCIN
                 DO JL=1,KLON
                    ZFLUXS=GCSTAR*ZFCT(JL,JK)*&
      &                    (ZCIN-ZUI(JL,JK,IAZI))**2*ZCINC
                 !  ZFLUXS=GCSTAR*ZFCT(JL,JK)*(ZCIN-ZUI(JL,JK,IAZI))**2/ZCIN
                    ZDEP=ZACT(JL,INC,IAZI)*(ZFLUX(JL,INC,IAZI)-ZFLUXS)
-                   IF(ZDEP>0.0_kind_phys) THEN
+                   IF(ZDEP>0.0_wp) THEN
                       ZFLUX(JL,INC,IAZI)=ZFLUXS
                    ENDIF
                 ENDDO
@@ -859,19 +859,19 @@ contains
 !*       MAKE CORRECTION FOR CRITICAL-LEVEL MOMENTUM DEPOSITION
 !*       ------------------------------------------------------
 
-        Z0P0=0._kind_phys
+        Z0P0=0.0_wp
 !        ZRGPTS=1.0_kind_phys/(RG*PTSTEP)
-         ZRGPTS=1.0_kind_phys/(grav*PTSTEP)
+         ZRGPTS=1.0_wp/(grav*PTSTEP)
         DO IAZI=1,IAZIDIM
         DO JL=1,KLON
-          ZCNGL(JL)=0.0_kind_phys
+          ZCNGL(JL)=0.0_wp
         ENDDO
         DO JK=2,ILAUNCH
         DO JL=1,KLON
          ZULM=ZCOSANG(IAZI)*PUM1(JL,JK)+ZSINANG(IAZI)*& 
      &   PVM1(JL,JK)-ZUL(JL,IAZI)
          ZDFL(JL,JK-1,IAZI)=ZDFL(JL,JK-1,IAZI)+ZCNGL(JL)
-         ZDFT=MIN(ZDFL(JL,JK-1,IAZI),2.0_kind_phys*(PAPM1(JL,JK-1)-&
+         ZDFT=MIN(ZDFL(JL,JK-1,IAZI),2.0_wp*(PAPM1(JL,JK-1)-&
      & PAPM1(JL,JK))*(ZCRT(JL,JK-1,IAZI)-ZULM)*ZRGPTS)
 
          ZDFT=MAX(ZDFT,Z0P0)
@@ -951,7 +951,3 @@ contains
 
       
 end module ecmwf_ngw
-
-
-
-
