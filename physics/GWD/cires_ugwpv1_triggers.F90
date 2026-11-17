@@ -2,7 +2,7 @@
 !!
 module cires_ugwpv1_triggers
 
-        use machine,            only: kind_phys
+        use mo_ugwpv1_kind,     only: wp
 
 contains
 
@@ -13,8 +13,8 @@ contains
 
       implicit none
       integer :: im     
-      real(kind=kind_phys)    :: tau_amp, xlatdeg(im), tau_gw(im)
-      real(kind=kind_phys)    :: latdeg, flat_gw, tem
+      real(kind=wp)    :: tau_amp, xlatdeg(im), tau_gw(im)
+      real(kind=wp)    :: latdeg, flat_gw, tem
       integer :: i
       
 !
@@ -22,18 +22,18 @@ contains
 !
       do i=1, im
         latdeg = abs(xlatdeg(i))    
-        if (latdeg < 15.3) then
-          tem = (latdeg-3.0) / 8.0
-          flat_gw = 0.75 * exp(-tem * tem)
-          if (flat_gw < 1.2 .and. latdeg <= 3.0) flat_gw = 0.75
-        elseif (latdeg <  31.0 .and. latdeg >=  15.3) then
-           flat_gw =  0.10
-        elseif (latdeg <  60.0 .and. latdeg >=  31.0) then
-          tem = (latdeg-60.0) / 23.0
-          flat_gw =  0.50 * exp(- tem * tem)
-        elseif (latdeg >=  60.0) then
-          tem = (latdeg-60.0) / 70.0
-          flat_gw =  0.50 * exp(- tem * tem)
+        if (latdeg < 15.3_wp) then
+          tem = (latdeg-3.0_wp) / 8.0_wp
+          flat_gw = 0.75_wp * exp(-tem * tem)
+          if (flat_gw < 1.2_wp .and. latdeg <= 3.0_wp) flat_gw = 0.75_wp
+        elseif (latdeg <  31.0_wp .and. latdeg >=  15.3_wp) then
+           flat_gw =  0.10_wp
+        elseif (latdeg <  60.0_wp .and. latdeg >=  31.0_wp) then
+          tem = (latdeg-60.0_wp) / 23.0_wp
+          flat_gw =  0.50_wp * exp(- tem * tem)
+        elseif (latdeg >=  60.0_wp) then
+          tem = (latdeg-60.0_wp) / 70.0_wp
+          flat_gw =  0.50_wp * exp(- tem * tem)
         endif
         tau_gw(i) = tau_amp*flat_gw 
       enddo
@@ -46,16 +46,16 @@ contains
 
       implicit none
       integer :: im     
-      real(kind=kind_phys)    :: tau_amp, xlatdeg(im), tau_gw(im)
-      real(kind=kind_phys)    :: latdeg, flat_gw, tem
-      real(kind=kind_phys), parameter    :: fampqbo = 1.25    ! 1.5     
-      real(kind=kind_phys), parameter    :: famp60S = 1.0     ! 1.5
-      real(kind=kind_phys), parameter    :: famp60N = 1.0     ! 1.0
-      real(kind=kind_phys), parameter    :: famp30  = 0.25    ! 0.4
+      real(kind=wp)    :: tau_amp, xlatdeg(im), tau_gw(im)
+      real(kind=wp)    :: latdeg, flat_gw, tem
+      real(kind=wp), parameter    :: fampqbo = 1.25_wp    ! 1.5     
+      real(kind=wp), parameter    :: famp60S = 1.0_wp     ! 1.5
+      real(kind=wp), parameter    :: famp60N = 1.0_wp     ! 1.0
+      real(kind=wp), parameter    :: famp30  = 0.25_wp    ! 0.4
         
-      real(kind=kind_phys), parameter    :: swid15  = 12.5  
-      real(kind=kind_phys), parameter    :: swid60S  = 30.0   ! 40
-      real(kind=kind_phys), parameter    :: swid60N  = 25.0   ! 30                 
+      real(kind=wp), parameter    :: swid15  = 12.5_wp  
+      real(kind=wp), parameter    :: swid60S  = 30.0_wp   ! 40
+      real(kind=wp), parameter    :: swid60N  = 25.0_wp   ! 30                 
       integer :: i
 !    
 !
@@ -63,28 +63,28 @@ contains
       do i=1, im
       
         latdeg = abs(xlatdeg(i))    
-        if (latdeg < 15.3) then
-          tem = (latdeg-3.0) / swid15
+        if (latdeg < 15.3_wp) then
+          tem = (latdeg-3.0_wp) / swid15
           flat_gw = fampqbo * exp(-tem * tem)
-          if (latdeg <= 3.0) flat_gw = fampqbo
-        elseif (latdeg <  31.0 .and. latdeg >=  15.3) then
+          if (latdeg <= 3.0_wp) flat_gw = fampqbo
+        elseif (latdeg <  31.0_wp .and. latdeg >=  15.3_wp) then
            flat_gw =  famp30
-        elseif (latdeg <  60.0 .and. latdeg >=  31.0) then
-          tem = (latdeg-60.0) / 23.0
+        elseif (latdeg <  60.0_wp .and. latdeg >=  31.0_wp) then
+          tem = (latdeg-60.0_wp) / 23.0_wp
           flat_gw =   famp60N* exp(- tem * tem)
-        elseif (latdeg >=  60.0) then
-          tem = (latdeg-60.0) /swid60N
+        elseif (latdeg >=  60.0_wp) then
+          tem = (latdeg-60.0_wp) /swid60N
           flat_gw =  famp60N * exp(- tem * tem)
         endif
 
-          if (xlatdeg(i) <= -31.0) then   
+          if (xlatdeg(i) <= -31.0_wp) then   
 !                 
-            if (latdeg <  60.0 .and. latdeg >=  31.0) then
-              tem = (latdeg-60.0) / 23.0
+            if (latdeg <  60.0_wp .and. latdeg >=  31.0_wp) then
+              tem = (latdeg-60.0_wp) / 23.0_wp
               flat_gw =  famp60S * exp(- tem * tem)           
             endif           
-            if (latdeg >=  60.0) then
-               tem = (latdeg-60.0) /swid60S
+            if (latdeg >=  60.0_wp) then
+               tem = (latdeg-60.0_wp) /swid60S
                flat_gw =  famp60S * exp(- tem * tem)
             endif
             
@@ -99,33 +99,33 @@ contains
       
       implicit none
       integer :: im     
-      real(kind=kind_phys)  :: xlatdeg(im)          
-      real(kind=kind_phys)  :: tau_gw(im)
-      real(kind=kind_phys)  :: latdeg
-      real(kind=kind_phys), parameter  :: tau_amp = 3.5e-3    ! 3.5 mPa 
-      real(kind=kind_phys)             :: trop_gw,  flat_gw 
+      real(kind=wp)  :: xlatdeg(im)          
+      real(kind=wp)  :: tau_gw(im)
+      real(kind=wp)  :: latdeg
+      real(kind=wp), parameter  :: tau_amp = 3.5e-3_wp    ! 3.5 mPa 
+      real(kind=wp)             :: trop_gw,  flat_gw 
       integer :: i
 !
 ! if-lat
 !
-      trop_gw = 0.75
+      trop_gw = 0.75_wp
       do i=1, im
       latdeg = xlatdeg(i)    
-      if (-15.3 < latdeg .and. latdeg < 15.3) then
-          flat_gw = trop_gw*exp(-( (abs(latdeg)-3.)/8.0)**2)
-          if (flat_gw < 1.2 .and. abs(latdeg) <= 3.) flat_gw = trop_gw
-      else if (latdeg > -31. .and. latdeg <= -15.3) then
-          flat_gw =  0.10
-      else if (latdeg <  31. .and. latdeg >=  15.3) then
-           flat_gw =  0.10
-      else if (latdeg > -60. .and. latdeg <= -31.) then
-        flat_gw =  0.50*exp(-((abs(latdeg)-60.)/23.)**2)
-      else if (latdeg <  60. .and. latdeg >=  31.) then
-        flat_gw =  0.50*exp(-((abs(latdeg)-60.)/23.)**2)
-      else if (latdeg <= -60.) then
-         flat_gw =  0.50*exp(-((abs(latdeg)-60.)/70.)**2)
-      else if (latdeg >=  60.) then
-         flat_gw =  0.50*exp(-((abs(latdeg)-60.)/70.)**2)
+      if (-15.3_wp < latdeg .and. latdeg < 15.3_wp) then
+          flat_gw = trop_gw*exp(-( (abs(latdeg)-3.0_wp)/8.0_wp)**2)
+          if (flat_gw < 1.2_wp .and. abs(latdeg) <= 3.0_wp) flat_gw = trop_gw
+      else if (latdeg > -31.0_wp .and. latdeg <= -15.3_wp) then
+          flat_gw =  0.10_wp
+      else if (latdeg <  31.0_wp .and. latdeg >=  15.3_wp) then
+           flat_gw =  0.10_wp
+      else if (latdeg > -60.0_wp .and. latdeg <= -31.0_wp) then
+        flat_gw =  0.50_wp*exp(-((abs(latdeg)-60.0_wp)/23.0_wp)**2)
+      else if (latdeg <  60.0_wp .and. latdeg >=  31.0_wp) then
+        flat_gw =  0.50_wp*exp(-((abs(latdeg)-60.0_wp)/23.0_wp)**2)
+      else if (latdeg <= -60.0_wp) then
+         flat_gw =  0.50_wp*exp(-((abs(latdeg)-60.0_wp)/70.0_wp)**2)
+      else if (latdeg >=  60.0_wp) then
+         flat_gw =  0.50_wp*exp(-((abs(latdeg)-60.0_wp)/70.0_wp)**2)
       end if
       tau_gw(i) = tau_amp*flat_gw 
       enddo
@@ -142,22 +142,22 @@ contains
 !      
       integer                   :: nw, im, levs 
       integer,dimension(im,3)   :: icld   
-      real(kind=kind_phys), dimension(im, levs) :: dcheat,  scheat   
-      real(kind=kind_phys), dimension(im)       :: precip, xlatd, sinlat, coslat      
-      real(kind=kind_phys), dimension(im)       :: taub
+      real(kind=wp), dimension(im, levs) :: dcheat,  scheat   
+      real(kind=wp), dimension(im)       :: precip, xlatd, sinlat, coslat      
+      real(kind=wp), dimension(im)       :: taub
       integer, dimension(im)    :: klev, if_src
       integer ::  nf_src
 !
 ! locals
-      real(kind=kind_phys), parameter           ::  precip_max = 100.   ! mm/day
-      real(kind=kind_phys), parameter           ::  tau_amp    = 3.5e-3  ! 3.5 mPa   
+      real(kind=wp), parameter           ::  precip_max = 100.0_wp   ! mm/day
+      real(kind=wp), parameter           ::  tau_amp    = 3.5e-3_wp  ! 3.5 mPa   
        
       integer  :: i, k, klow, ktop, kmid
-      real(kind=kind_phys)     :: dtot, dmax, daver
+      real(kind=wp)     :: dtot, dmax, daver
 !      
       nf_src = 0
       if_src(1:im) = 0 
-      taub(1:im)   = 0.0
+      taub(1:im)   = 0.0_wp
       do i=1, im
         klow = icld(i,1)
         ktop = icld(i,2)
@@ -176,9 +176,9 @@ contains
               dmax =  dtot
             endif  
           enddo
-!	  
+!         
 ! klev  as  max( dcheat(i,k) + scheat)
-!	vertical width of conv-heating
+!       vertical width of conv-heating
 !  
 ! counts/triiger=1   & taub(i) 
 !
@@ -188,7 +188,7 @@ contains
         endif 
 
       enddo
-!	
+!
 !  
 !      
       call Slat_geos5(im, xlatd, taub)
@@ -207,25 +207,25 @@ contains
 !>
       subroutine get_spectra_tau_nstgw(nw, im, levs, trig_fgf, xlatd, sinlat, coslat, taub, klev, if_src, nf_src)
       integer                      :: nw, im, levs 
-      real(kind=kind_phys), dimension(im, levs)    :: trig_fgf
-!      real(kind=kind_phys), dimension(im, levs+1)  :: pint      
-      real(kind=kind_phys), dimension(im)          :: xlatd, sinlat, coslat        
-      real(kind=kind_phys), dimension(im)          :: taub
+      real(kind=wp), dimension(im, levs)    :: trig_fgf
+!      real(kind=wp), dimension(im, levs+1)  :: pint      
+      real(kind=wp), dimension(im)          :: xlatd, sinlat, coslat        
+      real(kind=wp), dimension(im)          :: taub
       integer, dimension(im)          :: klev, if_src
       integer ::  nf_src
 ! locals
-      real(kind=kind_phys), parameter           ::  tlim_fgf = 100.     ! trig_fgf > tlim_fgf, launch waves should scale-dependent
-      real(kind=kind_phys), parameter           ::  tau_amp   = 3.5e-3  ! 3.5 mPa
-      real(kind=kind_phys), parameter           ::  pmax = 750.e2,  pmin = 100.e2  
+      real(kind=wp), parameter           ::  tlim_fgf = 100.0_wp     ! trig_fgf > tlim_fgf, launch waves should scale-dependent
+      real(kind=wp), parameter           ::  tau_amp   = 3.5e-3_wp  ! 3.5 mPa
+      real(kind=wp), parameter           ::  pmax = 750.e2_wp,  pmin = 100.e2_wp  
       integer, parameter        ::  klow =127-92,   ktop=127-45
       integer, parameter        ::  kwidth = ktop-klow+1   
       integer  :: i, k,  kex
-      real(kind=kind_phys)     :: dtot, dmax, daver      
-      real(kind=kind_phys)     :: fnorm, tau_min     
+      real(kind=wp)     :: dtot, dmax, daver      
+      real(kind=wp)     :: fnorm, tau_min     
       nf_src = 0      
       if_src(1:im) = 0 
-      taub(1:im)   = 0.0
-      fnorm = 1.0 / float(kwidth)
+      taub(1:im)   = 0.0_wp
+      fnorm = 1.0_wp / real(kwidth, kind=wp)
       tau_min = tau_amp*fnorm
       do i=1, im
 !
@@ -250,7 +250,7 @@ contains
         if (dmax .ge. tlim_fgf) then
           nf_src = nf_src +1
           if_src(i) = 1          
-          taub(i) = tau_min*float(kex)          !* precip(i)/precip_max*coslat(i)
+          taub(i) = tau_min*real(kex, kind=wp)          !* precip(i)/precip_max*coslat(i)
         endif 
 
       enddo
@@ -268,31 +268,31 @@ contains
 !>
       subroutine get_spectra_tau_okw(nw, im, levs,  trig_okw, xlatd, sinlat, coslat, taub, klev, if_src, nf_src)
       integer                      :: nw, im, levs 
-      real(kind=kind_phys), dimension(im, levs)    :: trig_okw
-!      real(kind=kind_phys), dimension(im, levs+1)  :: pint    
-      real(kind=kind_phys), dimension(im)          :: xlatd, sinlat, coslat     
-      real(kind=kind_phys), dimension(im)          :: taub
+      real(kind=wp), dimension(im, levs)    :: trig_okw
+!      real(kind=wp), dimension(im, levs+1)  :: pint    
+      real(kind=wp), dimension(im)          :: xlatd, sinlat, coslat     
+      real(kind=wp), dimension(im)          :: taub
       integer, dimension(im)       :: klev, if_src
       integer ::  nf_src
 ! locals
-      real(kind=kind_phys), parameter           ::  tlim_okw = 100.                  ! trig_fgf > tlim_fgf, launch GWs should scale-dependent
-      real(kind=kind_phys), parameter           ::  tau_amp   = 35.e-3               ! 35 mPa  
-      real(kind=kind_phys), parameter           ::  pmax = 750.e2,  pmin = 100.e2  
+      real(kind=wp), parameter           ::  tlim_okw = 100.0_wp                  ! trig_fgf > tlim_fgf, launch GWs should scale-dependent
+      real(kind=wp), parameter           ::  tau_amp   = 35.e-3_wp               ! 35 mPa  
+      real(kind=wp), parameter           ::  pmax = 750.e2_wp,  pmin = 100.e2_wp  
       integer, parameter        ::  klow =127-92,   ktop=127-45      ! for FV3-127L
       integer, parameter        ::  kwidth = ktop-klow+1   
       integer  :: i, k,  kex
-      real(kind=kind_phys)     :: dtot, dmax, daver      
-      real(kind=kind_phys)     :: fnorm, tau_min       
+      real(kind=wp)     :: dtot, dmax, daver      
+      real(kind=wp)     :: fnorm, tau_min       
       
       nf_src = 0  
       if_src(1:im) = 0    
-      taub(1:im) = 0.0    
-       fnorm = 1./float(kwidth)
+      taub(1:im) = 0.0_wp    
+       fnorm = 1.0_wp/real(kwidth, kind=wp)
       tau_min = tau_amp*fnorm 
       print *, '   get_spectra_tau_okwgw '   
       do i=1, im
         k = klow
-        klev(i) = k	     
+        klev(i) = k          
         dmax = abs(trig_okw(i,k))
         kex = 0
         if (dmax >= tlim_okw) kex = kex+1 
@@ -304,11 +304,11 @@ contains
             dmax =  dtot
           endif  
         enddo
-!	  
+!         
         if (dmax >= tlim_okw) then
           nf_src = nf_src + 1
           if_src(i) = 1          
-          taub(i) = tau_min*float(kex)          !* precip(i)/precip_max*coslat(i)
+          taub(i) = tau_min*real(kex, kind=wp)          !* precip(i)/precip_max*coslat(i)
         endif 
 
       enddo 
