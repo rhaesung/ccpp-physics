@@ -27,7 +27,7 @@ contains
 !      oct 2020  Diagnostics of "tauabs, wrms, trms" is taken out
 ! --------------------------------------------------------------------------------
 !
-      use machine,          only : kind_phys
+      use mo_ugwpv1_kind,   only : wp
 
       use cires_ugwpv1_module,only :  krad, kvg, kion, ktg, iPr_ktgw, Pr_kdis, Pr_kvkt
 
@@ -53,147 +53,147 @@ contains
 !
       implicit none
 !
-      real(kind=kind_phys), parameter   :: zsp_gw  = 106.5e3  ! sponge for GWs above the model top
-      real(kind=kind_phys), parameter   :: linsat2 = 1.0,  dturb_max = 100.0
-      integer,              parameter   :: ener_norm =0
-      integer,              parameter   :: ener_lsat=0
-      integer,              parameter   :: nstdif = 1
-      integer,              parameter   :: wave_sponge = 1
+      real(kind=wp), parameter   :: zsp_gw  = 106.5e3_wp  ! sponge for GWs above the model top
+      real(kind=wp), parameter   :: linsat2 = 1.0_wp,  dturb_max = 100.0_wp
+      integer,       parameter   :: ener_norm =0
+      integer,       parameter   :: ener_lsat=0
+      integer,       parameter   :: nstdif = 1
+      integer,       parameter   :: wave_sponge = 1
 
       integer, intent(in)  :: levs                            ! vertical level
       integer, intent(in)  :: im                              ! horiz tiles
       integer, intent(in)  :: mpi_id, master, kdt
 
-      real(kind=kind_phys) ,intent(in)   :: dtp               ! model time step
-      real(kind=kind_phys) ,intent(in)   :: tau_ngw(im)
+      real(kind=wp) ,intent(in)   :: dtp               ! model time step
+      real(kind=wp) ,intent(in)   :: tau_ngw(im)
 
-      real(kind=kind_phys) ,intent(in)   :: vm(im,levs)       ! meridional wind
-      real(kind=kind_phys) ,intent(in)   :: um(im,levs)       ! zonal wind
-      real(kind=kind_phys) ,intent(in)   :: qm(im,levs)       ! spec. humidity
-      real(kind=kind_phys) ,intent(in)   :: tm(im,levs)       ! kinetic temperature
+      real(kind=wp) ,intent(in)   :: vm(im,levs)       ! meridional wind
+      real(kind=wp) ,intent(in)   :: um(im,levs)       ! zonal wind
+      real(kind=wp) ,intent(in)   :: qm(im,levs)       ! spec. humidity
+      real(kind=wp) ,intent(in)   :: tm(im,levs)       ! kinetic temperature
 
-      real(kind=kind_phys) ,intent(in)   :: prsl(im,levs)     ! mid-layer pressure
-      real(kind=kind_phys) ,intent(in)   :: prslk(im,levs)    ! mid-layer exner function
-      real(kind=kind_phys) ,intent(in)   :: zmet(im,levs)     ! meters now !!!!!       phil =philg/grav
-      real(kind=kind_phys) ,intent(in)   :: prsi(im,levs+1)   !  interface pressure
-      real(kind=kind_phys) ,intent(in)   :: zmeti(im,levs+1)  !  interface geopi/meters
-      real(kind=kind_phys) ,intent(in)   :: xlatd(im)         ! xlat_d in degrees
-      real(kind=kind_phys) ,intent(in)   :: sinlat(im)
-      real(kind=kind_phys) ,intent(in)   :: coslat(im)
+      real(kind=wp) ,intent(in)   :: prsl(im,levs)     ! mid-layer pressure
+      real(kind=wp) ,intent(in)   :: prslk(im,levs)    ! mid-layer exner function
+      real(kind=wp) ,intent(in)   :: zmet(im,levs)     ! meters now !!!!!       phil =philg/grav
+      real(kind=wp) ,intent(in)   :: prsi(im,levs+1)   !  interface pressure
+      real(kind=wp) ,intent(in)   :: zmeti(im,levs+1)  !  interface geopi/meters
+      real(kind=wp) ,intent(in)   :: xlatd(im)         ! xlat_d in degrees
+      real(kind=wp) ,intent(in)   :: sinlat(im)
+      real(kind=wp) ,intent(in)   :: coslat(im)
 !
 ! out-gw effects
 !
-      real(kind=kind_phys) ,intent(out) :: pdudt(im,levs)     ! zonal momentum tendency
-      real(kind=kind_phys) ,intent(out) :: pdvdt(im,levs)     ! meridional momentum tendency
-      real(kind=kind_phys) ,intent(out) :: pdtdt(im,levs)     ! gw-heating (u*ax+v*ay)/cp and cooling
-      real(kind=kind_phys) ,intent(out) :: dked(im,levs)      ! gw-eddy diffusion
-      real(kind=kind_phys) ,intent(out) :: zngw(im)           ! launch height
+      real(kind=wp) ,intent(out) :: pdudt(im,levs)     ! zonal momentum tendency
+      real(kind=wp) ,intent(out) :: pdvdt(im,levs)     ! meridional momentum tendency
+      real(kind=wp) ,intent(out) :: pdtdt(im,levs)     ! gw-heating (u*ax+v*ay)/cp and cooling
+      real(kind=wp) ,intent(out) :: dked(im,levs)      ! gw-eddy diffusion
+      real(kind=wp) ,intent(out) :: zngw(im)           ! launch height
 !
 !
 !
 ! local ===========================================================================================
 
-      real(kind=kind_phys)              :: tauabs(im,levs)    !
-      real(kind=kind_phys)              :: wrms(im,levs)      !
-      real(kind=kind_phys)              :: trms(im,levs)      !
+      real(kind=wp)              :: tauabs(im,levs)    !
+      real(kind=wp)              :: wrms(im,levs)      !
+      real(kind=wp)              :: trms(im,levs)      !
                                           
-      real(kind=kind_phys)              :: zwrms(nwav,nazd), wrk1(levs), wrk2(levs)
-      real(kind=kind_phys)              :: atrms(nazd, levs),awrms(nazd, levs), akzw(nwav,nazd, levs+1)
+      real(kind=wp)              :: zwrms(nwav,nazd), wrk1(levs), wrk2(levs)
+      real(kind=wp)              :: atrms(nazd, levs),awrms(nazd, levs), akzw(nwav,nazd, levs+1)
 !
 ! local ===========================================================================================
-      real(kind=kind_phys)              :: taux(levs+1)         ! EW component of vertical momentum flux (pa)
-      real(kind=kind_phys)              :: tauy(levs+1)         ! NS component of vertical momentum flux (pa)
-      real(kind=kind_phys)              :: fpu(nazd, levs+1)    ! az-momentum flux
-      real(kind=kind_phys)              :: ui(nazd, levs+1)     ! azimuthal wind
+      real(kind=wp)              :: taux(levs+1)         ! EW component of vertical momentum flux (pa)
+      real(kind=wp)              :: tauy(levs+1)         ! NS component of vertical momentum flux (pa)
+      real(kind=wp)              :: fpu(nazd, levs+1)    ! az-momentum flux
+      real(kind=wp)              :: ui(nazd, levs+1)     ! azimuthal wind
 
-      real(kind=kind_phys)              :: fden_bn(levs+1)         ! density/brent
-      real(kind=kind_phys)              :: flux  (nwav, nazd) ,   flux_m  (nwav, nazd)                
+      real(kind=wp)              :: fden_bn(levs+1)         ! density/brent
+      real(kind=wp)              :: flux  (nwav, nazd) ,   flux_m  (nwav, nazd)                
 !   
-       real(kind=kind_phys)  :: bn(levs+1)                    ! interface BV-frequency
-       real(kind=kind_phys)  :: bn2(levs+1)                   ! interface BV*BV-frequency
-       real(kind=kind_phys)  :: rhoint(levs+1)                ! interface density
-       real(kind=kind_phys)  :: uint(levs+1)                  ! interface zonal wind
-       real(kind=kind_phys)  :: vint(levs+1)                  ! meridional wind
-       real(kind=kind_phys)  :: tint(levs+1)                  ! temp-re
+       real(kind=wp)  :: bn(levs+1)                    ! interface BV-frequency
+       real(kind=wp)  :: bn2(levs+1)                   ! interface BV*BV-frequency
+       real(kind=wp)  :: rhoint(levs+1)                ! interface density
+       real(kind=wp)  :: uint(levs+1)                  ! interface zonal wind
+       real(kind=wp)  :: vint(levs+1)                  ! meridional wind
+       real(kind=wp)  :: tint(levs+1)                  ! temp-re
 
-       real(kind=kind_phys)  :: irhodz_mid(levs)
-       real(kind=kind_phys)  :: suprf(levs+1)                 ! RF-super linear dissipation
-       real(kind=kind_phys)  :: cstar(levs+1) ,cstar2(levs+1)
-       real(kind=kind_phys)  :: v_zmet(levs+1)
-       real(kind=kind_phys)  :: vueff(levs+1)
-       real(kind=kind_phys)  :: dfdz_v(nazd, levs), dfdz_heat(nazd, levs)    ! axj = -df*rho/dz  directional Ax
+       real(kind=wp)  :: irhodz_mid(levs)
+       real(kind=wp)  :: suprf(levs+1)                 ! RF-super linear dissipation
+       real(kind=wp)  :: cstar(levs+1) ,cstar2(levs+1)
+       real(kind=wp)  :: v_zmet(levs+1)
+       real(kind=wp)  :: vueff(levs+1)
+       real(kind=wp)  :: dfdz_v(nazd, levs), dfdz_heat(nazd, levs)    ! axj = -df*rho/dz  directional Ax
 
-       real(kind=kind_phys), dimension(levs)   ::  atm , aum, avm, aqm, aprsl, azmet, dz_met
-       real(kind=kind_phys), dimension(levs+1) ::  aprsi, azmeti, dz_meti
+       real(kind=wp), dimension(levs)   ::  atm , aum, avm, aqm, aprsl, azmet, dz_met
+       real(kind=wp), dimension(levs+1) ::  aprsi, azmeti, dz_meti
 
-       real(kind=kind_phys), dimension(levs)   :: wrk3
-       real(kind=kind_phys), dimension(levs)   :: uold, vold, told, unew, vnew, tnew
-       real(kind=kind_phys), dimension(levs)   :: rho, rhomid, adif, cdif, acdif
-       real(kind=kind_phys), dimension(levs)   :: Qmid, AKT
-       real(kind=kind_phys), dimension(levs+1) :: dktur, Ktint, Kvint
-       real(kind=kind_phys), dimension(levs+1) :: fden_lsat, fden_bnen
+       real(kind=wp), dimension(levs)   :: wrk3
+       real(kind=wp), dimension(levs)   :: uold, vold, told, unew, vnew, tnew
+       real(kind=wp), dimension(levs)   :: rho, rhomid, adif, cdif, acdif
+       real(kind=wp), dimension(levs)   :: Qmid, AKT
+       real(kind=wp), dimension(levs+1) :: dktur, Ktint, Kvint
+       real(kind=wp), dimension(levs+1) :: fden_lsat, fden_bnen
 
-       integer,              dimension(levs)   :: Anstab
+       integer,       dimension(levs)   :: Anstab
 
-       real(kind=kind_phys)  :: sig_u2az(nazd),  sig_u2az_m(nazd)
-       real(kind=kind_phys)  :: wave_dis(nwav, nazd), wave_disaz(nazd)
-       real(kind=kind_phys)  :: rdci(nwav),  rci(nwav)
-       real(kind=kind_phys)  :: wave_act(nwav, nazd)           ! active waves at given vert-level
-       real(kind=kind_phys)  :: ul(nazd)                       ! velocity in azimuthal direction at launch level
+       real(kind=wp)  :: sig_u2az(nazd),  sig_u2az_m(nazd)
+       real(kind=wp)  :: wave_dis(nwav, nazd), wave_disaz(nazd)
+       real(kind=wp)  :: rdci(nwav),  rci(nwav)
+       real(kind=wp)  :: wave_act(nwav, nazd)           ! active waves at given vert-level
+       real(kind=wp)  :: ul(nazd)                       ! velocity in azimuthal direction at launch level
 !
 ! scalars
 !
-       real(kind=kind_phys)  :: bvi, bvi2, bvi3, bvi4, rcms       ! BV at launch level
-       real(kind=kind_phys)  :: c2f2, cf1, wave_distot
+       real(kind=wp)  :: bvi, bvi2, bvi3, bvi4, rcms       ! BV at launch level
+       real(kind=wp)  :: c2f2, cf1, wave_distot
 
 
-       real(kind=kind_phys)  ::  flux_norm                         ! norm-factor
-       real(kind=kind_phys)  ::  taub_src, rho_src, zcool, vmdiff
+       real(kind=wp)  ::  flux_norm                         ! norm-factor
+       real(kind=wp)  ::  taub_src, rho_src, zcool, vmdiff
 !
-       real(kind=kind_phys)  :: zthm, dtau, cgz, ucrit_maxdc
-       real(kind=kind_phys)  :: vm_zflx_mode, vc_zflx_mode
-       real(kind=kind_phys)  :: kzw2, kzw3, kdsat, cdf2, cdf1, wdop2,v_cdp2
-       real(kind=kind_phys)  :: ucrit_max
-       real(kind=kind_phys)  :: pwrms, ptrms
-       real(kind=kind_phys)  :: zu, zcin, zcin2, zcin3, zcin4, zcinc
-       real(kind=kind_phys)  :: zatmp, fluxs, zdep,  ze1, ze2
+       real(kind=wp)  :: zthm, dtau, cgz, ucrit_maxdc
+       real(kind=wp)  :: vm_zflx_mode, vc_zflx_mode
+       real(kind=wp)  :: kzw2, kzw3, kdsat, cdf2, cdf1, wdop2,v_cdp2
+       real(kind=wp)  :: ucrit_max
+       real(kind=wp)  :: pwrms, ptrms
+       real(kind=wp)  :: zu, zcin, zcin2, zcin3, zcin4, zcinc
+       real(kind=wp)  :: zatmp, fluxs, zdep,  ze1, ze2
 
 !
-       real(kind=kind_phys)  :: zdelp, zdelm, taud_min
-       real(kind=kind_phys)  :: tvc,  tvm, ptc, ptm
-       real(kind=kind_phys)  :: umfp, umfm, umfc, ucrit3
-       real(kind=kind_phys)  :: fmode, expdis, fdis
-       real(kind=kind_phys)  :: v_kzi, v_kzw, v_cdp, v_wdp, tx1, fcorsat, dzcrit
-       real(kind=kind_phys)  :: v_wdi, v_wdpc
-       real(kind=kind_phys)  :: ugw, vgw, ek1, ek2, rdtp, rdtp2, rhp_wam
+       real(kind=wp)  :: zdelp, zdelm, taud_min
+       real(kind=wp)  :: tvc,  tvm, ptc, ptm
+       real(kind=wp)  :: umfp, umfm, umfc, ucrit3
+       real(kind=wp)  :: fmode, expdis, fdis
+       real(kind=wp)  :: v_kzi, v_kzw, v_cdp, v_wdp, tx1, fcorsat, dzcrit
+       real(kind=wp)  :: v_wdi, v_wdpc
+       real(kind=wp)  :: ugw, vgw, ek1, ek2, rdtp, rdtp2, rhp_wam
 
        integer :: j, jj, k, kk, inc, jk, jkp, jl, iaz
        integer ::  ksrc, km2, km1, kp1, ktop
 !
 ! Kturb-part
 !
-      real(kind=kind_phys)     :: uz, vz, shr2 , ritur, ktur
+      real(kind=wp)     :: uz, vz, shr2 , ritur, ktur
 
-      real(kind=kind_phys)     :: kamp, zmetk, zgrow
-      real(kind=kind_phys)     :: stab, stab_dt, dtstab
-      real(kind=kind_phys)     :: nslope3
+      real(kind=wp)     :: kamp, zmetk, zgrow
+      real(kind=wp)     :: stab, stab_dt, dtstab
+      real(kind=wp)     :: nslope3
 !
-      integer                  :: nstab, ist
-      real(kind=kind_phys)     :: w1, w2, w3, dtdif
+      integer           :: nstab, ist
+      real(kind=wp)     :: w1, w2, w3, dtdif
 
-      real(kind=kind_phys)     ::  dzmetm, dzmetp, dzmetf, bdif, bt_dif, apc, kturp
-      real(kind=kind_phys)     ::  rstar, rstar2
+      real(kind=wp)     ::  dzmetm, dzmetp, dzmetf, bdif, bt_dif, apc, kturp
+      real(kind=wp)     ::  rstar, rstar2
 
-      real(kind=kind_phys) :: snorm_ener, sigu2, flux_2_sig, ekin_norm
-      real(kind=kind_phys) :: taub_ch, sigu2_ch
-      real(kind=kind_phys) :: Pr_kdis_eff,  mf_diss_heat, iPr_max
-      real(kind=kind_phys) :: exp_sponge, mi_sponge, gipr
+      real(kind=wp) :: snorm_ener, sigu2, flux_2_sig, ekin_norm
+      real(kind=wp) :: taub_ch, sigu2_ch
+      real(kind=wp) :: Pr_kdis_eff,  mf_diss_heat, iPr_max
+      real(kind=wp) :: exp_sponge, mi_sponge, gipr
 
 !--------------------------------------------------------------------------
 !
-        nslope3  = nslope + 3.0
+        nslope3  = nslope + 3.0_wp
     Pr_kdis_eff = gw_eff*pr_kdis
-    iPr_max = max(1.0,  iPr_ktgw)
+    iPr_max = max(1.0_wp,  iPr_ktgw)
     gipr  = grav* Ipr_ktgw
 !
 ! test for input fields
@@ -214,14 +214,14 @@ contains
 !    endif
 
         if (idebug_gwrms == 1) then
-      tauabs=0.0; wrms =0.0 ; trms =0.0
+      tauabs=0.0_wp; wrms =0.0_wp ; trms =0.0_wp
     endif
 
-       rci(:) = 1./zci(:)
-       rdci(:) = 1./zdci(:)
+       rci(:) = 1.0_wp/zci(:)
+       rdci(:) = 1.0_wp/zdci(:)
 
-       rdtp = 1./dtp
-       rdtp2 = 0.5*rdtp
+       rdtp = 1.0_wp/dtp
+       rdtp2 = 0.5_wp*rdtp
 
        ksrc= max(ilaunch, 3)
        km2 = ksrc - 2
@@ -233,10 +233,10 @@ contains
 
        do k=1,levs
        suprf(k) = kion(k)               ! approximate 1-st order damping with Fast super-RF of FV3
-            pdvdt(:,k) = 0.0
-            pdudt(:,k) = 0.0
-            pdtdt(:,k) = 0.0
-            dked(: ,k) = 0.0
+            pdvdt(:,k) = 0.0_wp
+            pdudt(:,k) = 0.0_wp
+            pdtdt(:,k) = 0.0_wp
+            dked(: ,k) = 0.0_wp
         enddo
 
 !-----------------------------------------------------------
@@ -296,31 +296,31 @@ contains
 !   interface mean flow parameters launch -> levs+1
 !       ---------------------------------------------
        do jk= km1,levs
-           tvc = atm(jk)*(1. +fv*aqm(jk))
-           tvm = atm(jk-1)*(1. +fv*aqm(jk-1))
+           tvc = atm(jk)*(1.0_wp +fv*aqm(jk))
+           tvm = atm(jk-1)*(1.0_wp +fv*aqm(jk-1))
        ptc =  tvc/ prslk(jl, jk)
        ptm =  tvm/prslk(jl,jk-1)
 !
-           zthm          = 2.0/(tvc+tvm)
+           zthm          = 2.0_wp/(tvc+tvm)
        rhp_wam = zthm*gor
 !interface
-           uint(jk)   = 0.5*(aum(jk-1)+aum(jk))
-           vint(jk)   = 0.5*(avm(jk-1)+avm(jk))
-           tint(jk)   = 0.5*(tvc+tvm)
+           uint(jk)   = 0.5_wp*(aum(jk-1)+aum(jk))
+           vint(jk)   = 0.5_wp*(avm(jk-1)+avm(jk))
+           tint(jk)   = 0.5_wp*(tvc+tvm)
            rhomid(jk) = aprsl(jk)*rdi/atm(jk)
            rhoint(jk) = aprsi(jk)*rdi*zthm                  !  rho = p/(RTv)
            zdelp          = dz_meti(jk)                     !  >0 ...... dz-meters
-           v_zmet(jk)  = 2.*zdelp                           ! 2*kzi*[Z_int(k+1)-Z_int(k)]
-           zdelm          = 1./dz_met(jk)                   ! 1/dz  ...... 1/meters
+           v_zmet(jk)  = 2.0_wp*zdelp                       ! 2*kzi*[Z_int(k+1)-Z_int(k)]
+           zdelm          = 1.0_wp/dz_met(jk)               ! 1/dz  ...... 1/meters
 !
 !          bvf2 = grav2*zdelm*(ptc-ptm)/(ptc + ptm) ! N2=[g/PT]*(dPT/dz)
 !
-           bn2(jk)    = grav2cpd*zthm*(1.0+rcpdl*(tvc-tvm)*zdelm)
+           bn2(jk)    = grav2cpd*zthm*(1.0_wp+rcpdl*(tvc-tvm)*zdelm)
            bn2(jk)    = max(min(bn2(jk), bnv2max), bnv2min)
            bn(jk)     = sqrt(bn2(jk))
 
 
-       wrk3(jk)= 1./zdelp/rhomid(jk)                     ! 1/rho_mid(k)/[Z_int(k+1)-Z_int(k)]
+       wrk3(jk)= 1.0_wp/zdelp/rhomid(jk)                 ! 1/rho_mid(k)/[Z_int(k+1)-Z_int(k)]
            irhodz_mid(jk) = rdtp*zdelp*rhomid(jk)/rho_src
 ! 
 !
@@ -334,7 +334,7 @@ contains
            zgrow = exp(zmetk)
            ritur = bn2(jk)/shr2
            kamp = sqrt(shr2)*sc2 *zgrow
-           w1 = 1./(1. + 5*ritur)
+           w1 = 1.0_wp/(1.0_wp + 5.0_wp*ritur)
            ktur= min(max(kamp * w1 * w1, dked_min), dked_max)
        zmetk =  azmet(jk)* rhp
            vueff(jk)  = ktur + kvg(jk)
@@ -354,8 +354,8 @@ contains
 !
          jk = levs
 
-           rhoint(ktop) = 0.5*aprsi(levs)*rdi/atm(jk)
-       tint(ktop)  = atm(jk)*(1. +fv*aqm(jk))
+           rhoint(ktop) = 0.5_wp*aprsi(levs)*rdi/atm(jk)
+       tint(ktop)  = atm(jk)*(1.0_wp +fv*aqm(jk))
            uint(ktop)  = aum(jk)
            vint(ktop)  = avm(jk)
 
@@ -393,13 +393,13 @@ contains
              enddo
           enddo
 
-      rstar = 1./cstar(ksrc)
+      rstar = 1.0_wp/cstar(ksrc)
       rstar2 = rstar*rstar
 !      -----------------------------------------
 !       set launch momentum flux spectral density
 !       -----------------------------------------
 
-          fpu(1:nazd, km2:ktop) =0.
+          fpu(1:nazd, km2:ktop) = 0.0_wp
 
         do inc=1,nwav
 
@@ -408,7 +408,7 @@ contains
 !
 ! integrate (flux(cin) x dcin  ) old tau-flux and normalization
 !
-           flux(inc,1) =  rstar*(zcin*zcin)/(1.+ zcin**nslope3)
+           flux(inc,1) =  rstar*(zcin*zcin)/(1.0_wp + zcin**nslope3)
 !
 ! fsat  = rstar*(zcin*zcin) * taub_src / SN * [rho/rho_src *N_src/N]
 !
@@ -434,24 +434,24 @@ contains
 
 
       if (ener_norm == 1) then
-     snorm_ener =  0.
+     snorm_ener =  0.0_wp
        do inc=1,nwav
      zcin  = zci(inc)*rstar
                 
-     ze2 = zcin /(1.+ zcin**nslope3)
+     ze2 = zcin /(1.0_wp + zcin**nslope3)
 
      snorm_ener = snorm_ener + ze2*zdci(inc)*rstar  !dim-less
          flux(inc,1) = ze2 * zcin           
        enddo
 
-     ekin_norm = 1./snorm_ener
+     ekin_norm = 1.0_wp/snorm_ener
      
 !   taub_src = sigu2 * rho_src * [v_kxw / zms ]
 !   sigu2  = taub_src*zms/(rho_src/v_kxw)
 !   ze1 = sigu2*ks*dens/Ns = taub*zms/Ns
 
         ze1 = taub_src*zms/bvi * ekin_norm
-            taub_src = 0.
+            taub_src = 0.0_wp
             
         do inc=1,nwav
        flux(inc,1) = ze1* flux(inc,1)
@@ -486,9 +486,9 @@ contains
 !       endif
 
        if (idebug_gwrms == 1) then
-      pwrms =0.
-      ptrms =0.      
-      tx1 = real(nazd)/rhoint(ksrc)*rv_kxw
+      pwrms = 0.0_wp
+      ptrms = 0.0_wp      
+      tx1 = real(nazd, kind=wp)/rhoint(ksrc)*rv_kxw
       ze2 = wrk2(ksrc)    !  (bvi*atm(ksrc)*rgrav)**2
      do inc=1, nwav
       v_kzw = bvi*rci(inc)
@@ -501,7 +501,7 @@ contains
         endif
 
 !     --------------------------------
-    wave_act(:,:) = 1.0
+    wave_act(:,:) = 1.0_wp
 !                                        vertical do-loop
         do jk=ksrc, levs
 
@@ -513,12 +513,12 @@ contains
 
           umfp = ui(iaz, jkp)
              umfm = ui(iaz, jk)
-             umfc = .5*(umfm + umfp)
+             umfc = 0.5_wp*(umfm + umfp)
 !                                        wave-cin loop
-             dfdz_v(iaz, jk)  = 0.0
-             dfdz_heat(iaz, jk)  = 0.0
-             fpu(iaz, jkp)    = 0.0
-         sig_u2az(iaz) =0.0
+             dfdz_v(iaz, jk)    = 0.0_wp
+             dfdz_heat(iaz, jk) = 0.0_wp
+             fpu(iaz, jkp)      = 0.0_wp
+         sig_u2az(iaz) = 0.0_wp
 !
 !             wave_dis(iaz, :) = vueff(jk)
           do inc=1, nwav
@@ -527,7 +527,7 @@ contains
             zcin  = zci(inc)          ! zcin =/0  by definition
             zcinc = rci(inc)
 
-             if(wave_act(inc,iaz) == 1.0) then
+             if(wave_act(inc,iaz) == 1.0_wp) then
 !=======================================================================
 ! discrete mode
 ! saturated limit    wfit = kzw*kzw*kt; wfdt = wfit/(kxw*cx)*betat
@@ -537,13 +537,13 @@ contains
                v_cdp =  zcin - umfp
            v_cdp2=v_cdp*v_cdp
            cdf2  = v_cdp2 - c2f2
-         if (v_cdp .le. ucrit_max .or. cdf2 .le. 0.0) then
+         if (v_cdp .le. ucrit_max .or. cdf2 .le. 0.0_wp) then
 !
 ! between layer [k-1,k or jk-jkp]  (Chi - Uk) -> ucrit_max, wave's absorption
 !
-            wave_act(inc,iaz) =0.
+            wave_act(inc,iaz) = 0.0_wp
                 akzw(inc, iaz, jkp) = pi/dz_meti(jk)   ! pi2/dzmet
-        fluxs = 0.0                           !max(0., rhobnk(jkp)*ucrit3)*rdci(inc)
+        fluxs = 0.0_wp                        !max(0., rhobnk(jkp)*ucrit3)*rdci(inc)
         flux(inc,iaz)   = fluxs
 
          else
@@ -576,28 +576,28 @@ contains
 !
                 ze1 = v_kzi*v_zmet(jk)
 
-                if (ze1 .ge. 1.e-2) then
-            expdis = max(exp(-ze1), 0.01)
+                if (ze1 .ge. 1.0e-2_wp) then
+            expdis = max(exp(-ze1), 0.01_wp)
         else
-            expdis = 1./(1.+ ze1)
+            expdis = 1.0_wp/(1.0_wp + ze1)
         endif
 
 !
-        wave_act(inc,iaz) = 1.0
+        wave_act(inc,iaz) = 1.0_wp
                 fmode =  flux(inc,iaz)
 
         flux_2_sig = v_kzw/v_kxw/rhoint(jkp)
         w1 = v_wdpc/kzw2/v_kzw/v_zmet(jk)
               else                                    ! kzw2 <= mkz2min large "Lz"-reflection
 
-                expdis = 1.0
+                expdis = 1.0_wp
                 v_kzw  = mkzmin
 
-                v_cdp  = 0.                          ! no effects of reflected waves
-                wave_act(inc,iaz) = 0.0
+                v_cdp  = 0.0_wp                      ! no effects of reflected waves
+                wave_act(inc,iaz) = 0.0_wp
                 akzw(inc, iaz, jkp) = v_kzw
-        fmode = 0.
-        w1 =0.
+        fmode = 0.0_wp
+        w1 = 0.0_wp
               endif
 !              expdis =1.0
 
@@ -647,7 +647,7 @@ contains
 !             fluxs_src = fden_sat(ksrc)*cdf2*sqrt(cdf2)/zdci(inc)*L2sat
 !----------------------------------------------------------------------------
               zdep = fdis-fluxs           ! dimension [Pa/dc] *dc = Pa
-              if(zdep > 0.0 ) then
+              if(zdep > 0.0_wp ) then
 ! subs on sat-limit
                  ze1 = flux(inc,iaz)
                  flux(inc,iaz)    = fluxs
@@ -659,16 +659,16 @@ contains
               endif
 
          dtau = flux_m(inc,iaz)-flux(inc,iaz)
-         if (dtau .lt. 0) then
+         if (dtau .lt. 0.0_wp) then
          flux(inc,iaz)   = flux_m(inc,iaz)
          endif
 !
 ! GW-sponge domain: saturate all "GW"-modes above "zsp_gw"
 !
               if ( azmeti(jkp) .ge. zsp_gw) then
-            mi_sponge = .5/dz_meti(jk)
+            mi_sponge = 0.5_wp/dz_meti(jk)
             ze2 = v_wdp /v_kzw * mi_sponge                     ! Ksat*v_kzw2 = [mi_sat*wdp/kzw]
-            v_wdi = ze2 + v_wdi*0.25                        ! diss-sat GW-sponge
+            v_wdi = ze2 + v_wdi*0.25_wp                        ! diss-sat GW-sponge
         v_wdpc = sqrt(v_wdp*v_wdp +v_wdi*v_wdi)
         v_kzi  = v_kzw*v_wdi/v_wdpc
 !
@@ -685,12 +685,12 @@ contains
 !
 ! sum for given (jk, iaz)  all active "wave" contributions
 !
-        if (wave_act(inc,iaz) == 1) then
+        if (wave_act(inc,iaz) == 1.0_wp) then
 
           zcinc =zdci(inc)
               vc_zflx_mode      = flux(inc,iaz)
-              vmdiff = max(0., flux_m(inc,iaz)-vc_zflx_mode)
-              if (vmdiff <= 0. ) vc_zflx_mode = flux_m(inc,iaz)
+              vmdiff = max(0.0_wp, flux_m(inc,iaz)-vc_zflx_mode)
+              if (vmdiff <= 0.0_wp ) vc_zflx_mode = flux_m(inc,iaz)
           ze1 = vc_zflx_mode*zcinc
               fpu(iaz, jkp) = fpu(iaz,jkp)  + ze1              ! flux (pa)   at
           sig_u2az(iaz) = sig_u2az(iaz) + ze1*flux_2_sig   ! ekin(m2/s2) at z+dz
@@ -723,10 +723,10 @@ contains
 ! compute wind and temp-re rms
 !
         if (idebug_gwrms == 1) then
-       pwrms =0.
-       ptrms =0.                
+       pwrms = 0.0_wp
+       ptrms = 0.0_wp                
      do inc=1, nwav
-      if (wave_act(inc,iaz) > 0.) then
+      if (wave_act(inc,iaz) > 0.0_wp) then
            v_kzw =akzw(inc, iaz, jk)
            ze1 = flux(inc,iaz)*v_kzw*zdci(inc)*wrk1(jk)
        pwrms = pwrms + ze1
@@ -765,8 +765,8 @@ contains
 !========================================================================
 
          do jk=ksrc,  levs
-            taux(jk) = 0.0
-            tauy(jk) = 0.0
+            taux(jk) = 0.0_wp
+            tauy(jk) = 0.0_wp
            do iaz=1,nazd
              taux(jk)  = taux(jk)  + fpu(iaz,jk)*zcosang(iaz)
              tauy(jk)  = tauy(jk)  + fpu(iaz,jk)*zsinang(iaz)
@@ -774,7 +774,7 @@ contains
          dked(jl,jk) =  dked(jl,jk)  + dfdz_heat(iaz,jk)
           enddo
          enddo
-             jk = ktop; taux(jk)=0.; tauy(jk)=0.
+             jk = ktop; taux(jk)=0.0_wp; tauy(jk)=0.0_wp
           do iaz=1,nazd
              taux(jk)  = taux(jk)  + fpu(iaz,jk)*zcosang(iaz)
              tauy(jk)  = tauy(jk)  + fpu(iaz,jk)*zsinang(iaz)
@@ -835,15 +835,15 @@ contains
 !
        do ist= 1, nstdif
          do jk=ksrc,levs-1
-           adif(jk)  =.25*(dktur(jk-1)+ dktur(jk+1)) + .5*dktur(jk)
+           adif(jk)  = 0.25_wp*(dktur(jk-1)+ dktur(jk+1)) + 0.5_wp*dktur(jk)
           enddo
           dktur(ksrc:levs-1) = adif(ksrc:levs-1)
        enddo
-            dktur(levs) = .5*( dked(jl,levs)+ dked(jl,levs-1))
+            dktur(levs) = 0.5_wp*( dked(jl,levs)+ dked(jl,levs-1))
             dktur(levs+1) = dktur(levs)
 
      do jk=ksrc,levs+1
-       ze1 = .5*( dktur(jk) +dktur(jk-1) )
+       ze1 = 0.5_wp*( dktur(jk) +dktur(jk-1) )
        kvint(jk) = ze1
        ktint(jk) = ze1*iPr_ktgw
      enddo
@@ -878,21 +878,21 @@ contains
         uz = uold(jk) - uold(jk-1)
             vz = vold(jk) - vold(jk-1)
         ze1    = dz_met(jk)
-        zdelm  = 1./ze1
+        zdelm  = 1.0_wp/ze1
 
-            tvc = told(jk)   * (1. +fv*aqm(jk))
-            tvm = told(jk-1) * (1. +fv*aqm(jk-1))
-        zthm          = 2.0 / (tvc+tvm)
+            tvc = told(jk)   * (1.0_wp +fv*aqm(jk))
+            tvm = told(jk-1) * (1.0_wp +fv*aqm(jk-1))
+        zthm          = 2.0_wp / (tvc+tvm)
             shr2 = (max(uz*uz+vz*vz, dw2min)) * zdelm *zdelm
 
-            bn2(jk)    = grav2cpd*zthm  * (1.0+rcpdl*(tvc-tvm)*zdelm)
+            bn2(jk)    = grav2cpd*zthm  * (1.0_wp+rcpdl*(tvc-tvm)*zdelm)
 
         bn2(jk)    = max(min(bn2(jk), bnv2max), bnv2min)
             zmetk  =  azmet(jk)* rh4                     ! mid-layer height k_int => k_int+1
             zgrow = exp(zmetk)
             ritur = bn2(jk)/shr2
-            w1 = 1./(1. + 5*ritur)
-        ze2 =  min( sc2 *zgrow, 4.*ze1*ze1)
+            w1 = 1.0_wp/(1.0_wp + 5.0_wp*ritur)
+        ze2 =  min( sc2 *zgrow, 4.0_wp*ze1*ze1)
 !
 ! Smag-type of eddy diffusion K_smag = Sqrt(Deformation - N2/Pr)* L2 *const
 !
@@ -912,20 +912,20 @@ contains
       if (knob_ugwp_dokdis == 2) then
 
         do jk=ksrc,levs
-          ze1 = min(.5*(dktur(jk) +dktur(jk-1)), dturb_max)
+          ze1 = min(0.5_wp*(dktur(jk) +dktur(jk-1)), dturb_max)
           kvint(jk) = kvint(jk) + ze1
 !          ktint(jk) = ktint(jk) + ze1*iPr_ktgw
         enddo 
         kvint(km1) = kvint(ksrc)
         kvint(ktop) = kvint(levs)
 
-        dzmetm =  1./dz_met(km1)
-        Adif(km1:levs)  =  0.
-        Cdif(km1:levs)  =  0.
+        dzmetm =  1.0_wp/dz_met(km1)
+        Adif(km1:levs)  =  0.0_wp
+        Cdif(km1:levs)  =  0.0_wp
           do jk=km1,levs-1
 
-         dzmetp = 1./dz_met(jk+1)
-         dzmetf = 1./(dz_meti(jk)*rhomid(jk))
+         dzmetp = 1.0_wp/dz_met(jk+1)
+         dzmetf = 1.0_wp/(dz_meti(jk)*rhomid(jk))
 
 
         ktur = kvint(jk)  *rhoint(jk)   * dzmetf
@@ -951,8 +951,8 @@ contains
 !
 ! k instead Jk
 !
-        dtdif = dtp/real(nstab)
-          ze1 = 1./dtdif
+        dtdif = dtp/real(nstab, kind=wp)
+          ze1 = 1.0_wp/dtdif
 
         do ist= 1, nstab
               do k=ksrc,levs-1  
@@ -996,7 +996,7 @@ contains
            pdvdt(jl, k) = ze1
            uz = uold(k+1) - uold(k-1)
                vz = vold(k+1) - vold(k-1)
-           ze2 = 1./(dz_met(k+1)+dz_met(k) )
+           ze2 = 1.0_wp/(dz_met(k+1)+dz_met(k) )
            mf_diss_heat = rcpd*kvint(k)*(uz*uz +vz*vz)*ze2*ze2  ! vert grad heat
            pdtdt(jl,k)= pdtdt(jl,k) + mf_diss_heat              ! extra heat due to eddy viscosity
 
@@ -1024,10 +1024,10 @@ contains
        if (kdt == 1 .and. mpi_id == master) then
          print *, 'vgw done nstab ', nstab
 !
-         print *, maxval(pdudt)*86400.,  minval(pdudt)*86400, 'vgw ax  ugwp'
-         print *, maxval(pdvdt)*86400.,  minval(pdvdt)*86400, 'vgw ay  ugwp'
-         print *, maxval(dked)*1.,  minval(dked)*1,  'vgw keddy m2/sec ugwp'
-         print *, maxval(pdtdt)*86400.,  minval(pdtdt)*86400,'vgw eps  ugwp'
+         print *, maxval(pdudt)*86400.0_wp,  minval(pdudt)*86400.0_wp, 'vgw ax  ugwp'
+         print *, maxval(pdvdt)*86400.0_wp,  minval(pdvdt)*86400.0_wp, 'vgw ay  ugwp'
+         print *, maxval(dked)*1.0_wp,  minval(dked)*1.0_wp,  'vgw keddy m2/sec ugwp'
+         print *, maxval(pdtdt)*86400.0_wp,  minval(pdtdt)*86400.0_wp,'vgw eps  ugwp'
 !
 !        print *, ' ugwp -heating rates '
        endif
