@@ -37,7 +37,8 @@
 !!
 module ugwpv1_gsldrag
 
-    use machine, only: kind_phys
+    use machine,               only: kind_phys
+    use mo_ugwpv1_kind,        only: wp
 
     use cires_ugwpv1_triggers, only:  slat_geos5_2020, slat_geos5_tamp_v1
     use cires_ugwpv1_module,   only:  cires_ugwpv1_init, ngwflux_update, calendar_ugwp
@@ -48,7 +49,7 @@ module ugwpv1_gsldrag
 
     use cires_ugwpv1_oro,      only:  orogw_v1
 
-    use drag_suite,            only:  drag_suite_run, drag_suite_psl
+    use drag_suite_ugwpv1,     only:  drag_suite_ugwpv1_run, drag_suite_ugwpv1_psl
 
     implicit none
 
@@ -108,6 +109,10 @@ contains
 
     character(len=*), intent(out) :: errmsg
     integer,          intent(out) :: errflg
+
+    ! Local working-precision buffers for 32-bit internal initialization
+    real(kind=wp) :: ak_loc(levs+1), bk_loc(levs+1), dtp_loc
+    real(kind=wp) :: con_p0_loc, con_pi_loc, con_rerth_loc
 
     ! Initialize CCPP error handling variables
     errmsg = ''
@@ -181,18 +186,25 @@ contains
 !
 !==========================
 
-    pi    = con_pi
-    arad  = con_rerth
-    p0s   = con_p0
-    grav  = con_g
-    omega1= con_omega
-    cpd   = con_cp
-    rd    = con_rd
-    rv    = con_rv
-    fv    = con_fvirt
+    ak_loc        = real(ak(1:levs+1), kind=wp)
+    bk_loc        = real(bk(1:levs+1), kind=wp)
+    dtp_loc       = real(dtp,          kind=wp)
+    con_p0_loc    = real(con_p0,       kind=wp)
+    con_pi_loc    = real(con_pi,       kind=wp)
+    con_rerth_loc = real(con_rerth,    kind=wp)
 
-    grav2  = grav + grav; rgrav  = 1.0/grav ; rgrav2 = rgrav*rgrav
-    rdi    = 1.0 / rd ; rcpd = 1./cpd;  rcpd2 = 0.5/cpd
+    pi    = con_pi_loc
+    arad  = con_rerth_loc
+    p0s   = con_p0_loc
+    grav  = real(con_g,     kind=wp)
+    omega1= real(con_omega, kind=wp)
+    cpd   = real(con_cp,    kind=wp)
+    rd    = real(con_rd,    kind=wp)
+    rv    = real(con_rv,    kind=wp)
+    fv    = real(con_fvirt, kind=wp)
+
+    grav2  = grav + grav; rgrav  = 1.0_wp/grav ; rgrav2 = rgrav*rgrav
+    rdi    = 1.0_wp / rd ; rcpd = 1.0_wp/cpd;  rcpd2 = 0.5_wp/cpd
     gor    = grav/rd
     gr2    = grav*gor
     grcp   = grav*rcpd
@@ -200,36 +212,37 @@ contains
     rcpdl  = cpd*rgrav
     grav2cpd = grav*grcp
 
-    pi2      = 2.*pi ;  pih = .5*pi
-    rad_to_deg=180.0/pi
-    deg_to_rad=pi/180.0
+    pi2      = 2.0_wp*pi ;  pih = 0.5_wp*pi
+    rad_to_deg=180.0_wp/pi
+    deg_to_rad=pi/180.0_wp
 
-    bnv2min = (pi2/1800.)*(pi2/1800.)
-    bnv2max = (pi2/30.)*(pi2/30.)
-    dw2min  = 1.0
+    bnv2min = (pi2/1800.0_wp)*(pi2/1800.0_wp)
+    bnv2max = (pi2/30.0_wp)*(pi2/30.0_wp)
+    dw2min  = 1.0_wp
     velmin  = sqrt(dw2min)
-    minvel  = 0.5
+    minvel  = 0.5_wp
 
-    omega2  = 2.*omega1
-    omega3  = 3.*omega1
+    omega2  = 2.0_wp*omega1
+    omega3  = 3.0_wp*omega1
 
-    hpscale = 7000. ; hpskm = hpscale*1.e-3
-    rhp     = 1./hpscale
-    rhp2 = 0.5*rhp; rh4 = 0.25*rhp
+    hpscale = 7000.0_wp ; hpskm = hpscale*1.0e-3_wp
+    rhp     = 1.0_wp/hpscale
+    rhp2 = 0.5_wp*rhp; rh4 = 0.25_wp*rhp
     rhp4 = rhp2 * rhp2
     khp  = rhp* rd/cpd
-    mkzmin  = pi2/80.0e3
+    mkzmin  = pi2/80.0e3_wp
     mkz2min = mkzmin*mkzmin
-    mkzmax  = pi2/500.
+    mkzmax  = pi2/500.0_wp
     mkz2max = mkzmax*mkzmax
-    cdmin   = 2.e-2/mkzmax
+    cdmin   = 2.0e-2_wp/mkzmax
 
-    rcpdt  = rcpd/dtp
+    rcpdt  = rcpd/dtp_loc
 
     if ( do_ugwp_v1 ) then
-       call cires_ugwpv1_init (me, master, nlunit, logunit, jdat, con_pi,      &
-                               con_rerth, fn_nml2, input_nml_file, lonr,       &
-                               levs, ak, bk, con_p0, dtp, errmsg, errflg)
+       call cires_ugwpv1_init (me, master, nlunit, logunit, jdat, con_pi_loc,  &
+                               con_rerth_loc, fn_nml2, input_nml_file, lonr,   &
+                               levs, ak_loc, bk_loc, con_p0_loc, dtp_loc,      &
+                               errmsg, errflg)
        if (errflg/=0) return
     end if
 
@@ -433,11 +446,37 @@ contains
     character(len=*),        intent(out) :: errmsg
     integer,                 intent(out) :: errflg
 
+! Working-precision (_loc) buffers for CCPP host boundary isolation
+    real(kind=wp) :: dtp_loc, psl_gwd_dx_factor_loc, alpha_fd_loc
+    real(kind=wp), dimension(2)           :: cdmbgwd_loc
+    real(kind=wp), dimension(im)          :: hprime_loc, oc_loc, theta_loc, sigma_loc, gamma_loc
+    real(kind=wp), dimension(im)          :: elvmax_loc, dx_loc, varss_loc, oc1ss_loc
+    real(kind=wp), dimension(im, 4)       :: clx_loc, oa4_loc, oa4ss_loc, ol4ss_loc
+    real(kind=wp), dimension(im)          :: xlat_d_loc, sinlat_loc, coslat_loc, area_loc
+    real(kind=wp), dimension(im)          :: rain_loc, br1_loc, hpbl_loc, slmsk_loc, tau_amf_loc
+    real(kind=wp), dimension(im, levs)    :: del_loc, ugrs_loc, vgrs_loc, tgrs_loc, prsl_loc, prslk_loc, phil_loc
+    real(kind=wp), dimension(im, levs+1)  :: prsi_loc, phii_loc
+    real(kind=wp), dimension(im, levs)    :: q1_loc
+
+    real(kind=wp), dimension(im)          :: du_ogwcol_loc, dv_ogwcol_loc, du_oblcol_loc, dv_oblcol_loc
+    real(kind=wp), dimension(im)          :: du_osscol_loc, dv_osscol_loc, du_ofdcol_loc, dv_ofdcol_loc
+    real(kind=wp), dimension(im)          :: dusfcg_loc, dvsfcg_loc
+    real(kind=wp), dimension(im)          :: tau_ogw_loc, tau_ngw_loc, tau_oss_loc
+    real(kind=wp), dimension(im, levs)    :: dudt_ogw_loc, dvdt_ogw_loc, dudt_obl_loc, dvdt_obl_loc
+    real(kind=wp), dimension(im, levs)    :: dudt_oss_loc, dvdt_oss_loc, dudt_ofd_loc, dvdt_ofd_loc
+    real(kind=wp), dimension(im, levs)    :: dudt_ngw_loc, dvdt_ngw_loc, kdis_ngw_loc, dtdt_ngw_loc
+    real(kind=wp), dimension(im, levs)    :: dudt_gw_loc,  dvdt_gw_loc,  dtdt_gw_loc,  kdis_gw_loc
+    real(kind=wp), dimension(im, levs, ntrac) :: dqdt_gw_loc
+    real(kind=wp), dimension(im)          :: zogw_loc, zlwb_loc, zobl_loc, zngw_loc, rdxzb_loc
+
+    real(kind=wp), allocatable            :: dtend_loc(:,:,:)
+    real(kind=wp), allocatable            :: spp_wts_gwd_loc(:,:)
+
 ! local variables
     integer :: i, k
-    real(kind=kind_phys), dimension(im)       :: sgh30
-    real(kind=kind_phys), dimension(im, levs) :: Pdvdt, Pdudt
-    real(kind=kind_phys), dimension(im, levs) :: Pdtdt, Pkdis
+    real(kind=wp), dimension(im)          :: sgh30
+    real(kind=wp), dimension(im, levs)    :: Pdvdt, Pdudt
+    real(kind=wp), dimension(im, levs)    :: Pdtdt, Pkdis
 !------------
 !
 ! from ugwp_driver_v0.f -> cires_ugwp_initialize.F90 -> module ugwp_wmsdis_init
@@ -451,8 +490,8 @@ contains
 
 !    integer :: nmtvr_temp
 
-    real(kind=kind_phys), dimension(im, levs)   :: zmet  ! geopotential height at model Layer centers
-    real(kind=kind_phys), dimension(im, levs+1) :: zmeti ! geopotential height at model layer interfaces
+    real(kind=wp), dimension(im, levs)    :: zmet  ! geopotential height at model Layer centers
+    real(kind=wp), dimension(im, levs+1)  :: zmeti ! geopotential height at model layer interfaces
 
 ! ugwp_v1 local variables
 
@@ -468,6 +507,66 @@ contains
     errmsg = ''
     errflg = 0
 
+    ! Cast CCPP kind_phys inputs to internal working precision (wp) buffers
+    dtp_loc               = real(dtp,               kind=wp)
+    psl_gwd_dx_factor_loc = real(psl_gwd_dx_factor, kind=wp)
+    alpha_fd_loc          = real(alpha_fd,          kind=wp)
+    cdmbgwd_loc(1:2)      = real(cdmbgwd(1:2),      kind=wp)
+
+    hprime_loc(1:im)      = real(hprime(1:im),      kind=wp)
+    oc_loc(1:im)          = real(oc(1:im),          kind=wp)
+    theta_loc(1:im)       = real(theta(1:im),       kind=wp)
+    sigma_loc(1:im)       = real(sigma(1:im),       kind=wp)
+    gamma_loc(1:im)       = real(gamma(1:im),       kind=wp)
+    elvmax_loc(1:im)      = real(elvmax(1:im),      kind=wp)
+    dx_loc(1:im)          = real(dx(1:im),          kind=wp)
+    varss_loc(1:im)       = real(varss(1:im),       kind=wp)
+    oc1ss_loc(1:im)       = real(oc1ss(1:im),       kind=wp)
+
+    clx_loc(1:im, 1:4)    = real(clx(1:im, 1:4),    kind=wp)
+    oa4_loc(1:im, 1:4)    = real(oa4(1:im, 1:4),    kind=wp)
+    oa4ss_loc(1:im, 1:4)  = real(oa4ss(1:im, 1:4),  kind=wp)
+    ol4ss_loc(1:im, 1:4)  = real(ol4ss(1:im, 1:4),  kind=wp)
+
+    xlat_d_loc(1:im)      = real(xlat_d(1:im),      kind=wp)
+    sinlat_loc(1:im)      = real(sinlat(1:im),      kind=wp)
+    coslat_loc(1:im)      = real(coslat(1:im),      kind=wp)
+    area_loc(1:im)        = real(area(1:im),        kind=wp)
+
+    rain_loc(1:im)        = real(rain(1:im),        kind=wp)
+    br1_loc(1:im)         = real(br1(1:im),         kind=wp)
+    hpbl_loc(1:im)        = real(hpbl(1:im),        kind=wp)
+    slmsk_loc(1:im)       = real(slmsk(1:im),       kind=wp)
+    tau_amf_loc(1:im)     = real(tau_amf(1:im),     kind=wp)
+
+    del_loc(1:im, 1:levs)   = real(del(1:im, 1:levs),   kind=wp)
+    ugrs_loc(1:im, 1:levs)  = real(ugrs(1:im, 1:levs),  kind=wp)
+    vgrs_loc(1:im, 1:levs)  = real(vgrs(1:im, 1:levs),  kind=wp)
+    tgrs_loc(1:im, 1:levs)  = real(tgrs(1:im, 1:levs),  kind=wp)
+    prsl_loc(1:im, 1:levs)  = real(prsl(1:im, 1:levs),  kind=wp)
+    prslk_loc(1:im, 1:levs) = real(prslk(1:im, 1:levs), kind=wp)
+    phil_loc(1:im, 1:levs)  = real(phil(1:im, 1:levs),  kind=wp)
+    q1_loc(1:im, 1:levs)    = real(q1(1:im, 1:levs),    kind=wp)
+
+    prsi_loc(1:im, 1:levs+1) = real(prsi(1:im, 1:levs+1), kind=wp)
+    phii_loc(1:im, 1:levs+1) = real(phii(1:im, 1:levs+1), kind=wp)
+
+    if (present(dtend)) then
+       allocate(dtend_loc(size(dtend,1), size(dtend,2), size(dtend,3)))
+       dtend_loc = real(dtend, kind=wp)
+    else
+       allocate(dtend_loc(1, 1, 1))
+       dtend_loc = 0.0_wp
+    endif
+
+    if (present(spp_wts_gwd)) then
+       allocate(spp_wts_gwd_loc(size(spp_wts_gwd,1), size(spp_wts_gwd,2)))
+       spp_wts_gwd_loc = real(spp_wts_gwd, kind=wp)
+    else
+       allocate(spp_wts_gwd_loc(im, 1))
+       spp_wts_gwd_loc = 0.0_wp
+    endif
+
 ! 1) ORO stationary GWs
 !    ------------------
 !
@@ -476,44 +575,45 @@ contains
 ! All GW-schemes operate with Zmet =phil*inv_g, passing Zmet/Zmeti can be more robust
 ! + rho*dz = =delp *  inv_g   can be also pre-comp for all "GW-schemes"
 !
-       zmeti  = phii* rgrav
-       zmet   = phil* rgrav
+       zmeti  = phii_loc* rgrav
+       zmet   = phil_loc* rgrav
 
 !===============================================================
 ! ORO-diag
 
        if (do_ugwp_v1 .or. ldiag_ugwp) then
-         dudt_ogw(:,:)= 0.; dvdt_ogw(:,:)=0.; dudt_obl(:,:)=0.; dvdt_obl(:,:)=0.
-         dudt_oss(:,:)= 0.; dvdt_oss(:,:)=0.; dudt_ofd(:,:)=0.; dvdt_ofd(:,:)=0.
-         du_ogwcol(:)=0. ; dv_ogwcol(:)=0. ; du_oblcol(:)=0. ; dv_oblcol(:)=0.
-         du_osscol(:)=0. ; dv_osscol(:)=0. ;du_ofdcol(:)=0.  ; dv_ofdcol(:)=0.
-         dudt_ngw(:,:)=0.; dvdt_ngw(:,:)=0.; dtdt_ngw(:,:)=0.; kdis_ngw(:,:)=0.
+         dudt_ogw_loc(:,:)= 0.0_wp; dvdt_ogw_loc(:,:)=0.0_wp; dudt_obl_loc(:,:)=0.0_wp; dvdt_obl_loc(:,:)=0.0_wp
+         dudt_oss_loc(:,:)= 0.0_wp; dvdt_oss_loc(:,:)=0.0_wp; dudt_ofd_loc(:,:)=0.0_wp; dvdt_ofd_loc(:,:)=0.0_wp
+         du_ogwcol_loc(:)=0.0_wp  ; dv_ogwcol_loc(:)=0.0_wp ; du_oblcol_loc(:)=0.0_wp ; dv_oblcol_loc(:)=0.0_wp
+         du_osscol_loc(:)=0.0_wp  ; dv_osscol_loc(:)=0.0_wp ; du_ofdcol_loc(:)=0.0_wp ; dv_ofdcol_loc(:)=0.0_wp
+         dudt_ngw_loc(:,:)=0.0_wp; dvdt_ngw_loc(:,:)=0.0_wp; dtdt_ngw_loc(:,:)=0.0_wp; kdis_ngw_loc(:,:)=0.0_wp
        else
-         dudt_ogw(:,:)  = 0.
+         dudt_ogw_loc(:,:)  = 0.0_wp
        end if
 
-       dusfcg (:)  = 0.  ;  dvsfcg(:) =0.
+       dusfcg_loc (:)  = 0.0_wp  ;  dvsfcg_loc(:) = 0.0_wp
 
 ! ngw+ogw - diag
 
-       dudt_gw(:,:)=0. ;  dvdt_gw(:,:)=0.  ; dtdt_gw(:,:)=0.  ; dqdt_gw(:,:,:)=0. ; kdis_gw(:,:)=0.
+       dudt_gw_loc(:,:)=0.0_wp ;  dvdt_gw_loc(:,:)=0.0_wp  ; dtdt_gw_loc(:,:)=0.0_wp  ; dqdt_gw_loc(:,:,:)=0.0_wp ; kdis_gw_loc(:,:)=0.0_wp
 ! source fluxes
 
-      tau_ogw(:)=0. ; tau_ngw(:)=0. ;  tau_oss(:)=0.
+      tau_ogw_loc(:)=0.0_wp ; tau_ngw_loc(:)=0.0_wp ;  tau_oss_loc(:)=0.0_wp
 
 ! launch layers
 
-      zlwb(:)= 0.  ; zogw(:)=0. ;  zobl(:)=0. ;  zngw(:)=0.
+      zlwb_loc(:)= 0.0_wp  ; zogw_loc(:)=0.0_wp ;  zobl_loc(:)=0.0_wp ;  zngw_loc(:)=0.0_wp
+      rdxzb_loc(:)= 0.0_wp
 !===============================================================
 !  diag tendencies due to all-SSO schemes (ORO-physics)
 !  ogw + obl + oss + ofd ..... no explicit "lee wave trapping"
 !===============================================================
      do k=1,levs
         do i=1,im
-          Pdvdt(i,k) = 0.0
-          Pdudt(i,k) = 0.0
-          Pdtdt(i,k) = 0.0
-          Pkdis(i,k) = 0.0
+          Pdvdt(i,k) = 0.0_wp
+          Pdudt(i,k) = 0.0_wp
+          Pdtdt(i,k) = 0.0_wp
+          Pkdis(i,k) = 0.0_wp
         enddo
       enddo
 
@@ -529,49 +629,58 @@ contains
 ! dusfcg,  dvsfcg
 !
      if (do_gwd_opt_psl) then
-       call drag_suite_psl(im, levs, Pdvdt, Pdudt, Pdtdt,            &
-                 ugrs,vgrs,tgrs,q1,                                  &
-                 kpbl,prsi,del,prsl,prslk,phii,phil,dtp,             &
-                 kdt,hprime,oc,oa4,clx,varss,oc1ss,oa4ss,            &
-                 ol4ss,theta,sigma,gamma,elvmax,                     &
-                 dudt_ogw, dvdt_ogw, dudt_obl, dvdt_obl,             &
-                 dudt_oss, dvdt_oss, dudt_ofd, dvdt_ofd,             &
-                 dusfcg,  dvsfcg,                                    &
-                 du_ogwcol, dv_ogwcol, du_oblcol, dv_oblcol,         &
-                 du_osscol, dv_osscol, du_ofdcol, dv_ofdcol,         &
-                 slmsk,br1,hpbl,vtype,con_g,con_cp,con_rd,con_rv,    &
+       call drag_suite_ugwpv1_psl(im, levs, Pdvdt, Pdudt, Pdtdt,     &
+                 ugrs_loc,vgrs_loc,tgrs_loc,q1_loc,                  &
+                 kpbl,prsi_loc,del_loc,prsl_loc,prslk_loc,           &
+                 phii_loc,phil_loc,dtp_loc,                          &
+                 kdt,hprime_loc,oc_loc,oa4_loc,clx_loc,              &
+                 varss_loc,oc1ss_loc,oa4ss_loc,                      &
+                 ol4ss_loc,theta_loc,sigma_loc,gamma_loc,elvmax_loc, &
+                 dudt_ogw_loc, dvdt_ogw_loc, dudt_obl_loc, dvdt_obl_loc, &
+                 dudt_oss_loc, dvdt_oss_loc, dudt_ofd_loc, dvdt_ofd_loc, &
+                 dusfcg_loc,  dvsfcg_loc,                            &
+                 du_ogwcol_loc, dv_ogwcol_loc, du_oblcol_loc, dv_oblcol_loc, &
+                 du_osscol_loc, dv_osscol_loc, du_ofdcol_loc, dv_ofdcol_loc, &
+                 slmsk_loc,br1_loc,hpbl_loc,vtype,                   &
+                 con_g,con_cp,con_rd,con_rv,                         &
                  con_fv, con_pi, lonr,                               &
-                 cdmbgwd(1:2),alpha_fd,me,master,                    &
-                 lprnt,ipr,rdxzb,dx,gwd_opt,  &
+                 cdmbgwd_loc(1:2),alpha_fd_loc,me,master,            &
+                 lprnt,ipr,rdxzb_loc,dx_loc,gwd_opt,                 &
                  do_gsl_drag_ls_bl,do_gsl_drag_ss,do_gsl_drag_tofd,  &
-                 psl_gwd_dx_factor, flag_for_gwd_generic_tend,       &
-                 dtend, dtidx, index_of_process_orographic_gwd,      &
+                 psl_gwd_dx_factor_loc, flag_for_gwd_generic_tend,   &
+                 dtend_loc, dtidx, index_of_process_orographic_gwd,  &
                  index_of_temperature, index_of_x_wind,              &
                  index_of_y_wind, ldiag3d, ldiag_ugwp,               &
-                 ugwp_seq_update, spp_wts_gwd, spp_gwd, errmsg, errflg)
+                 ugwp_seq_update, spp_wts_gwd_loc, spp_gwd, errmsg, errflg)
      else
-       call drag_suite_run(im, levs, Pdvdt, Pdudt, Pdtdt, dqdt_gw,   &
-                 ugrs,vgrs,tgrs,q1,                                  &
-                 kpbl,prsi,del,prsl,prslk,phii,phil,dtp,             &
-                 kdt,hprime,oc,oa4,clx,varss,oc1ss,oa4ss,            &
-                 ol4ss,theta,sigma,gamma,elvmax,                     &
-                 dudt_ogw, dvdt_ogw, dudt_obl, dvdt_obl,             &
-                 dudt_oss, dvdt_oss, dudt_ofd, dvdt_ofd,             &
-                 dusfcg,  dvsfcg,                                    &
-                 du_ogwcol, dv_ogwcol, du_oblcol, dv_oblcol,         &
-                 du_osscol, dv_osscol, du_ofdcol, dv_ofdcol,         &
-                 slmsk,br1,hpbl,con_g,con_cp,con_rd,con_rv,          &
+       call drag_suite_ugwpv1_run(im, levs, Pdvdt, Pdudt, Pdtdt, dqdt_gw_loc, &
+                 ugrs_loc,vgrs_loc,tgrs_loc,q1_loc,                  &
+                 kpbl,prsi_loc,del_loc,prsl_loc,prslk_loc,           &
+                 phii_loc,phil_loc,dtp_loc,                          &
+                 kdt,hprime_loc,oc_loc,oa4_loc,clx_loc,              &
+                 varss_loc,oc1ss_loc,oa4ss_loc,                      &
+                 ol4ss_loc,theta_loc,sigma_loc,gamma_loc,elvmax_loc, &
+                 dudt_ogw_loc, dvdt_ogw_loc, dudt_obl_loc, dvdt_obl_loc, &
+                 dudt_oss_loc, dvdt_oss_loc, dudt_ofd_loc, dvdt_ofd_loc, &
+                 dusfcg_loc,  dvsfcg_loc,                            &
+                 du_ogwcol_loc, dv_ogwcol_loc, du_oblcol_loc, dv_oblcol_loc, &
+                 du_osscol_loc, dv_osscol_loc, du_ofdcol_loc, dv_ofdcol_loc, &
+                 slmsk_loc,br1_loc,hpbl_loc,con_g,con_cp,con_rd,con_rv, &
                  con_fv, con_pi, lonr,                               &
-                 cdmbgwd(1:2),alpha_fd,me,master,                    &
-                 lprnt,ipr,rdxzb,dx,gwd_opt,  &
+                 cdmbgwd_loc(1:2),alpha_fd_loc,me,master,            &
+                 lprnt,ipr,rdxzb_loc,dx_loc,gwd_opt,                 &
                  do_gsl_drag_ls_bl,do_gsl_drag_ss,do_gsl_drag_tofd,  &
                  flag_for_gwd_generic_tend,                          &
-                 dtend, dtidx, index_of_process_orographic_gwd,      &
+                 dtend_loc, dtidx, index_of_process_orographic_gwd,  &
                  index_of_temperature, index_of_x_wind,              &
                  index_of_y_wind, ldiag3d, ldiag_ugwp,               &
-                 ugwp_seq_update, spp_wts_gwd, spp_gwd, errmsg, errflg)
+                 ugwp_seq_update, spp_wts_gwd_loc, spp_gwd, errmsg, errflg)
      endif
-     if(errflg/=0) return
+     if(errflg/=0) then
+        if (allocated(dtend_loc))       deallocate(dtend_loc)
+        if (allocated(spp_wts_gwd_loc)) deallocate(spp_wts_gwd_loc)
+        return
+     endif
 
 !
 ! dusfcg = du_ogwcol + du_oblcol + du_osscol + du_ofdcol
@@ -609,20 +718,24 @@ contains
 !      it starts to examines options for the Scale-Aware (SA)formulation of SSO-effects
 !      if ( me == master .and. kdt == 1) print *, ' bf orogw_v1 nmtvr=', nmtvr, ' do_tofd=', do_tofd
 
-         if (gwd_opt ==1 )sgh30 = 0.15*hprime       ! portion of the mesoscale SSO (~[oro_unfilt -oro_filt)
-         if (gwd_opt >1 ) sgh30 = varss             ! as in gsldrag: see drag_suite_run
+         if (gwd_opt ==1 )sgh30 = 0.15_wp*hprime_loc    ! portion of the mesoscale SSO (~[oro_unfilt -oro_filt)
+         if (gwd_opt >1 ) sgh30 = varss_loc             ! as in gsldrag: see drag_suite_run
 
-       call orogw_v1 (im, levs,  lonr,  me, master,dtp, kdt, do_tofd,     &
-                      xlat_d, sinlat, coslat, area,                       &
-                      cdmbgwd(1:2), hprime, oc, oa4, clx, theta,          &
-                      sigma, gamma, elvmax,  sgh30,  kpbl, ugrs,          &
-                      vgrs, tgrs, q1, prsi,del,prsl,prslk, zmeti, zmet,   &
-                      Pdvdt, Pdudt, Pdtdt, Pkdis, DUSFCg, DVSFCg,rdxzb,   &
-                      zobl, zlwb, zogw, tau_ogw, dudt_ogw, dvdt_ogw,      &
-                      dudt_obl, dvdt_obl,dudt_ofd, dvdt_ofd,              &
-                      du_ogwcol, dv_ogwcol, du_oblcol, dv_oblcol,         &
-                      du_ofdcol, dv_ofdcol, errmsg,errflg           )
-       if(errflg/=0) return
+       call orogw_v1 (im, levs,  lonr,  me, master,dtp_loc, kdt, do_tofd, &
+                      xlat_d_loc, sinlat_loc, coslat_loc, area_loc,       &
+                      cdmbgwd_loc(1:2), hprime_loc, oc_loc, oa4_loc, clx_loc, theta_loc, &
+                      sigma_loc, gamma_loc, elvmax_loc,  sgh30,  kpbl, ugrs_loc, &
+                      vgrs_loc, tgrs_loc, q1_loc, prsi_loc,del_loc,prsl_loc,prslk_loc, zmeti, zmet, &
+                      Pdvdt, Pdudt, Pdtdt, Pkdis, dusfcg_loc, dvsfcg_loc, rdxzb_loc, &
+                      zobl_loc, zlwb_loc, zogw_loc, tau_ogw_loc, dudt_ogw_loc, dvdt_ogw_loc, &
+                      dudt_obl_loc, dvdt_obl_loc, dudt_ofd_loc, dvdt_ofd_loc, &
+                      du_ogwcol_loc, dv_ogwcol_loc, du_oblcol_loc, dv_oblcol_loc, &
+                      du_ofdcol_loc, dv_ofdcol_loc, errmsg, errflg )
+       if(errflg/=0) then
+          if (allocated(dtend_loc))       deallocate(dtend_loc)
+          if (allocated(spp_wts_gwd_loc)) deallocate(spp_wts_gwd_loc)
+          return
+       endif
 
 !
 ! orogw_v1: dusfcg = du_ogwcol + du_oblcol  + du_ofdcol                           only 3 terms
@@ -644,15 +757,15 @@ contains
     if(ldiag3d .and. lssav .and. .not. flag_for_gwd_generic_tend) then
       idtend = dtidx(index_of_x_wind,index_of_process_orographic_gwd)
       if(idtend>=1) then
-         dtend(:,:,idtend) = dtend(:,:,idtend) + Pdudt*dtp
+         dtend_loc(:,:,idtend) = dtend_loc(:,:,idtend) + Pdudt*dtp_loc
       endif
       idtend = dtidx(index_of_y_wind,index_of_process_orographic_gwd)
       if(idtend>=1) then
-         dtend(:,:,idtend) = dtend(:,:,idtend) + Pdvdt*dtp
+         dtend_loc(:,:,idtend) = dtend_loc(:,:,idtend) + Pdvdt*dtp_loc
       endif
       idtend = dtidx(index_of_temperature,index_of_process_orographic_gwd)
       if(idtend>=1) then
-         dtend(:,:,idtend) = dtend(:,:,idtend) + Pdtdt*dtp
+         dtend_loc(:,:,idtend) = dtend_loc(:,:,idtend) + Pdtdt*dtp_loc
       endif
     endif
 !
@@ -669,7 +782,7 @@ contains
 ! 2020 updates of MERRA/GEOS tau_ngw for the C96-QBO FV3GFS-127L runs
 !==================================================================
 
-       call  slat_geos5_2020(im, tamp_mpa, xlat_d, tau_ngw)
+       call  slat_geos5_2020(im, tamp_mpa, xlat_d_loc, tau_ngw_loc)
 
        y4 = jdat(1); month = jdat(2); day = jdat(3)
 !
@@ -682,20 +795,20 @@ contains
        curdate = y4*1000 + ddd_ugwp
 
        call ngwflux_update(me, master, im, levs, kdt, ddd_ugwp,curdate, &
-         tau_amf, xlat_d, sinlat,coslat, rain, tau_ngw)
+         tau_amf_loc, xlat_d_loc, sinlat_loc, coslat_loc, rain_loc, tau_ngw_loc)
 
        if (do_ngw_ec) then
 
-       call ecmwf_ngw_emc(me, master, im,   levs,  kdt, dtp, dx,        &
-                      tau_ngw, tgrs, ugrs,  vgrs,   q1, prsl, prsi,     &
-                      zmet, zmeti,prslk,   xlat_d, sinlat, coslat,      &
-                      dudt_ngw, dvdt_ngw, dtdt_ngw, kdis_ngw, zngw)
+       call ecmwf_ngw_emc(me, master, im,   levs,  kdt, dtp_loc, dx_loc, &
+                      tau_ngw_loc, tgrs_loc, ugrs_loc,  vgrs_loc,   q1_loc, prsl_loc, prsi_loc, &
+                      zmet, zmeti, prslk_loc, xlat_d_loc, sinlat_loc, coslat_loc, &
+                      dudt_ngw_loc, dvdt_ngw_loc, dtdt_ngw_loc, kdis_ngw_loc, zngw_loc)
        else
 
-       call cires_ugwpv1_ngw_solv2(me, master, im, levs, kdt, dtp,      &
-                      tau_ngw, tgrs, ugrs,  vgrs,   q1, prsl, prsi,     &
-                      zmet, zmeti,prslk,   xlat_d, sinlat, coslat,      &
-                      dudt_ngw, dvdt_ngw, dtdt_ngw, kdis_ngw, zngw)
+       call cires_ugwpv1_ngw_solv2(me, master, im, levs, kdt, dtp_loc,   &
+                      tau_ngw_loc, tgrs_loc, ugrs_loc,  vgrs_loc,   q1_loc, prsl_loc, prsi_loc, &
+                      zmet, zmeti, prslk_loc, xlat_d_loc, sinlat_loc, coslat_loc, &
+                      dudt_ngw_loc, dvdt_ngw_loc, dtdt_ngw_loc, kdis_ngw_loc, zngw_loc)
 
       endif
 
@@ -719,15 +832,15 @@ contains
     if(ldiag3d .and. lssav .and. .not. flag_for_gwd_generic_tend) then
       idtend = dtidx(index_of_x_wind,index_of_process_nonorographic_gwd)
       if(idtend>=1) then
-         dtend(:,:,idtend) = dtend(:,:,idtend) + dudt_ngw(:,:)*dtp
+         dtend_loc(:,:,idtend) = dtend_loc(:,:,idtend) + dudt_ngw_loc(:,:)*dtp_loc
       endif
       idtend = dtidx(index_of_y_wind,index_of_process_nonorographic_gwd)
       if(idtend>=1) then
-         dtend(:,:,idtend) = dtend(:,:,idtend) + dvdt_ngw(:,:)*dtp
+         dtend_loc(:,:,idtend) = dtend_loc(:,:,idtend) + dvdt_ngw_loc(:,:)*dtp_loc
       endif
       idtend = dtidx(index_of_temperature,index_of_process_nonorographic_gwd)
       if(idtend>=1) then
-         dtend(:,:,idtend) = dtend(:,:,idtend) + dtdt_ngw(:,:)*dtp
+         dtend_loc(:,:,idtend) = dtend_loc(:,:,idtend) + dtdt_ngw_loc(:,:)*dtp_loc
       endif
     endif
 
@@ -735,16 +848,65 @@ contains
 ! get total sso-OGW + NGW
 !
      if (do_ugwp_v1) then
-        dudt_gw =  Pdudt + dudt_ngw
-        dvdt_gw =  Pdvdt + dvdt_ngw
-        dtdt_gw =  Pdtdt + dtdt_ngw
-        kdis_gw =  Pkdis + kdis_ngw
+        dudt_gw_loc =  Pdudt + dudt_ngw_loc
+        dvdt_gw_loc =  Pdvdt + dvdt_ngw_loc
+        dtdt_gw_loc =  Pdtdt + dtdt_ngw_loc
+        kdis_gw_loc =  Pkdis + kdis_ngw_loc
      else
-        dudt_gw =  Pdudt
-        dvdt_gw =  Pdvdt
-        dtdt_gw =  Pdtdt
-        kdis_gw =  Pkdis
+        dudt_gw_loc =  Pdudt
+        dvdt_gw_loc =  Pdvdt
+        dtdt_gw_loc =  Pdtdt
+        kdis_gw_loc =  Pkdis
      end if
+
+    ! Restore working-precision (_loc) outputs back to CCPP host kind_phys
+    du_ogwcol(1:im) = real(du_ogwcol_loc(1:im), kind=kind_phys)
+    dv_ogwcol(1:im) = real(dv_ogwcol_loc(1:im), kind=kind_phys)
+    du_oblcol(1:im) = real(du_oblcol_loc(1:im), kind=kind_phys)
+    dv_oblcol(1:im) = real(dv_oblcol_loc(1:im), kind=kind_phys)
+    du_osscol(1:im) = real(du_osscol_loc(1:im), kind=kind_phys)
+    dv_osscol(1:im) = real(dv_osscol_loc(1:im), kind=kind_phys)
+    du_ofdcol(1:im) = real(du_ofdcol_loc(1:im), kind=kind_phys)
+    dv_ofdcol(1:im) = real(dv_ofdcol_loc(1:im), kind=kind_phys)
+
+    dusfcg(1:im)    = real(dusfcg_loc(1:im),    kind=kind_phys)
+    dvsfcg(1:im)    = real(dvsfcg_loc(1:im),    kind=kind_phys)
+    tau_ogw(1:im)   = real(tau_ogw_loc(1:im),   kind=kind_phys)
+    tau_ngw(1:im)   = real(tau_ngw_loc(1:im),   kind=kind_phys)
+    tau_oss(1:im)   = real(tau_oss_loc(1:im),   kind=kind_phys)
+
+    dudt_ogw(1:im, 1:levs) = real(dudt_ogw_loc(1:im, 1:levs), kind=kind_phys)
+    dvdt_ogw(1:im, 1:levs) = real(dvdt_ogw_loc(1:im, 1:levs), kind=kind_phys)
+    dudt_obl(1:im, 1:levs) = real(dudt_obl_loc(1:im, 1:levs), kind=kind_phys)
+    dvdt_obl(1:im, 1:levs) = real(dvdt_obl_loc(1:im, 1:levs), kind=kind_phys)
+    dudt_oss(1:im, 1:levs) = real(dudt_oss_loc(1:im, 1:levs), kind=kind_phys)
+    dvdt_oss(1:im, 1:levs) = real(dvdt_oss_loc(1:im, 1:levs), kind=kind_phys)
+    dudt_ofd(1:im, 1:levs) = real(dudt_ofd_loc(1:im, 1:levs), kind=kind_phys)
+    dvdt_ofd(1:im, 1:levs) = real(dvdt_ofd_loc(1:im, 1:levs), kind=kind_phys)
+
+    dudt_ngw(1:im, 1:levs) = real(dudt_ngw_loc(1:im, 1:levs), kind=kind_phys)
+    dvdt_ngw(1:im, 1:levs) = real(dvdt_ngw_loc(1:im, 1:levs), kind=kind_phys)
+    dtdt_ngw(1:im, 1:levs) = real(dtdt_ngw_loc(1:im, 1:levs), kind=kind_phys)
+    kdis_ngw(1:im, 1:levs) = real(kdis_ngw_loc(1:im, 1:levs), kind=kind_phys)
+
+    dudt_gw(1:im, 1:levs)  = real(dudt_gw_loc(1:im, 1:levs),  kind=kind_phys)
+    dvdt_gw(1:im, 1:levs)  = real(dvdt_gw_loc(1:im, 1:levs),  kind=kind_phys)
+    dtdt_gw(1:im, 1:levs)  = real(dtdt_gw_loc(1:im, 1:levs),  kind=kind_phys)
+    kdis_gw(1:im, 1:levs)  = real(kdis_gw_loc(1:im, 1:levs),  kind=kind_phys)
+    dqdt_gw(1:im, 1:levs, 1:ntrac) = real(dqdt_gw_loc(1:im, 1:levs, 1:ntrac), kind=kind_phys)
+
+    zogw(1:im)      = real(zogw_loc(1:im),      kind=kind_phys)
+    zlwb(1:im)      = real(zlwb_loc(1:im),      kind=kind_phys)
+    zobl(1:im)      = real(zobl_loc(1:im),      kind=kind_phys)
+    zngw(1:im)      = real(zngw_loc(1:im),      kind=kind_phys)
+    rdxzb(1:im)     = real(rdxzb_loc(1:im),     kind=kind_phys)
+
+    if (present(dtend)) then
+       dtend = real(dtend_loc, kind=kind_phys)
+    endif
+
+    if (allocated(dtend_loc))       deallocate(dtend_loc)
+    if (allocated(spp_wts_gwd_loc)) deallocate(spp_wts_gwd_loc)
 
     end subroutine ugwpv1_gsldrag_run
 end module ugwpv1_gsldrag
