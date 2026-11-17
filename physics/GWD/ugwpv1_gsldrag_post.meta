@@ -1,7 +1,7 @@
 [ccpp-table-properties]
   name = ugwpv1_gsldrag_post
   type = scheme
-  dependencies = ../hooks/machine.F
+  dependencies = ../hooks/machine.F,mo_ugwpv1_kind.F90
 
 ########################################################################
 [ccpp-arg-table]
