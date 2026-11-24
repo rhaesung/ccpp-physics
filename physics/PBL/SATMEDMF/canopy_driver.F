@@ -78,7 +78,7 @@
      &     errmsg,errflg)
 
 !
-      use machine  , only : kind_phys
+      use ccpp_kinds, only : kind_phys
       use mo_pbl_kind, only : wp
       use funcphys , only : fpvs
 !

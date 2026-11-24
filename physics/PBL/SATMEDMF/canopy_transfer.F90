@@ -22,7 +22,7 @@
 !
 !=============================================================================
 
-   use machine , only : kind_phys
+   use ccpp_kinds, only : kind_phys
    use mo_pbl_kind, only : wp
 
    IMPLICIT NONE
@@ -111,7 +111,7 @@
 !
 !=============================================================================
 
-   use machine , only : kind_phys
+   use ccpp_kinds, only : kind_phys
    use mo_pbl_kind, only : wp
 
    IMPLICIT NONE

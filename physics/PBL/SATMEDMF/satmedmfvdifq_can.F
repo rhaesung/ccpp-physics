@@ -68,7 +68,7 @@
 !    &     naux2d,naux3d,aux2d,aux3d)
 
 !
-      use machine  , only : kind_phys
+      use ccpp_kinds, only : kind_phys
       use mo_pbl_kind, only : wp
       use funcphys , only : fpvs
       use mfpbltq_mod
